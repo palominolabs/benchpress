@@ -10,16 +10,13 @@ import com.netflix.curator.retry.RetryNTimes;
 import com.netflix.curator.utils.EnsurePath;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.config.ConfigModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-@Singleton
+/**
+ * If using CuratorModule, make sure to inject CuratorLifecycleHook and run CuratorLifecycleHook.start().
+ */
 public final class CuratorModule extends AbstractModule {
-    private final Logger logger = LoggerFactory.getLogger(CuratorModule.class);
-
-    private CuratorFramework curatorFramework;
 
     @Override
     protected void configure() {
@@ -27,14 +24,11 @@ public final class CuratorModule extends AbstractModule {
     }
 
     @Provides
+    @Singleton
     public CuratorFramework getCuratorFramework(ZookeeperConfig zookeeperConfig) {
-        doSetup(zookeeperConfig);
-        return curatorFramework;
-    }
 
-    private void doSetup(ZookeeperConfig zookeeperConfig) {
         try {
-            curatorFramework = CuratorFrameworkFactory.builder()
+            return CuratorFrameworkFactory.builder()
                 .connectionTimeoutMs(1000)
                 .retryPolicy(new RetryNTimes(10, 500))
                 .connectString(zookeeperConfig.getConnectionString())
@@ -42,13 +36,40 @@ public final class CuratorModule extends AbstractModule {
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
-        curatorFramework.start();
+    }
 
-        // Create our base path
-        try {
-            new EnsurePath(zookeeperConfig.getBasePath()).ensure(curatorFramework.getZookeeperClient());
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
+    @Provides
+    @Singleton
+    CuratorLifecycleHook getCuratorLifecycleHook(CuratorFramework curatorFramework, ZookeeperConfig zookeeperConfig) {
+        return new CuratorLifecycleHook(curatorFramework, zookeeperConfig);
+    }
+
+    /**
+     * Encapsulates Curator startup.
+     */
+    public static class CuratorLifecycleHook {
+
+        private final CuratorFramework curatorFramework;
+        private final ZookeeperConfig zookeeperConfig;
+
+        public CuratorLifecycleHook(CuratorFramework curatorFramework, ZookeeperConfig zookeeperConfig) {
+
+            this.curatorFramework = curatorFramework;
+            this.zookeeperConfig = zookeeperConfig;
+        }
+
+        /**
+         * Start up the curator instance
+         */
+        public void start() {
+            curatorFramework.start();
+
+            // Create our base path
+            try {
+                new EnsurePath(zookeeperConfig.getBasePath()).ensure(curatorFramework.getZookeeperClient());
+            } catch (Exception e) {
+                throw Throwables.propagate(e);
+            }
         }
     }
 }

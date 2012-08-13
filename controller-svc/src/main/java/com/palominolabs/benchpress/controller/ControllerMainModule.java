@@ -1,6 +1,7 @@
 package com.palominolabs.benchpress.controller;
 
 import com.google.inject.AbstractModule;
+import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
@@ -33,5 +34,7 @@ public final class ControllerMainModule extends AbstractModule {
         install(new IpcJsonModule());
 
         ConfigModule.bindConfigBean(binder(), ControllerConfig.class);
+
+        install(new ZKServerModule());
     }
 }

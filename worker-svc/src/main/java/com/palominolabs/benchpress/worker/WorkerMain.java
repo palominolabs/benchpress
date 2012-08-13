@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.http.server.HttpServer;
 import com.palominolabs.http.server.HttpServerConfig;
 import com.palominolabs.http.server.HttpServerFactory;
@@ -21,12 +22,15 @@ final class WorkerMain {
     private final HttpServerFactory httpServerFactory;
     private final WorkerAdvertiser workerAdvertiser;
     private final WorkerConfig workerConfig;
+    private final CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
 
     @Inject
-    WorkerMain(HttpServerFactory httpServerFactory, WorkerAdvertiser workerAdvertiser, WorkerConfig workerConfig) {
+    WorkerMain(HttpServerFactory httpServerFactory, WorkerAdvertiser workerAdvertiser, WorkerConfig workerConfig,
+        CuratorModule.CuratorLifecycleHook curatorLifecycleHook) {
         this.httpServerFactory = httpServerFactory;
         this.workerAdvertiser = workerAdvertiser;
         this.workerConfig = workerConfig;
+        this.curatorLifecycleHook = curatorLifecycleHook;
     }
 
     public static void main(String[] args) throws Exception {
@@ -40,6 +44,8 @@ final class WorkerMain {
     }
 
     void go() throws Exception {
+        curatorLifecycleHook.start();
+
         HttpServerConfig config = new HttpServerConfig();
         config.setHttpListenHost(workerConfig.getHttpServerIp());
         config.setHttpListenPort(workerConfig.getHttpServerPort());

@@ -127,7 +127,7 @@ public final class PartitionRunner {
         return taskFactoryFactory.getTaskFactory(c);
     }
 
-    private class ThreadExceptionWatcherRunnable implements Runnable {
+    private static class ThreadExceptionWatcherRunnable implements Runnable {
 
         private final CompletionService<Void> completionService;
 

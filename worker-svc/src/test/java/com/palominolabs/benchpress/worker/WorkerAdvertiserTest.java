@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.io.Closeables;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.retry.RetryNTimes;
 import com.netflix.curator.test.TestingServer;
 import com.netflix.curator.x.discovery.ServiceDiscovery;
 import com.netflix.curator.x.discovery.ServiceDiscoveryBuilder;
@@ -34,10 +33,16 @@ import org.junit.Test;
 import java.util.Collection;
 
 public final class WorkerAdvertiserTest {
-    private TestingServer testingServer;
+    @Inject
     private WorkerAdvertiser workerAdvertiser;
-    private CuratorFramework curatorFramework;
+    @Inject
     private ZookeeperConfig zookeeperConfig;
+    @Inject
+    private CuratorFramework curatorFramework;
+    @Inject
+    private CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
+
+    private TestingServer testingServer;
     private ServiceDiscovery<WorkerMetadata> serviceDiscovery;
 
     @Before
@@ -70,15 +75,9 @@ public final class WorkerAdvertiserTest {
             }
         });
 
-        workerAdvertiser = injector.getInstance(WorkerAdvertiser.class);
-        zookeeperConfig = injector.getInstance(ZookeeperConfig.class);
+        injector.injectMembers(this);
 
-        curatorFramework = CuratorFrameworkFactory.builder()
-            .connectionTimeoutMs(1000)
-            .retryPolicy(new RetryNTimes(10, 500))
-            .connectString("localhost:" + testingServer.getPort())
-            .build();
-        curatorFramework.start();
+        curatorLifecycleHook.start();
 
         serviceDiscovery = ServiceDiscoveryBuilder.builder(WorkerMetadata.class)
             .basePath(zookeeperConfig.getBasePath())

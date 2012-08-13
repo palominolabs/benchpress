@@ -1,30 +1,41 @@
 # Using BenchPress
 
-## Prerequisites
-
-BenchPress requires ZooKeeper, so set up an instance.  The BenchPress controller
-will happily coexist with a ZooKeeper instance.
-
 ## Building BenchPress
 
-First, build the project from the root directory
+First, build the project from the root directory.
 
     mvn clean install
 
 Create a tarball for both the controller-svc & worker-svc by descending into
 the respective directories and running:
 
-    mvn assembly:single
+    mvn package assembly:single -DskipTests
 
-The resulting *-dist.tar.gz files are all you need to deploy BenchPress nodes.
+The resulting *-dist.tar.gz files in the respective `target` directories are all you need to deploy BenchPress nodes.
 
 ## Runing BenchPress
 
 BenchPress comes in two parts: the controller and one or more workers.  The two
-find each other through a common ZooKeeper instance.  You must provide the
-connection information for ZooKeeper by setting the ZOOKEEPER_CONNECTION_STRING
-environment variable.  Simply set that environment variable and then execute the
-run.sh shell script from the above tarball.
+find each other through a common ZooKeeper instance. For a simple setup where the
+controller and 1 worker live on the same box, you don't need to do anything since
+the controller will start up an embedded ZooKeeper server and the worker default
+settings assume the controller and ZooKeeper are on localhost.
+
+If you wish to use an external ZooKeeper, you must provide the connection information.
+
+    sh run.sh -Dbenchpress.zookeeper.client.connection-string=zkhost:zkport
+
+
+In that case, you should inform the controller to not start up an embedded ZooKeeper:
+
+    -Dbenchpress.controller.zookeeper.embedded-server.enable=false
+
+
+Setting system properties like those is also how you can set any of the other configurable system-level parameters in BenchPress. If you wanted to change the controller's HTTP server IP away from the default 127.0.0.1, you could use
+    -Dbenchpress.controller.http-server.ip=1.2.3.4
+when starting the controller. Similarly, you can change the worker's http server ip with
+    -Dbenchpress.worker.http-server.ip=1.2.3.4
+Look in ControllerConfig and WorkerConfig to see more. (Anything with methods annotated with @Config is settable via system properties.)
 
 ## Submitting a job
 
@@ -63,6 +74,7 @@ controller as specified in the job config.
 # Futher notes
 
 ## Whirr
+```
 export AWS_ACCOUNT_ID=
 export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
@@ -72,9 +84,9 @@ export EC2_CERT=
 benchpress $ ssh-keygen -t rsa -P '' -f whirr-benchpress-rsa-key
 benchpress $ whirr launch-cluster --config whirr-benchpress-hbase-0.90.properties
 benchpress $ grep -m1 -A1 "hbase\.zookeeper\.quorum" whirr.log|grep value|sed -e 's#.*<value>\(.*\)</value>#\1#'
+```
 
 # Administrivia
 BenchPress is a project of Palomino Labs.  Find the repository on GitHub
 (https://github.com/palominolabs/benchpress) and see the Palomino Labs blog
 (http://blog.palominolabs.com) for articles about its development.
-
