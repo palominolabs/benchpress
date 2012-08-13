@@ -29,7 +29,7 @@
 
     <dep.metrics>2.1.2</dep.metrics>
 
-    <dep.curator>1.1.9</dep.curator>
+    <dep.curator>1.1.16</dep.curator>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
