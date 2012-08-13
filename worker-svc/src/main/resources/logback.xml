@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2012 Palomino Labs, Inc.
+  -->
+
+<configuration>
+    <jmxConfigurator/>
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+    <!--<statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>-->
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%thread] %-5level MDC[%X] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.http" level="info"/>
+    <logger name="org.apache.hadoop" level="info"/>
+
+    <logger name="org.apache.zookeeper" level="info"/>
+
+    <logger name="org.eclipse.jetty.server" level="info"/>
+    <logger name="org.eclipse.jetty.servlet" level="info"/>
+
+    <logger name="com.ning.http.client" level="warn"/>
+
+    <root>
+        <level>DEBUG</level>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
