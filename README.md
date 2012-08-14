@@ -32,9 +32,13 @@ In that case, you should inform the controller to not start up an embedded ZooKe
 
 
 Setting system properties like those is also how you can set any of the other configurable system-level parameters in BenchPress. If you wanted to change the controller's HTTP server IP away from the default 127.0.0.1, you could use
+
     -Dbenchpress.controller.http-server.ip=1.2.3.4
+
 when starting the controller. Similarly, you can change the worker's http server ip with
+
     -Dbenchpress.worker.http-server.ip=1.2.3.4
+
 Look in ControllerConfig and WorkerConfig to see more. (Anything with methods annotated with @Config is settable via system properties.)
 
 ## Submitting a job
@@ -50,8 +54,8 @@ The controller will return a simple HTML page listing the active jobs if you GET
 
 ## Controller
 
-The controller starts in com.palominolabs.benchpress.controller.ControllerMain
-which is in the controller-svc package.  It starts up an HTTP server, which is
+The controller starts in `com.palominolabs.benchpress.controller.ControllerMain`
+which is in the `controller-svc` module.  It starts up an HTTP server, which is
 what a user interacts with, and a JobFarmer, which is responsible for starting
 and managing jobs.  When you submit a job to the controller, the JobFarmer uses
 the Netflix Curator Service Discovery implementation to find available workers
@@ -61,8 +65,8 @@ it to the workers. The JobFarmer handles status updates from the workers
 will provide those reports via getJob().
 
 ## Worker
-The worker starts in com.palominolabs.benchpress.worker.WorkerMain which is
-in the worker-svc package.  It starts up an HTTP server for communicating with
+The worker starts in `com.palominolabs.benchpress.worker.WorkerMain` which is
+in the `worker-svc` module.  It starts up an HTTP server for communicating with
 the controller and a WorkerAdvertiser to register itself as available in
 ZooKeeper.  A controller wishing to utilize the worker first hits
 the /acquireLock/{controllerId} endpoint (see ControlResource) to lock the
