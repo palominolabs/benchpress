@@ -43,7 +43,7 @@ Look in `ControllerConfig` and `WorkerConfig` to see more. (Anything with method
 
 ## Submitting a job
 
-Jobs are submitted to the controller by PUTing to /job:
+Jobs are submitted to the controller by PUTing to `/job`:
 
     curl -X PUT -H "Content-Type: application/json" -d @test-jobs/hbase.json http://controller:7000/job
 
@@ -57,7 +57,7 @@ The controller will return a simple HTML page listing the active jobs if you `GE
 The controller starts in `com.palominolabs.benchpress.controller.ControllerMain`
 which is in the `controller-svc` module.  It starts up an HTTP server, which is
 what a user interacts with, and a `JobFarmer`, which is responsible for starting
-and managing jobs.  When you submit a job to the controller, the JobFarmer uses
+and managing jobs.  When you submit a job to the controller, the `JobFarmer` uses
 the Netflix Curator Service Discovery implementation to find available workers
 in ZooKeeper (see `JobFarmer.submitJob()`), partitions the job, and distributes
 it to the workers. The `JobFarmer` handles status updates from the workers
