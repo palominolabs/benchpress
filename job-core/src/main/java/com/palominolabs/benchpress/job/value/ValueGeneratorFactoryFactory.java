@@ -3,6 +3,7 @@ package com.palominolabs.benchpress.job.value;
 import com.palominolabs.benchpress.job.id.Id;
 import org.apache.commons.configuration.Configuration;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -13,5 +14,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface ValueGeneratorFactoryFactory {
 
+    @Nonnull
     ValueGeneratorFactory getFactory(Configuration c);
 }

@@ -11,7 +11,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -34,15 +33,14 @@ final class HbaseTaskFactory implements TaskFactory {
      */
     private Long writeBufferSize;
 
-    public HbaseTaskFactory(String zkQuorum, int port, String table, String columnFamily, String qualifier,
-        boolean autoFlush, @Nullable Long writeBufferSize) {
-        this.table = table;
-        this.port = port;
-        this.zkQuorum = zkQuorum;
-        this.columnFamily = columnFamily;
-        this.qualifier = qualifier;
-        this.autoFlush = autoFlush;
-        this.writeBufferSize = writeBufferSize;
+    public HbaseTaskFactory(HbaseTaskFactoryFactory.HBaseConfig config) {
+        this.table = config.table;
+        this.port = config.zkPort;
+        this.zkQuorum = config.zkQuorum;
+        this.columnFamily = config.columnFamily;
+        this.qualifier = config.qualifier;
+        this.autoFlush = config.autoFlush;
+        this.writeBufferSize = config.writeBufferSize;
     }
 
     @Override

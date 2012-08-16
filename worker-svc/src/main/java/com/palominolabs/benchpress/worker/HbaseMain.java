@@ -95,9 +95,9 @@ final class HbaseMain {
 //        HbaseAsyncTaskFactory hbaseAsyncTaskFactory = new HbaseAsyncTaskFactory("127.0.0.1:2181", tbl, columnFamily,
 //            qualifier);    }
 
-        TaskFactory taskFactory = registry.get("CASSANDRA").getTaskFactory(new MapConfiguration(cassandraConfig));
-
-        go(taskFactory);
+//        TaskFactory taskFactory = registry.get("CASSANDRA").getTaskFactory(new MapConfiguration(cassandraConfig));
+//
+//        go(taskFactory);
     }
 
     private void go(TaskFactory taskFactory) throws IOException {

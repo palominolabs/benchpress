@@ -22,11 +22,11 @@ final class MongoDbTaskFactory implements TaskFactory {
     private String collectionName;
     private Mongo mongo;
 
-    public MongoDbTaskFactory(String hostname, int port, String dbName, String collectionName) {
-        this.hostname = hostname;
-        this.port = port;
-        this.dbName = dbName;
-        this.collectionName = collectionName;
+    public MongoDbTaskFactory(MongoDbTaskFactoryFactory.MongoDbConfig config) {
+        this.hostname = config.hostname;
+        this.port = config.port;
+        this.dbName = config.dbName;
+        this.collectionName = config.collectionName;
     }
 
     @Override

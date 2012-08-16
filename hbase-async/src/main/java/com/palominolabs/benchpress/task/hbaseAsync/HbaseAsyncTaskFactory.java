@@ -28,11 +28,11 @@ final class HbaseAsyncTaskFactory implements TaskFactory {
     private final String qualifier;
     private HBaseClient client;
 
-    public HbaseAsyncTaskFactory(String zkQuorum, String table, String columnFamily, String qualifier) {
-        this.columnFamily = columnFamily;
-        this.zkQuorum = zkQuorum;
-        this.table = table;
-        this.qualifier = qualifier;
+    HbaseAsyncTaskFactory(HbaseAsyncTaskFactoryFactory.HBaseAsyncConfig config) {
+        this.columnFamily = config.columnFamily;
+        this.zkQuorum = config.zkQuorum;
+        this.table = config.table;
+        this.qualifier = config.qualifier;
     }
 
     @Override

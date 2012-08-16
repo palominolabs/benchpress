@@ -2,19 +2,16 @@ package com.palominolabs.benchpress.job.json;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.palominolabs.benchpress.job.task.TaskOperation;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.MapConfiguration;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.Map;
 
 @Immutable
 public final class Task {
     private final String taskType;
 
-    private final Map<String, Object> config;
+    private final JsonNode configNode;
 
     private final TaskOperation taskOperation;
 
@@ -32,7 +29,7 @@ public final class Task {
 
     @JsonCreator
     public Task(@JsonProperty("type") String taskType,
-                @JsonProperty("config") Map<String, Object> config,
+                @JsonProperty("config")JsonNode configNode,
                 @JsonProperty("op") TaskOperation taskOperation,
                 @JsonProperty("threads") int numThreads,
                 @JsonProperty("quanta") int numQuanta,
@@ -42,7 +39,7 @@ public final class Task {
                 @JsonProperty("progressReportInterval") int progressReportInterval) {
         this.taskType = taskType;
         this.progressReportInterval = progressReportInterval;
-        this.config = new ImmutableMap.Builder<String, Object>().putAll(config).build();
+        this.configNode = configNode;
         this.taskOperation = taskOperation;
         this.numThreads = numThreads;
         this.numQuanta = numQuanta;
@@ -56,12 +53,12 @@ public final class Task {
      * @param numQuanta new numQuanta
      */
     public Task(Task task, int numQuanta) {
-        this(task.taskType, task.config, task.taskOperation, task.numThreads,
+        this(task.taskType, task.configNode, task.taskOperation, task.numThreads,
             numQuanta, task.batchSize, task.keyGen, task.valueGen, task.progressReportInterval);
     }
 
-    public Configuration getConfig() {
-        return new MapConfiguration(this.config);
+    public JsonNode getConfigNode() {
+        return this.configNode;
     }
 
     @JsonProperty("batchSize")
@@ -70,8 +67,8 @@ public final class Task {
     }
 
     @JsonProperty("config")
-    public Map<String, Object> getJsonConfig() {
-        return this.config;
+    public JsonNode getJsonConfig() {
+        return this.configNode;
     }
 
     @JsonProperty("keyGen")

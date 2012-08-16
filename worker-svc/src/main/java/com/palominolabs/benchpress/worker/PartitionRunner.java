@@ -1,7 +1,10 @@
 package com.palominolabs.benchpress.worker;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.job.json.Partition;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactory;
@@ -13,12 +16,11 @@ import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.task.TaskFactoryFactoryRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
-import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
@@ -59,16 +61,19 @@ public final class PartitionRunner {
     private final KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry;
     private final ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry;
 
+    private final ObjectReader objectReader;
+
     @Inject
     PartitionRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry,
         TaskFactoryFactoryRegistry taskFactoryFactoryRegistry,
         KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
+        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, @Ipc ObjectReader objectReader) {
         this.taskProgressClient = taskProgressClient;
         this.jobRegistry = jobRegistry;
         this.taskFactoryFactoryRegistry = taskFactoryFactoryRegistry;
         this.keyGeneratorFactoryFactoryRegistry = keyGeneratorFactoryFactoryRegistry;
         this.valueGeneratorFactoryFactoryRegistry = valueGeneratorFactoryFactoryRegistry;
+        this.objectReader = objectReader;
 
         // TODO lifecycle would be nice for this
         completionService.submit(new ThreadExceptionWatcherRunnable(completionService), null);
@@ -76,12 +81,12 @@ public final class PartitionRunner {
         logger.info("Worker ID is " + workerId);
     }
 
-    public boolean runPartition(Partition partition) {
-        TaskFactory tf = getTaskFactory(partition);
-
-        if (tf == null) {
-            logger.warn("Couldn't find task factory for <" + partition.getTask().getTaskType() + "> of partition <" +
-                partition.getPartitionId() + "> in job <" + partition.getJobId() + ">");
+    public boolean runPartition(Partition partition)  {
+        TaskFactory tf;
+        try {
+            tf = getTaskFactory(partition);
+        } catch (IOException e) {
+            logger.warn("Couldn't create task factory", e);
             return false;
         }
 
@@ -118,13 +123,14 @@ public final class PartitionRunner {
         return true;
     }
 
-    @Nullable
-    private TaskFactory getTaskFactory(Partition partition) {
+    @Nonnull
+    private TaskFactory getTaskFactory(Partition partition) throws IOException {
         Task t = partition.getTask();
-        Configuration c = t.getConfig();
+        JsonNode c = t.getConfigNode();
 
         TaskFactoryFactory taskFactoryFactory = taskFactoryFactoryRegistry.get(t.getTaskType());
-        return taskFactoryFactory.getTaskFactory(c);
+
+        return taskFactoryFactory.getTaskFactory(objectReader, t.getConfigNode());
     }
 
     private static class ThreadExceptionWatcherRunnable implements Runnable {

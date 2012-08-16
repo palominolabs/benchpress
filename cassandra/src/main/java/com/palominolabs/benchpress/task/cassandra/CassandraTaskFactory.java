@@ -33,14 +33,13 @@ final class CassandraTaskFactory implements TaskFactory {
     private final String colName;
     private AstyanaxContext<Keyspace> context;
 
-    public CassandraTaskFactory(String clusterName, String keyspaceName, int port, String seeds,
-        String columnFamilyName, String colName) {
-        this.clusterName = clusterName;
-        this.keyspaceName = keyspaceName;
-        this.port = port;
-        this.seeds = seeds;
-        this.columnFamilyName = columnFamilyName;
-        this.colName = colName;
+    CassandraTaskFactory(CassandraTaskFactoryFactory.CassandraConfig config) {
+        this.clusterName = config.cluster;
+        this.keyspaceName = config.keyspace;
+        this.port = config.port;
+        this.seeds = config.seeds;
+        this.columnFamilyName = config.columnFamily;
+        this.colName = config.column;
     }
 
     @Override

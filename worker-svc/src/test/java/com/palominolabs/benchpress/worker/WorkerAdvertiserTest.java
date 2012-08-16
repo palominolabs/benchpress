@@ -14,6 +14,7 @@ import com.netflix.curator.x.discovery.ServiceInstance;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
+import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
@@ -72,6 +73,7 @@ public final class WorkerAdvertiserTest {
                 install(new TaskFactoryFactoryRegistryModule());
                 install(new ValueGeneratorFactoryFactoryRegistryModule());
                 install(new KeyGeneratorFactoryFactoryRegistryModule());
+                install(new IpcJsonModule());
             }
         });
 
