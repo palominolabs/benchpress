@@ -2,26 +2,26 @@
     "task": {
         "type": "HBASE",
         "config": {
+            "op": "WRITE",
+            "threads": 2,
+            "quanta": 100000,
+            "batchSize": 1000,
+            "keyGen": {
+                "type": "WORKER_ID_THREAD_ID_COUNTER"
+            },
+            "valueGen": {
+                "type": "ZERO_BYTE_ARRAY",
+                "config": {
+                    "size": 10000
+                }
+            },
+            "progressReportInterval": 10000,
             "zkQuorum": "localhost",
             "zkPort": 2181,
             "table": "foo",
             "columnFamily": "cf",
             "qualifier": "",
             "autoFlush": false
-        },
-        "op": "WRITE",
-        "threads": 2,
-        "quanta": 100000,
-        "batchSize": 1000,
-        "keyGen": {
-            "type": "WORKER_ID_THREAD_ID_COUNTER"
-        },
-        "valueGen": {
-            "type": "ZERO_BYTE_ARRAY",
-            "config": {
-                "size": 10000
-            }
-        },
-        "progressReportInterval": 10000
+        }
     }
 }

@@ -20,6 +20,7 @@ public final class PartitionStatus {
     @JsonIgnore
     private final WorkerMetadata workerMetadata;
 
+    // TODO mvoe to getter
     @JsonProperty("progressReports")
     private final SortedMap<Integer, TaskProgressReport> progressReports = new ConcurrentSkipListMap<Integer, TaskProgressReport>();
 
@@ -40,15 +41,6 @@ public final class PartitionStatus {
         progressReports.put(taskProgressReport.getReportSequenceNum(), taskProgressReport);
     }
 
-    public int computeQuantaCompleted() {
-        int quantaCompleted = 0;
-        for (Integer sequenceNum : progressReports.keySet()) {
-            quantaCompleted += progressReports.get(sequenceNum).getNumQuanta();
-        }
-
-        return quantaCompleted;
-    }
-
     public Duration computeTotalDuration() {
         Duration totalDuration = new Duration(0);
         for (Integer sequenceNum : progressReports.keySet()) {
@@ -58,7 +50,4 @@ public final class PartitionStatus {
         return totalDuration;
     }
 
-    public SortedMap<Integer, TaskProgressReport> getProgressReports() {
-        return progressReports;
-    }
 }

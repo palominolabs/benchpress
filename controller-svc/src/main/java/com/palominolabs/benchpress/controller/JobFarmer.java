@@ -1,12 +1,17 @@
 package com.palominolabs.benchpress.controller;
 
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.netflix.curator.x.discovery.ServiceInstance;
+import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.job.JobStatus;
 import com.palominolabs.benchpress.job.PartitionStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Partition;
+import com.palominolabs.benchpress.job.task.TaskPartitioner;
+import com.palominolabs.benchpress.job.task.TaskPartitionerRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
 import com.palominolabs.benchpress.task.reporting.TaskProgressReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
@@ -18,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,6 +44,12 @@ public final class JobFarmer {
 
     private final UUID controllerId = UUID.randomUUID();
     private final Map<UUID, JobStatus> jobs = new HashMap<UUID, JobStatus>();
+
+    private final TaskPartitionerRegistry taskPartitionerRegistry;
+
+    private final ObjectReader objectReader;
+    private final ObjectWriter objectWriter;
+
     // todo make final
     private String httpListenHost;
     private int httpListenPort;
@@ -46,9 +58,14 @@ public final class JobFarmer {
     private static final String FINISHED_PATH = REPORT_PATH + "/finished";
 
     @Inject
-    JobFarmer(WorkerFinder workerFinder, WorkerControlFactory workerControlFactory) {
+    JobFarmer(WorkerFinder workerFinder, WorkerControlFactory workerControlFactory,
+        TaskPartitionerRegistry taskPartitionerRegistry, @Ipc ObjectReader objectReader,
+        @Ipc ObjectWriter objectWriter) {
         this.workerFinder = workerFinder;
         this.workerControlFactory = workerControlFactory;
+        this.taskPartitionerRegistry = taskPartitionerRegistry;
+        this.objectReader = objectReader;
+        this.objectWriter = objectWriter;
     }
 
     /**
@@ -78,7 +95,18 @@ public final class JobFarmer {
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No unlocked workers found").build();
         }
 
-        List<Partition> partitions = job.partition(lockedWorkers.size(), getProgressUrl(job.getJobId()), getFinishedUrl(job.getJobId()));
+        TaskPartitioner taskPartitioner = taskPartitionerRegistry.get(job.getTask().getTaskType());
+
+        List<Partition> partitions;
+        try {
+            partitions = taskPartitioner
+                .partition(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
+                    getFinishedUrl(job.getJobId()), objectReader, job.getTask().getConfigNode(), objectWriter);
+        } catch (IOException e) {
+            logger.warn("Failed to partition job", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+
         TandemIterator titerator = new TandemIterator(partitions.iterator(), lockedWorkers.iterator());
 
         // Submit the partition to the worker
@@ -117,7 +145,7 @@ public final class JobFarmer {
     /**
      * Aggregate a worker's results about a partition.
      *
-     * @param jobId The jobId that this taskProgressReport is for
+     * @param jobId              The jobId that this taskProgressReport is for
      * @param taskProgressReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
@@ -131,7 +159,8 @@ public final class JobFarmer {
         PartitionStatus partitionStatus = jobStatus.getPartitionStatus(taskProgressReport.getPartitionId());
         partitionStatus.addProgressReport(taskProgressReport);
 
-        logger.info("Progress for partition <" + taskProgressReport.getPartitionId() + ">: " + taskProgressReport.toString());
+        logger.info(
+            "Progress for partition <" + taskProgressReport.getPartitionId() + ">: " + taskProgressReport.toString());
 
         return Response.status(Response.Status.ACCEPTED).build();
     }
@@ -139,7 +168,7 @@ public final class JobFarmer {
     /**
      * Handle a completed partition
      *
-     * @param jobId The jobId that this taskProgressReport is for
+     * @param jobId                       The jobId that this taskProgressReport is for
      * @param taskPartitionFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
@@ -156,15 +185,11 @@ public final class JobFarmer {
         WorkerControl workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
         workerControl.releaseLock(controllerId);
 
-        if (!(partitionStatus.computeQuantaCompleted() == partitionStatus.getPartition().getTask().getNumQuanta())) {
-            logger.warn("Worker <" + workerControl.getMetadata().getWorkerId() + "> gave TaskPartitionFinishedReport but quanta don't add up");
-        } else {
-            Duration totalDuration = new Duration(0);
-            for (Integer partitionId : jobStatus.getPartitionStatuses().keySet()) {
-                totalDuration = totalDuration.plus(jobStatus.getPartitionStatus(partitionId).computeTotalDuration());
-            }
-            jobStatus.setFinalDuration(totalDuration);
+        Duration totalDuration = new Duration(0);
+        for (Integer partitionId : jobStatus.getPartitionStatuses().keySet()) {
+            totalDuration = totalDuration.plus(jobStatus.getPartitionStatus(partitionId).computeTotalDuration());
         }
+        jobStatus.setFinalDuration(totalDuration);
 
         return Response.status(Response.Status.ACCEPTED).build();
     }

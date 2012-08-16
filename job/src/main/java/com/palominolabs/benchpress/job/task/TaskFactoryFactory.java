@@ -8,6 +8,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 
 /**
+ * Responsible for extracting task-type-specific configuration and creating a usable TaskFactory.
+ *
  * Implementations MUST be annotated with {@link Id} to be usable from a json job spec.
  */
 @ThreadSafe

@@ -21,7 +21,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>job-core</artifactId>
+      <artifactId>job</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

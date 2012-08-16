@@ -2,6 +2,7 @@ package com.palominolabs.benchpress.task.hbaseAsync;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.palominolabs.benchpress.job.base.task.TaskFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class HbaseAsyncTaskFactory implements TaskFactory {
+final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(HbaseAsyncTaskFactory.class);
 
@@ -28,18 +29,21 @@ final class HbaseAsyncTaskFactory implements TaskFactory {
     private final String qualifier;
     private HBaseClient client;
 
-    HbaseAsyncTaskFactory(HbaseAsyncTaskFactoryFactory.HBaseAsyncConfig config) {
-        this.columnFamily = config.columnFamily;
-        this.zkQuorum = config.zkQuorum;
-        this.table = config.table;
-        this.qualifier = config.qualifier;
+    HbaseAsyncTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
+        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,
+        String columnFamily, String zkQuorum,
+        String table, String qualifier) {
+        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
+            progressReportInterval);
+        this.columnFamily = columnFamily;
+        this.zkQuorum = zkQuorum;
+        this.table = table;
+        this.qualifier = qualifier;
     }
 
     @Override
-    public Collection<Runnable> getRunnables(KeyGeneratorFactory keyGeneratorFactory,
-        ValueGeneratorFactory valueGeneratorFactory, TaskOperation taskOperation, int numThreads, int numQuanta,
-        int batchSize, UUID workerId, int partitionId, TaskProgressClient taskProgressClient, UUID jobId,
-        int progressReportInterval, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient,
+        UUID jobId, AtomicInteger reportSequenceCounter) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         client = new HBaseClient(zkQuorum);

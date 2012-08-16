@@ -2,24 +2,24 @@
     "task": {
         "type": "MONGODB",
         "config": {
+            "op": "WRITE",
+            "threads": 2,
+            "quanta": 100000,
+            "batchSize": 1000,
+            "keyGen": {
+                "type": "WORKER_ID_THREAD_ID_COUNTER"
+            },
+            "valueGen": {
+                "type": "ZERO_BYTE_ARRAY",
+                "config": {
+                    "size": 10000
+                }
+            },
+            "progressReportInterval": 10000,
             "hostname": "127.0.0.1",
             "port": 27017,
             "dbName": "foo",
             "collectionName": "foo"
-        },
-        "op": "WRITE",
-        "threads": 2,
-        "quanta": 100000,
-        "batchSize": 1000,
-        "keyGen": {
-            "type": "WORKER_ID_THREAD_ID_COUNTER"
-        },
-        "valueGen": {
-            "type": "ZERO_BYTE_ARRAY",
-            "config": {
-                "size": 10000
-            }
-        },
-        "progressReportInterval": 10000
+        }
     }
 }

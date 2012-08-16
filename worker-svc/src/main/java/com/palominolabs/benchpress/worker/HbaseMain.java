@@ -11,7 +11,6 @@ import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.DefaultValueGeneratorFactoryFactoriesModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
@@ -27,12 +26,9 @@ import org.apache.commons.configuration.MapConfiguration;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.LogManager;
 
 /**
@@ -107,15 +103,15 @@ final class HbaseMain {
         ValueGeneratorFactory valueGenerator = valueGeneratorFactoryFactoryRegistry.get("ZERO_BYTE_ARRAY").getFactory(
             new MapConfiguration(valueConfig));
 
-        Collection<Runnable> runnables = taskFactory
-            .getRunnables(keyGenerator.getKeyGeneratorFactory(), valueGenerator, TaskOperation.WRITE, 1, 100, 10,
-                UUID.randomUUID(), 1,
-                taskProgressClient,
-                UUID.randomUUID(), 100, new AtomicInteger());
-
-        for (Runnable runnable : runnables) {
-            runnable.run();
-        }
+//        Collection<Runnable> runnables = taskFactory
+//            .getRunnables(keyGenerator.getKeyGeneratorFactory(), valueGenerator, TaskOperation.WRITE, 1, 100, 10,
+//                UUID.randomUUID(), 1,
+//                taskProgressClient,
+//                UUID.randomUUID(), 100, new AtomicInteger());
+//
+//        for (Runnable runnable : runnables) {
+//            runnable.run();
+//        }
 
         taskFactory.shutdown();
     }

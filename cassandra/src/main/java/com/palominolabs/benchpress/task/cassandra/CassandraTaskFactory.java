@@ -11,6 +11,7 @@ import com.netflix.astyanax.impl.AstyanaxConfigurationImpl;
 import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.serializers.BytesArraySerializer;
 import com.netflix.astyanax.thrift.ThriftFamilyFactory;
+import com.palominolabs.benchpress.job.base.task.TaskFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
@@ -23,7 +24,7 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class CassandraTaskFactory implements TaskFactory {
+final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory {
 
     private final String clusterName;
     private final String keyspaceName;
@@ -33,20 +34,21 @@ final class CassandraTaskFactory implements TaskFactory {
     private final String colName;
     private AstyanaxContext<Keyspace> context;
 
-    CassandraTaskFactory(CassandraTaskFactoryFactory.CassandraConfig config) {
-        this.clusterName = config.cluster;
-        this.keyspaceName = config.keyspace;
-        this.port = config.port;
-        this.seeds = config.seeds;
-        this.columnFamilyName = config.columnFamily;
-        this.colName = config.column;
+    CassandraTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
+        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,  String cluster, String keyspace,
+        int port, String seeds, String columnFamily, String column) {
+        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads, progressReportInterval);
+        this.clusterName = cluster;
+        this.keyspaceName = keyspace;
+        this.port = port;
+        this.seeds = seeds;
+        this.columnFamilyName = columnFamily;
+        this.colName = column;
     }
 
     @Override
-    public Collection<Runnable> getRunnables(KeyGeneratorFactory keyGeneratorFactory,
-        ValueGeneratorFactory valueGeneratorFactory, TaskOperation taskOperation, int numThreads, int numQuanta,
-        int batchSize, UUID workerId, int partitionId, TaskProgressClient taskProgressClient, UUID jobId,
-        int progressReportInterval, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient,
+        UUID jobId, AtomicInteger reportSequenceCounter) throws IOException {
 
         context = new AstyanaxContext.Builder().forCluster(clusterName)
             .forKeyspace(keyspaceName)

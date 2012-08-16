@@ -3,106 +3,38 @@ package com.palominolabs.benchpress.job.json;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.palominolabs.benchpress.job.task.TaskOperation;
+import com.palominolabs.benchpress.job.id.Id;
+import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
 
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
 public final class Task {
     private final String taskType;
 
     private final JsonNode configNode;
 
-    private final TaskOperation taskOperation;
-
-    private final int numThreads;
-
-    private final int numQuanta;
-
-    private final int batchSize;
-
-    private final KeyGen keyGen;
-
-    private final ValueGen valueGen;
-
-    private final int progressReportInterval;
-
     @JsonCreator
-    public Task(@JsonProperty("type") String taskType,
-                @JsonProperty("config")JsonNode configNode,
-                @JsonProperty("op") TaskOperation taskOperation,
-                @JsonProperty("threads") int numThreads,
-                @JsonProperty("quanta") int numQuanta,
-                @JsonProperty("batchSize") int batchSize,
-                @JsonProperty("keyGen") KeyGen keyGen,
-                @JsonProperty("valueGen") ValueGen valueGen,
-                @JsonProperty("progressReportInterval") int progressReportInterval) {
+    public Task(@JsonProperty("type") String taskType, @JsonProperty("config") JsonNode configNode) {
         this.taskType = taskType;
-        this.progressReportInterval = progressReportInterval;
         this.configNode = configNode;
-        this.taskOperation = taskOperation;
-        this.numThreads = numThreads;
-        this.numQuanta = numQuanta;
-        this.batchSize = batchSize;
-        this.keyGen = keyGen;
-        this.valueGen = valueGen;
     }
 
     /**
-     * @param task      base task
-     * @param numQuanta new numQuanta
+     * Don't mess with this JsonNode; just read from it.
+     *
+     * @return json node representing the config data. {@link TaskFactoryFactory} implementations should deserialize as
+     *         they see fit.
      */
-    public Task(Task task, int numQuanta) {
-        this(task.taskType, task.configNode, task.taskOperation, task.numThreads,
-            numQuanta, task.batchSize, task.keyGen, task.valueGen, task.progressReportInterval);
-    }
-
+    @JsonProperty("config")
     public JsonNode getConfigNode() {
         return this.configNode;
     }
 
-    @JsonProperty("batchSize")
-    public int getBatchSize() {
-        return batchSize;
-    }
-
-    @JsonProperty("config")
-    public JsonNode getJsonConfig() {
-        return this.configNode;
-    }
-
-    @JsonProperty("keyGen")
-    public KeyGen getKeyGen() {
-        return keyGen;
-    }
-
-    @JsonProperty("quanta")
-    public int getNumQuanta() {
-        return numQuanta;
-    }
-
-    @JsonProperty("threads")
-    public int getNumThreads() {
-        return numThreads;
-    }
-
-    @JsonProperty("op")
-    public TaskOperation getTaskOperation() {
-        return taskOperation;
-    }
-
+    /**
+     * Should match the {@link Id} annotation on a {@link TaskFactoryFactory}
+     *
+     * @return the task type
+     */
     @JsonProperty("type")
     public String getTaskType() {
         return taskType;
-    }
-
-    @JsonProperty("valueGen")
-    public ValueGen getValueGen() {
-        return valueGen;
-    }
-
-    @JsonProperty("progressReportInterval")
-    public int getProgressReportInterval() {
-        return progressReportInterval;
     }
 }

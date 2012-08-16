@@ -1,19 +1,14 @@
 package com.palominolabs.benchpress.worker;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.job.json.Partition;
 import com.palominolabs.benchpress.job.json.Task;
-import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactory;
-import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.registry.JobRegistry;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
-import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.task.TaskFactoryFactoryRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.slf4j.Logger;
@@ -58,21 +53,15 @@ public final class PartitionRunner {
     private final JobRegistry jobRegistry;
 
     private final TaskFactoryFactoryRegistry taskFactoryFactoryRegistry;
-    private final KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry;
-    private final ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry;
 
     private final ObjectReader objectReader;
 
     @Inject
     PartitionRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry,
-        TaskFactoryFactoryRegistry taskFactoryFactoryRegistry,
-        KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, @Ipc ObjectReader objectReader) {
+        TaskFactoryFactoryRegistry taskFactoryFactoryRegistry, @Ipc ObjectReader objectReader) {
         this.taskProgressClient = taskProgressClient;
         this.jobRegistry = jobRegistry;
         this.taskFactoryFactoryRegistry = taskFactoryFactoryRegistry;
-        this.keyGeneratorFactoryFactoryRegistry = keyGeneratorFactoryFactoryRegistry;
-        this.valueGeneratorFactoryFactoryRegistry = valueGeneratorFactoryFactoryRegistry;
         this.objectReader = objectReader;
 
         // TODO lifecycle would be nice for this
@@ -81,7 +70,7 @@ public final class PartitionRunner {
         logger.info("Worker ID is " + workerId);
     }
 
-    public boolean runPartition(Partition partition)  {
+    public boolean runPartition(Partition partition) {
         TaskFactory tf;
         try {
             tf = getTaskFactory(partition);
@@ -90,11 +79,6 @@ public final class PartitionRunner {
             return false;
         }
 
-        Task t = partition.getTask();
-        KeyGeneratorFactoryFactory kgf = keyGeneratorFactoryFactoryRegistry.get(t.getKeyGen().keyGenType);
-        ValueGeneratorFactory vgf =
-            valueGeneratorFactoryFactoryRegistry.get(t.getValueGen().getValueGenType())
-                .getFactory(t.getValueGen().getConfig());
         AtomicInteger reportSequenceCounter = new AtomicInteger();
 
         jobRegistry.storeJob(partition.getJobId(), partition.getProgressUrl(), partition.getFinishedUrl());
@@ -104,9 +88,9 @@ public final class PartitionRunner {
         Collection<Runnable> runnables;
         try {
             runnables =
-                tf.getRunnables(kgf.getKeyGeneratorFactory(), vgf, t.getTaskOperation(), t.getNumThreads(), t.getNumQuanta(), t.getBatchSize(),
+                tf.getRunnables(
                     workerId, partition.getPartitionId(), taskProgressClient, partition.getJobId(),
-                    t.getProgressReportInterval(), reportSequenceCounter);
+                    reportSequenceCounter);
         } catch (IOException e) {
             logger.warn("Couldn't make runnables", e);
             return false;
@@ -126,7 +110,6 @@ public final class PartitionRunner {
     @Nonnull
     private TaskFactory getTaskFactory(Partition partition) throws IOException {
         Task t = partition.getTask();
-        JsonNode c = t.getConfigNode();
 
         TaskFactoryFactory taskFactoryFactory = taskFactoryFactoryRegistry.get(t.getTaskType());
 
@@ -170,7 +153,7 @@ public final class PartitionRunner {
 
     private static class TaskThreadWatcher implements Runnable {
 
-        private static final Logger logger = LoggerFactory.getLogger(TaskThreadWatcher.class);
+        private static final Logger watcherLogger = LoggerFactory.getLogger(TaskThreadWatcher.class);
         private final Set<Future<Void>> futures;
         private final int partitionId;
         private final UUID jobId;
@@ -202,13 +185,13 @@ public final class PartitionRunner {
                         // wraps another CompletionService.
                         try {
                             f.get(1, TimeUnit.SECONDS);
-                            logger.info("Task thread completed ok");
+                            watcherLogger.info("Task thread completed ok");
                             i.remove();
                         } catch (InterruptedException e) {
-                            logger.info("Interrupted; exiting");
+                            watcherLogger.info("Interrupted; exiting");
                             return;
                         } catch (ExecutionException e) {
-                            logger.warn("Task thread execution failed", e);
+                            watcherLogger.warn("Task thread execution failed", e);
                             i.remove();
                         } catch (TimeoutException e) {
                             // no op, on to the next
@@ -219,7 +202,7 @@ public final class PartitionRunner {
                 taskProgressClient.reportFinished(jobId, partitionId, reportSequenceCounter.getAndIncrement());
                 jobRegistry.removeJob(jobId);
 
-                logger.info("All task threads finished");
+                watcherLogger.info("All task threads finished");
             } finally {
                 MDC.remove(JOB_ID);
             }

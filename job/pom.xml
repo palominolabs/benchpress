@@ -17,11 +17,15 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>job-core</artifactId>
+      <artifactId>worker-core</artifactId>
     </dependency>
     <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>worker-core</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>id-registry</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>task-reporting</artifactId>
     </dependency>
 
     <dependency>
@@ -52,6 +56,11 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
     </dependency>
   </dependencies>
 

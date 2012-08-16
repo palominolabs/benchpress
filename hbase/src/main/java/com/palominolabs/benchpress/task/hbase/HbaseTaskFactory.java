@@ -2,6 +2,7 @@ package com.palominolabs.benchpress.task.hbase;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.palominolabs.benchpress.job.base.task.TaskFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class HbaseTaskFactory implements TaskFactory {
+final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
 
     private final String zkQuorum;
     private final String columnFamily;
@@ -31,24 +32,26 @@ final class HbaseTaskFactory implements TaskFactory {
     /**
      * Only applicable if autoFlush is off.
      */
-    private Long writeBufferSize;
+    private final Long writeBufferSize;
 
-    public HbaseTaskFactory(HbaseTaskFactoryFactory.HBaseConfig config) {
-        this.table = config.table;
-        this.port = config.zkPort;
-        this.zkQuorum = config.zkQuorum;
-        this.columnFamily = config.columnFamily;
-        this.qualifier = config.qualifier;
-        this.autoFlush = config.autoFlush;
-        this.writeBufferSize = config.writeBufferSize;
+    HbaseTaskFactory(String table, int zkPort, String zkQuorum, String columnFamily, String qualifier,
+        boolean autoFlush, Long writeBufferSize, ValueGeneratorFactory valueGeneratorFactory,
+        KeyGeneratorFactory keyGeneratorFactory, TaskOperation taskOperation, int numThreads, int numQuanta,
+        int batchSize, int progressReportInterval) {
+        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
+            progressReportInterval);
+        this.table = table;
+        this.port = zkPort;
+        this.zkQuorum = zkQuorum;
+        this.columnFamily = columnFamily;
+        this.qualifier = qualifier;
+        this.autoFlush = autoFlush;
+        this.writeBufferSize = writeBufferSize;
     }
 
     @Override
-    public Collection<Runnable> getRunnables(KeyGeneratorFactory keyGeneratorFactory,
-        ValueGeneratorFactory valueGeneratorFactory, TaskOperation taskOperation, int numThreads, int numQuanta,
-        int batchSize, UUID workerId, int partitionId, TaskProgressClient taskProgressClient, UUID jobId,
-        int progressReportInterval, AtomicInteger reportSequenceCounter) throws IOException {
-
+    public Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient,
+        UUID jobId, AtomicInteger reportSequenceCounter) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         Configuration hBaseConfiguration = HBaseConfiguration.create();
@@ -58,15 +61,15 @@ final class HbaseTaskFactory implements TaskFactory {
         int quantaPerThread = numQuanta / numThreads;
 
         for (int i = 0; i < numThreads; i++) {
-            HTable table = new HTable(hBaseConfiguration, this.table);
-            table.setAutoFlush(autoFlush);
+            HTable hTable = new HTable(hBaseConfiguration, this.table);
+            hTable.setAutoFlush(autoFlush);
 
             if (writeBufferSize != null) {
-                table.setWriteBufferSize(writeBufferSize);
+                hTable.setWriteBufferSize(writeBufferSize);
             }
 
             runnables
-                .add(new HbaseRunnable(table, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
+                .add(new HbaseRunnable(hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
                     keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
                     taskProgressClient, reportSequenceCounter,
                     jobId, workerId, partitionId, quantaPerThread, batchSize, progressReportInterval

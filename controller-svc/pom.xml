@@ -33,6 +33,22 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>http-server</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>cassandra</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>hbase</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>hbase-async</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>mongodb</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.palominolabs</groupId>
