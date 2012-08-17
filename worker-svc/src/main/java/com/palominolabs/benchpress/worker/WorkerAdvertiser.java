@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
+// TODO re-advertise if connection breaks and comes back up
 @Singleton
 public final class WorkerAdvertiser {
     private static final Logger logger = LoggerFactory.getLogger(WorkerAdvertiser.class);
@@ -29,10 +30,12 @@ public final class WorkerAdvertiser {
     private int listenPort;
 
     @Inject
-    WorkerAdvertiser(CuratorFramework curatorFramework, ZookeeperConfig zookeeperConfig, InstanceSerializerFactory instanceSerializerFactory) {
+    WorkerAdvertiser(CuratorFramework curatorFramework, ZookeeperConfig zookeeperConfig,
+        InstanceSerializerFactory instanceSerializerFactory) {
         this.curatorFramework = curatorFramework;
         this.zookeeperConfig = zookeeperConfig;
-        this.jacksonInstanceSerializer = instanceSerializerFactory.getInstanceSerializer(new TypeReference<ServiceInstance<WorkerMetadata>>() {});
+        this.jacksonInstanceSerializer =
+            instanceSerializerFactory.getInstanceSerializer(new TypeReference<ServiceInstance<WorkerMetadata>>() {});
     }
 
     public void setListenAddress(String listenAddress) {
