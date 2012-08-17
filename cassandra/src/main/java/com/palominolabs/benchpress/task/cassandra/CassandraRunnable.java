@@ -6,7 +6,7 @@ import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
 import com.netflix.astyanax.model.ColumnFamily;
 import com.palominolabs.benchpress.job.key.KeyGenerator;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
-import com.palominolabs.benchpress.task.AbstractTaskRunnable;
+import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
 import java.io.IOException;

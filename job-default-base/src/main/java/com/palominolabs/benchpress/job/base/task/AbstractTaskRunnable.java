@@ -1,4 +1,4 @@
-package com.palominolabs.benchpress.task;
+package com.palominolabs.benchpress.job.base.task;
 
 import com.google.common.base.Charsets;
 import com.palominolabs.benchpress.job.key.KeyGenerator;

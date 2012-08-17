@@ -5,7 +5,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.palominolabs.benchpress.job.key.KeyGenerator;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
-import com.palominolabs.benchpress.task.AbstractTaskRunnable;
+import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
 import java.io.IOException;

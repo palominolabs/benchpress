@@ -41,7 +41,6 @@
     <module>zookeeper</module>
     <module>controller-svc</module>
     <module>hbase-async</module>
-    <module>task-shared</module>
     <module>task-reporting</module>
     <module>job-registry</module>
     <module>ipc</module>
@@ -82,11 +81,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>hbase-async</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>task-shared</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

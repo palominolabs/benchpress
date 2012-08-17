@@ -2,7 +2,7 @@ package com.palominolabs.benchpress.task.hbase;
 
 import com.palominolabs.benchpress.job.key.KeyGenerator;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
-import com.palominolabs.benchpress.task.AbstractTaskRunnable;
+import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;

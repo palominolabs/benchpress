@@ -2,7 +2,7 @@ package com.palominolabs.benchpress.task.hbaseAsync;
 
 import com.palominolabs.benchpress.job.key.KeyGenerator;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
-import com.palominolabs.benchpress.task.AbstractTaskRunnable;
+import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import com.stumbleupon.async.Deferred;
 import org.hbase.async.HBaseClient;
