@@ -35,9 +35,10 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
     private AstyanaxContext<Keyspace> context;
 
     CassandraTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
-        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,  String cluster, String keyspace,
-        int port, String seeds, String columnFamily, String column) {
-        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads, progressReportInterval);
+        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,
+        String cluster, String keyspace, int port, String seeds, String columnFamily, String column) {
+        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
+            progressReportInterval);
         this.clusterName = cluster;
         this.keyspaceName = keyspace;
         this.port = port;
@@ -47,8 +48,8 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
     }
 
     @Override
-    public Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient,
-        UUID jobId, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
+        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
 
         context = new AstyanaxContext.Builder().forCluster(clusterName)
             .forKeyspace(keyspaceName)

@@ -50,8 +50,8 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
     }
 
     @Override
-    public Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient,
-        UUID jobId, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
+        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         Configuration hBaseConfiguration = HBaseConfiguration.create();
@@ -69,11 +69,12 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
             }
 
             runnables
-                .add(new HbaseRunnable(hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
-                    keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
-                    taskProgressClient, reportSequenceCounter,
-                    jobId, workerId, partitionId, quantaPerThread, batchSize, progressReportInterval
-                ));
+                .add(
+                    new HbaseRunnable(hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
+                        keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
+                        taskProgressClient, reportSequenceCounter,
+                        jobId, workerId, partitionId, quantaPerThread, batchSize, progressReportInterval
+                    ));
         }
 
         return runnables;

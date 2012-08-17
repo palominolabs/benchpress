@@ -16,16 +16,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public interface TaskFactory {
 
     /**
-     * @param workerId               the worker that these tasks are running in
-     * @param partitionId            the partition of the overall job that these tasks are part of
-     * @param taskProgressClient     used to report progress back to the controller
+     *
      * @param jobId                  job id
+     * @param partitionId            the partition of the overall job that these tasks are part of
+     * @param workerId               the worker that these tasks are running in
+     * @param taskProgressClient     used to report progress back to the controller
      * @param reportSequenceCounter  used to provide a sequence for all reports sent back to the controller
      *                               (partition-scoped)
      * @return runnables
      * @throws IOException
      */
-    Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient, UUID jobId,
+    Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId, TaskProgressClient taskProgressClient,
         AtomicInteger reportSequenceCounter) throws IOException;
 
     void shutdown();

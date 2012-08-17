@@ -31,8 +31,7 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
 
     HbaseAsyncTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
         KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,
-        String columnFamily, String zkQuorum,
-        String table, String qualifier) {
+        String columnFamily, String zkQuorum, String table, String qualifier) {
         super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
             progressReportInterval);
         this.columnFamily = columnFamily;
@@ -42,8 +41,8 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
     }
 
     @Override
-    public Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient,
-        UUID jobId, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
+        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         client = new HBaseClient(zkQuorum);

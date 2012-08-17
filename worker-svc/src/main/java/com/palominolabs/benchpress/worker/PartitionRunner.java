@@ -89,7 +89,7 @@ public final class PartitionRunner {
         try {
             runnables =
                 tf.getRunnables(
-                    workerId, partition.getPartitionId(), taskProgressClient, partition.getJobId(),
+                    partition.getJobId(), partition.getPartitionId(), workerId, taskProgressClient,
                     reportSequenceCounter);
         } catch (IOException e) {
             logger.warn("Couldn't make runnables", e);

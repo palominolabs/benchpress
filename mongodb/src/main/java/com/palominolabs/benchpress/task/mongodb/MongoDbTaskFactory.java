@@ -23,9 +23,9 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
     private String collectionName;
     private Mongo mongo;
 
-    MongoDbTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory,
-        int batchSize, KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads,
-        int progressReportInterval, String hostname, int port, String dbName, String collectionName) {
+    MongoDbTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
+        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,
+        String hostname, int port, String dbName, String collectionName) {
         super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
             progressReportInterval);
         this.hostname = hostname;
@@ -35,8 +35,8 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
     }
 
     @Override
-    public Collection<Runnable> getRunnables(UUID workerId, int partitionId, TaskProgressClient taskProgressClient,
-        UUID jobId, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
+        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
 
         mongo = new Mongo(this.hostname, this.port);
         int quantaPerThread = numQuanta / numThreads;
