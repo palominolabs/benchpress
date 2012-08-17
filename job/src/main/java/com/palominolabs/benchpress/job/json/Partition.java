@@ -25,22 +25,27 @@ public final class Partition {
         this.finishedUrl = finishedUrl;
     }
 
+    @JsonProperty("jobId")
     public UUID getJobId() {
         return jobId;
     }
 
+    @JsonProperty("partitionId")
     public int getPartitionId() {
         return partitionId;
     }
 
+    @JsonProperty("task")
     public Task getTask() {
         return task;
     }
 
+    @JsonProperty("progressUrl")
     public String getProgressUrl() {
         return progressUrl;
     }
 
+    @JsonProperty("finishedUrl")
     public String getFinishedUrl() {
         return finishedUrl;
     }
