@@ -16,7 +16,8 @@ public final class Partition {
 
     @JsonCreator
     public Partition(@JsonProperty("jobId") UUID jobId, @JsonProperty("partitionId") int partitionId,
-                     @JsonProperty("task") Task task, @JsonProperty("progressUrl") String progressUrl, @JsonProperty("finishedUrl") String finishedUrl) {
+        @JsonProperty("task") Task task, @JsonProperty("progressUrl") String progressUrl,
+        @JsonProperty("finishedUrl") String finishedUrl) {
         this.jobId = jobId;
         this.partitionId = partitionId;
         this.task = task;
