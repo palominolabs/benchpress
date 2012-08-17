@@ -478,6 +478,10 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <!-- taken from the hadoop-1.0 profile in hbase pom -->
