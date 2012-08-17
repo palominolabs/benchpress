@@ -82,7 +82,7 @@ controller as specified in the job config.
 If you want to use a storage system that's not supported out of the box, or you want more flexibility than the current simple JSON structure allows, you can register your own job types. More documentation is coming soon (pending the completion of an in-progress
 refactoring of job handling), but if you're impatient you can use `HbaseModule` as a starting point. After setting up a binding to
 the appropriate Guice multibinding and using the `@Id` annotation appropriately, you can then add your custom module name(s)
-in a comma-separated list as the value of the `benchpress.worker.plugin.module-names` system property. Stay tuned!
+in a comma-separated list as the value of the `benchpress.plugin.module-names` system property. Stay tuned!
 
 ## Whirr
 Some spartan notes on getting started with [Whirr](http://whirr.apache.org/).

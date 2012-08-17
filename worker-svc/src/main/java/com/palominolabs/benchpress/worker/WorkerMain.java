@@ -38,7 +38,7 @@ final class WorkerMain {
         SLF4JBridgeHandler.install();
 
         Injector injector = Guice.createInjector(Stage.PRODUCTION, new WorkerMainModule(),
-            getModuleForModuleNamesString(System.getProperty("benchpress.worker.plugin.module-names")));
+            getModuleForModuleNamesString(System.getProperty("benchpress.plugin.module-names")));
 
         injector.getInstance(WorkerMain.class).go();
     }

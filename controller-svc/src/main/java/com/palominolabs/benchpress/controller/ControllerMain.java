@@ -19,6 +19,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.LogManager;
 
+import static com.palominolabs.benchpress.guice.ReflectiveModuleInstantiationModule.getModuleForModuleNamesString;
+
 final class ControllerMain {
     private static final Logger logger = LoggerFactory.getLogger(ControllerMain.class);
 
@@ -43,7 +45,8 @@ final class ControllerMain {
     public static void main(String[] args) throws Exception {
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new ControllerMainModule());
+        Injector injector = Guice.createInjector(Stage.PRODUCTION, new ControllerMainModule(),
+            getModuleForModuleNamesString(System.getProperty("benchpress.plugin.module-names")));
 
         injector.getInstance(ControllerMain.class).go();
     }

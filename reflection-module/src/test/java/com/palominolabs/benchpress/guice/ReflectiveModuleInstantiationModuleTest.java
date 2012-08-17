@@ -35,7 +35,7 @@ public final class ReflectiveModuleInstantiationModuleTest {
     }
 
     @Test
-    public void testStaticStringHelperMethod() {
+    public void testStaticStringHelperMethodTwoModules() {
         Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
             @Override
             protected void configure() {
@@ -46,6 +46,32 @@ public final class ReflectiveModuleInstantiationModuleTest {
 
         injector.getInstance(BindTarget.class);
         injector.getInstance(Key.get(BindTarget.class, Names.named("foo")));
+    }
+
+    @Test
+    public void testStaticStringHelperMethodOneModule() {
+        Injector injector = Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+            @Override
+            protected void configure() {
+                binder().requireExplicitBindings();
+                install(getModuleForModuleNamesString(PublicCtor.class.getName()));
+            }
+        });
+
+        injector.getInstance(BindTarget.class);
+    }
+
+    @Test
+    public void testStaticStringHelperMethodNull() {
+        Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+            @Override
+            protected void configure() {
+                binder().requireExplicitBindings();
+                install(getModuleForModuleNamesString(null));
+            }
+        });
+
+        // doesn't error
     }
 
     private static void runExceptionTest(Class<?> privateCtorClass, String message) {

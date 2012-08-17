@@ -49,6 +49,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>mongodb</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>reflection-module</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.palominolabs</groupId>
