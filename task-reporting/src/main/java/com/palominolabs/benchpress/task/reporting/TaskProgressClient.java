@@ -5,6 +5,7 @@ import org.joda.time.Duration;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.UUID;
 
+// TODO this should be more flexible for reporting task-impl-specific types of progress (e.g. latency)
 @ThreadSafe
 public interface TaskProgressClient {
 
