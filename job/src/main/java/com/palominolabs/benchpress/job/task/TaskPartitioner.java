@@ -17,11 +17,10 @@ import java.util.UUID;
  */
 public interface TaskPartitioner {
 
+    // TODO make this more elegant -- sucks that each impl has to re-serialize by itself
+
     /**
      * Split this job into partitions.
-     *
-     * TODO: maybe put this logic somewhere other than this bean? This should be done as part of the config-bean
-     * refactoring. Each job type would need to know how to parse its own config and do its own partitioning.
      *
      * @param jobId        the job id being partitioned
      * @param workers      The number of partitions to create
