@@ -7,7 +7,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
-// TODO move to separate module
 @ThreadSafe
 @Id("ZERO_BYTE_ARRAY")
 final class ZeroByteArrayValueGeneratorFactoryFactory implements ValueGeneratorFactoryFactory {

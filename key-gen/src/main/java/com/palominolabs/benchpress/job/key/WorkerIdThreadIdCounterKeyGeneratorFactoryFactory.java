@@ -6,7 +6,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.nio.CharBuffer;
 import java.util.UUID;
 
-// TODO move to separate module
 @ThreadSafe
 @Id("WORKER_ID_THREAD_ID_COUNTER")
 final class WorkerIdThreadIdCounterKeyGeneratorFactoryFactory implements KeyGeneratorFactoryFactory {

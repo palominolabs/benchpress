@@ -59,6 +59,14 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>http-server</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>key-gen</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>value-gen</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.palominolabs.config</groupId>

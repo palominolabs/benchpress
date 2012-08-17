@@ -53,6 +53,8 @@
     <module>reflection-module</module>
     <module>http-server</module>
     <module>job-default-base</module>
+    <module>key-gen</module>
+    <module>value-gen</module>
   </modules>
 
   <dependencyManagement>
@@ -140,6 +142,16 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>job-default-base</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>key-gen</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>value-gen</artifactId>
         <version>${project.version}</version>
       </dependency>
 
