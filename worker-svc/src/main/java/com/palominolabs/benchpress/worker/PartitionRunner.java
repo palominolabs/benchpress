@@ -9,7 +9,7 @@ import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistry;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
-import com.palominolabs.benchpress.task.TaskFactoryFactoryRegistry;
+import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

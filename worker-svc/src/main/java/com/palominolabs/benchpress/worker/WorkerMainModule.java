@@ -9,7 +9,7 @@ import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryMod
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.value.DefaultValueGeneratorFactoryFactoriesModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
-import com.palominolabs.benchpress.task.TaskFactoryFactoryRegistryModule;
+import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.cassandra.CassandraModule;
 import com.palominolabs.benchpress.task.hbase.HbaseModule;
 import com.palominolabs.benchpress.task.hbaseAsync.HbaseAsyncModule;

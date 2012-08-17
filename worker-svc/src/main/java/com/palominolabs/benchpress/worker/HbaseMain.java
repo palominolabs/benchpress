@@ -15,8 +15,8 @@ import com.palominolabs.benchpress.job.value.DefaultValueGeneratorFactoryFactori
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
-import com.palominolabs.benchpress.task.TaskFactoryFactoryRegistry;
-import com.palominolabs.benchpress.task.TaskFactoryFactoryRegistryModule;
+import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistry;
+import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.cassandra.CassandraModule;
 import com.palominolabs.benchpress.task.hbase.HbaseModule;
 import com.palominolabs.benchpress.task.hbaseAsync.HbaseAsyncModule;

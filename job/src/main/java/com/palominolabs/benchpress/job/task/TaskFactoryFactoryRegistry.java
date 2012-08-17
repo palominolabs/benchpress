@@ -1,8 +1,7 @@
-package com.palominolabs.benchpress.task;
+package com.palominolabs.benchpress.job.task;
 
 import com.google.inject.Inject;
 import com.palominolabs.benchpress.job.id.IdRegistry;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Set;
