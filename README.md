@@ -1,5 +1,6 @@
-# Using BenchPress
+# BenchPress
 
+Check out some blog posts on BenchPress: [an introduction](http://blog.palominolabs.com/2012/06/13/introducing-benchpress-distributed-load-testing-for-nosql-databases/) and [how to make custom task types](http://blog.palominolabs.com/2012/08/17/custom-task-types-with-benchpress/).
 ## Building BenchPress
 
 First, build the project from the root directory.
