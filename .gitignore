@@ -10,3 +10,4 @@
 target
 .~lock.*.od*#
 tmp
+*.tar.gz
