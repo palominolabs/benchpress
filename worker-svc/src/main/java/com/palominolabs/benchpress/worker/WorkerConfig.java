@@ -6,7 +6,7 @@ import org.skife.config.Default;
 public interface WorkerConfig {
 
     @Config("benchpress.worker.http-server.ip")
-    @Default("127.0.0.1")
+    @Default("0.0.0.0")
     String getHttpServerIp();
 
     @Config("benchpress.worker.http-server.port")
