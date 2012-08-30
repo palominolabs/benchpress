@@ -55,11 +55,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.palominolabs</groupId>
-      <artifactId>metrics-jersey</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>com.palominolabs.config</groupId>
       <artifactId>config-inject</artifactId>
     </dependency>

@@ -149,14 +149,6 @@
         <version>${project.version}</version>
       </dependency>
 
-      <!-- palomino deps -->
-
-      <dependency>
-        <groupId>com.palominolabs</groupId>
-        <artifactId>metrics-jersey</artifactId>
-        <version>${dep.palomino}</version>
-      </dependency>
-
       <!-- palomino open source -->
 
       <dependency>
