@@ -3,18 +3,17 @@ package com.palominolabs.http.server;
 import ch.qos.logback.access.jetty.RequestLogImpl;
 import com.google.inject.Provider;
 import com.google.inject.servlet.GuiceFilter;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.DispatcherType;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 
 public class HttpServer {
@@ -62,12 +61,10 @@ public class HttpServer {
 
         server.setHandler(handlerCollection);
 
-        if (httpServerConfig.isHttpEnabled()) {
-            Connector connector = new SelectChannelConnector();
-            connector.setPort(httpServerConfig.getHttpListenPort());
-            connector.setHost(httpServerConfig.getHttpListenHost());
-            server.addConnector(connector);
-        }
+        ServerConnector connector = new ServerConnector(server);
+        connector.setPort(httpServerConfig.getHttpListenPort());
+        connector.setHost(httpServerConfig.getHttpListenHost());
+        server.addConnector(connector);
 
         server.start();
     }

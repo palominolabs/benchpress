@@ -8,7 +8,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public final class HttpServerConfig {
 
-    private boolean httpEnabled = true;
     private int httpListenPort = 8080;
     private String httpListenHost = "127.0.0.1";
 
@@ -22,14 +21,6 @@ public final class HttpServerConfig {
 
     public String getAccessLogConfigFileInFilesystem() {
         return accessLogConfigFileInFilesystem;
-    }
-
-    public boolean isHttpEnabled() {
-        return httpEnabled;
-    }
-
-    public void setHttpEnabled(boolean httpEnabled) {
-        this.httpEnabled = httpEnabled;
     }
 
     public String getHttpListenHost() {
