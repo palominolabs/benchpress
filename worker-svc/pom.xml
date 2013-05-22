@@ -132,15 +132,15 @@
     </dependency>
 
     <dependency>
-      <groupId>com.netflix.curator</groupId>
+      <groupId>org.apache.curator</groupId>
       <artifactId>curator-framework</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.netflix.curator</groupId>
+      <groupId>org.apache.curator</groupId>
       <artifactId>curator-test</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.netflix.curator</groupId>
+      <groupId>org.apache.curator</groupId>
       <artifactId>curator-x-discovery</artifactId>
     </dependency>
 

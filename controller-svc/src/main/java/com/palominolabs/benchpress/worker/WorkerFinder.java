@@ -3,12 +3,12 @@ package com.palominolabs.benchpress.worker;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.x.discovery.ServiceDiscovery;
-import com.netflix.curator.x.discovery.ServiceDiscoveryBuilder;
-import com.netflix.curator.x.discovery.ServiceInstance;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
+import org.apache.curator.x.discovery.ServiceInstance;
 
 import java.util.Collection;
 

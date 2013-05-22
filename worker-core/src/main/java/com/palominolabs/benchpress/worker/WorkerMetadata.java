@@ -37,12 +37,7 @@ public final class WorkerMetadata {
         return listenPort;
     }
 
-    @JsonIgnore
-    public String getHostAndPort() {
-        return listenAddress + ":" + listenPort;
-    }
-
     public String toString() {
-        return workerId.toString() + " (" + getHostAndPort() + ")";
+        return workerId.toString() + " (" + listenAddress + ":" + listenPort + ")";
     }
 }

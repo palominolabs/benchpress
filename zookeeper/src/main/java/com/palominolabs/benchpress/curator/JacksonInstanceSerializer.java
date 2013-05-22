@@ -3,8 +3,8 @@ package com.palominolabs.benchpress.curator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.netflix.curator.x.discovery.ServiceInstance;
-import com.netflix.curator.x.discovery.details.InstanceSerializer;
+import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.curator.x.discovery.details.InstanceSerializer;
 
 import java.io.ByteArrayOutputStream;
 

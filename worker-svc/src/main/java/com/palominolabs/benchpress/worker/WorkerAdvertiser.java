@@ -1,16 +1,11 @@
 package com.palominolabs.benchpress.worker;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.x.discovery.ServiceDiscovery;
-import com.netflix.curator.x.discovery.ServiceDiscoveryBuilder;
-import com.netflix.curator.x.discovery.ServiceInstance;
-import com.netflix.curator.x.discovery.details.InstanceSerializer;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
-import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,39 +16,33 @@ import java.util.UUID;
 public final class WorkerAdvertiser {
     private static final Logger logger = LoggerFactory.getLogger(WorkerAdvertiser.class);
 
-    private final CuratorFramework curatorFramework;
     private final ZookeeperConfig zookeeperConfig;
-    private final InstanceSerializer<WorkerMetadata> jacksonInstanceSerializer;
     private final UUID workerId = UUID.randomUUID();
+    private final ServiceDiscovery<WorkerMetadata> serviceDiscovery;
 
     private String listenAddress;
     private int listenPort;
 
     @Inject
-    WorkerAdvertiser(CuratorFramework curatorFramework, ZookeeperConfig zookeeperConfig,
-        InstanceSerializerFactory instanceSerializerFactory) {
-        this.curatorFramework = curatorFramework;
+    WorkerAdvertiser(ZookeeperConfig zookeeperConfig, ServiceDiscovery<WorkerMetadata> serviceDiscovery) {
         this.zookeeperConfig = zookeeperConfig;
-        this.jacksonInstanceSerializer =
-            instanceSerializerFactory.getInstanceSerializer(new TypeReference<ServiceInstance<WorkerMetadata>>() {});
+        this.serviceDiscovery = serviceDiscovery;
     }
 
-    public void setListenAddress(String listenAddress) {
-        this.listenAddress = listenAddress;
-    }
-
-    public void setListenPort(int listenPort) {
-        this.listenPort = listenPort;
+    /**
+     * @param address address this worker is listening on
+     * @param port    port this worker is listening on
+     */
+    public void setListenInfo(String address, int port) {
+        this.listenAddress = address;
+        this.listenPort = port;
     }
 
     public void advertiseAvailability() {
         logger.info("Advertising availability at <" + listenAddress + ":" + listenPort + ">");
 
         try {
-            ServiceDiscovery<WorkerMetadata> discovery = getDiscovery();
-            discovery.start();
-            discovery.registerService(getInstance());
-            discovery.close();
+            serviceDiscovery.registerService(getServiceInstance());
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -63,16 +52,13 @@ public final class WorkerAdvertiser {
         logger.info("Deadvertising availability at <" + listenAddress + ":" + listenPort + ">");
 
         try {
-            ServiceDiscovery<WorkerMetadata> discovery = getDiscovery();
-            discovery.start();
-            discovery.unregisterService(getInstance());
-            discovery.close();
+            serviceDiscovery.unregisterService(getServiceInstance());
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
     }
 
-    private ServiceInstance<WorkerMetadata> getInstance() throws Exception {
+    private ServiceInstance<WorkerMetadata> getServiceInstance() throws Exception {
         WorkerMetadata workerMetadata = new WorkerMetadata(workerId, listenAddress, listenPort);
         return ServiceInstance.<WorkerMetadata>builder()
             .name(zookeeperConfig.getWorkerServiceName())
@@ -80,14 +66,6 @@ public final class WorkerAdvertiser {
             .port(listenPort)
             .id(workerId.toString())
             .payload(workerMetadata)
-            .build();
-    }
-
-    private ServiceDiscovery<WorkerMetadata> getDiscovery() {
-        return ServiceDiscoveryBuilder.builder(WorkerMetadata.class)
-            .basePath(zookeeperConfig.getBasePath())
-            .client(curatorFramework)
-            .serializer(jacksonInstanceSerializer)
             .build();
     }
 }

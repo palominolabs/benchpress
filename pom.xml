@@ -27,7 +27,7 @@
 
     <dep.metrics>2.1.2</dep.metrics>
 
-    <dep.curator>1.1.16</dep.curator>
+    <dep.curator>2.0.0-incubating</dep.curator>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -458,7 +458,7 @@
       </dependency>
 
       <dependency>
-        <groupId>com.netflix.curator</groupId>
+        <groupId>org.apache.curator</groupId>
         <artifactId>curator-framework</artifactId>
         <version>${dep.curator}</version>
         <exclusions>
@@ -473,12 +473,12 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.netflix.curator</groupId>
+        <groupId>org.apache.curator</groupId>
         <artifactId>curator-test</artifactId>
         <version>${dep.curator}</version>
       </dependency>
       <dependency>
-        <groupId>com.netflix.curator</groupId>
+        <groupId>org.apache.curator</groupId>
         <artifactId>curator-x-discovery</artifactId>
         <version>${dep.curator}</version>
       </dependency>

@@ -6,19 +6,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.test.TestingServer;
-import com.netflix.curator.x.discovery.ServiceDiscovery;
-import com.netflix.curator.x.discovery.ServiceDiscoveryBuilder;
-import com.netflix.curator.x.discovery.ServiceInstance;
+import com.google.inject.servlet.GuiceFilter;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
-import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistryModule;
+import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.reporting.NoOpTaskProgressClient;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import com.palominolabs.benchpress.worker.http.ResourceModule;
@@ -26,12 +22,19 @@ import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.http.server.HttpServerModule;
 import com.yammer.metrics.Metrics;
 import com.yammer.metrics.core.MetricsRegistry;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.test.TestingServer;
+import org.apache.curator.x.discovery.ServiceDiscovery;
+import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
+import org.apache.curator.x.discovery.ServiceInstance;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public final class WorkerAdvertiserTest {
     @Inject
@@ -42,6 +45,8 @@ public final class WorkerAdvertiserTest {
     private CuratorFramework curatorFramework;
     @Inject
     private CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
+    @Inject
+    private GuiceFilter guiceFilter;
 
     private TestingServer testingServer;
     private ServiceDiscovery<WorkerMetadata> serviceDiscovery;
@@ -96,6 +101,8 @@ public final class WorkerAdvertiserTest {
         Closeables.closeQuietly(curatorFramework);
         Closeables.closeQuietly(serviceDiscovery);
         Closeables.closeQuietly(testingServer);
+
+        guiceFilter.destroy();
     }
 
     @Test
@@ -103,7 +110,12 @@ public final class WorkerAdvertiserTest {
         workerAdvertiser.advertiseAvailability();
         Collection<ServiceInstance<WorkerMetadata>> instances =
             serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
-        Assert.assertTrue(instances.size() == 1);
+        assertEquals(1, instances.size());
+
+        WorkerMetadata workerMetadata = instances.iterator().next().getPayload();
+
+        assertNotNull(workerMetadata.getWorkerId());
+
     }
 
     @Test
@@ -111,10 +123,10 @@ public final class WorkerAdvertiserTest {
         workerAdvertiser.advertiseAvailability();
         Collection<ServiceInstance<WorkerMetadata>> instances =
             serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
-        Assert.assertTrue(instances.size() == 1);
+        assertEquals(1, instances.size());
 
         workerAdvertiser.deAdvertiseAvailability();
         instances = serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
-        Assert.assertTrue(instances.size() == 0);
+        assertEquals(0, instances.size());
     }
 }

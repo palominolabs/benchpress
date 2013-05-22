@@ -14,7 +14,7 @@ public final class WorkerControlFactory {
     private final ObjectWriter objectWriter;
     private final ObjectReader objectReader;
 
-    private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());;
+    private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
     private final Map<WorkerMetadata, WorkerControl> workerControls = new HashMap<WorkerMetadata, WorkerControl>();
 
     @Inject
