@@ -107,6 +107,7 @@ public final class WorkerAdvertiserTest {
 
     @Test
     public void testAdvertiseAvailability() throws Exception {
+        workerAdvertiser.initListenInfo("127.0.0.1", 12345);
         workerAdvertiser.advertiseAvailability();
         Collection<ServiceInstance<WorkerMetadata>> instances =
             serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
@@ -120,6 +121,7 @@ public final class WorkerAdvertiserTest {
 
     @Test
     public void testDeAdvertiseAvailability() throws Exception {
+        workerAdvertiser.initListenInfo("127.0.0.1", 12345);
         workerAdvertiser.advertiseAvailability();
         Collection<ServiceInstance<WorkerMetadata>> instances =
             serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());

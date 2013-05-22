@@ -53,7 +53,7 @@ final class WorkerMain {
         httpServer.start();
         logger.info("Worker started listening on port " + httpServer.getHttpListenPort());
 
-        workerAdvertiser.setListenInfo(httpServer.getHttpListenHost(), httpServer.getHttpListenPort());
+        workerAdvertiser.initListenInfo(httpServer.getHttpListenHost(), httpServer.getHttpListenPort());
         workerAdvertiser.advertiseAvailability();
     }
 }

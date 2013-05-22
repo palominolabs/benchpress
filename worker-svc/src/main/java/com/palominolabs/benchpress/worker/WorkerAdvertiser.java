@@ -9,10 +9,14 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.UUID;
 
 // TODO re-advertise if connection breaks and comes back up
 @Singleton
+@ThreadSafe
 public final class WorkerAdvertiser {
     private static final Logger logger = LoggerFactory.getLogger(WorkerAdvertiser.class);
 
@@ -20,7 +24,9 @@ public final class WorkerAdvertiser {
     private final UUID workerId = UUID.randomUUID();
     private final ServiceDiscovery<WorkerMetadata> serviceDiscovery;
 
+    @GuardedBy("this")
     private String listenAddress;
+    @GuardedBy("this")
     private int listenPort;
 
     @Inject
@@ -30,15 +36,21 @@ public final class WorkerAdvertiser {
     }
 
     /**
+     * This must be called before other methods are used.
+     *
      * @param address address this worker is listening on
      * @param port    port this worker is listening on
      */
-    public void setListenInfo(String address, int port) {
+    public synchronized void initListenInfo(@Nonnull String address, int port) {
+        if (listenAddress != null) {
+            throw new IllegalStateException("Already initialized");
+        }
         this.listenAddress = address;
         this.listenPort = port;
     }
 
-    public void advertiseAvailability() {
+    public synchronized void advertiseAvailability() {
+        checkInitialized();
         logger.info("Advertising availability at <" + listenAddress + ":" + listenPort + ">");
 
         try {
@@ -48,7 +60,8 @@ public final class WorkerAdvertiser {
         }
     }
 
-    public void deAdvertiseAvailability() {
+    public synchronized void deAdvertiseAvailability() {
+        checkInitialized();
         logger.info("Deadvertising availability at <" + listenAddress + ":" + listenPort + ">");
 
         try {
@@ -67,5 +80,11 @@ public final class WorkerAdvertiser {
             .id(workerId.toString())
             .payload(workerMetadata)
             .build();
+    }
+
+    private void checkInitialized() {
+        if (listenAddress == null) {
+            throw new IllegalStateException("Not initialized");
+        }
     }
 }
