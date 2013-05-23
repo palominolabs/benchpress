@@ -13,6 +13,7 @@ public final class HttpServerConfig {
 
     private String accessLogConfigFileInClasspath = "/" + this.getClass().getPackage()
         .getName().replace('.', '/') + "/default-logback-access.xml";
+
     private String accessLogConfigFileInFilesystem = null;
 
     public String getAccessLogConfigFileInClasspath() {

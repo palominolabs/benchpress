@@ -1,0 +1,16 @@
+<!--
+  ~ Copyright (c) 2011.
+  -->
+
+<configuration>
+  <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
+  <appender name="ACCESS-CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>combined</pattern>
+    </encoder>
+  </appender>
+
+  <appender-ref ref="ACCESS-CONSOLE"/>
+
+</configuration>
