@@ -105,8 +105,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.yammer.metrics</groupId>
-      <artifactId>metrics-web</artifactId>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-servlet</artifactId>
     </dependency>
 
     <dependency>

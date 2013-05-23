@@ -87,12 +87,12 @@
     </dependency>
 
     <dependency>
-      <groupId>com.yammer.metrics</groupId>
+      <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.yammer.metrics</groupId>
-      <artifactId>metrics-web</artifactId>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-servlet</artifactId>
     </dependency>
 
     <dependency>

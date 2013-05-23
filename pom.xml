@@ -25,7 +25,7 @@
     <dep.jackson>2.2.1</dep.jackson>
     <dep.jackson.joda>2.2.1</dep.jackson.joda>
 
-    <dep.metrics>2.1.2</dep.metrics>
+    <dep.metrics>3.0.0-BETA3</dep.metrics>
 
     <dep.curator>2.0.0-incubating</dep.curator>
 
@@ -382,13 +382,13 @@
       </dependency>
 
       <dependency>
-        <groupId>com.yammer.metrics</groupId>
+        <groupId>com.codahale.metrics</groupId>
         <artifactId>metrics-core</artifactId>
         <version>${dep.metrics}</version>
       </dependency>
       <dependency>
-        <groupId>com.yammer.metrics</groupId>
-        <artifactId>metrics-web</artifactId>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-servlet</artifactId>
         <version>${dep.metrics}</version>
       </dependency>
 

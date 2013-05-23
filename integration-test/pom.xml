@@ -52,11 +52,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.palominolabs.config</groupId>
-      <artifactId>config-inject</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -84,30 +79,12 @@
     </dependency>
 
     <dependency>
-      <groupId>com.yammer.metrics</groupId>
-      <artifactId>metrics-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.yammer.metrics</groupId>
-      <artifactId>metrics-web</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-framework</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-x-discovery</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.jersey</groupId>
-      <artifactId>jersey-json</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.sun.jersey.contribs</groupId>
-      <artifactId>jersey-guice</artifactId>
     </dependency>
 
     <dependency>
@@ -123,9 +100,5 @@
       <artifactId>jackson-datatype-joda</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-    </dependency>
   </dependencies>
 </project>

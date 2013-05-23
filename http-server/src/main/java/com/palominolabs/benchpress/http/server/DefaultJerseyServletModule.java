@@ -1,12 +1,12 @@
 package com.palominolabs.benchpress.http.server;
 
+import com.codahale.metrics.servlet.DefaultWebappMetricsFilter;
 import com.google.common.collect.Maps;
 import com.google.inject.Scopes;
 import com.google.inject.servlet.ServletModule;
 import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.guice.JerseyServletModule;
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
-import com.yammer.metrics.web.DefaultWebappMetricsFilter;
 
 import java.util.Map;
 
