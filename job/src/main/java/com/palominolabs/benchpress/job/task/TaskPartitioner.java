@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.palominolabs.benchpress.job.json.Partition;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public interface TaskPartitioner {
      * @param objectWriter objectWriter to use to serialize partition task config
      * @return List of the partitions
      */
+    @Nonnull
     List<Partition> partition(UUID jobId, int workers, String progressUrl, String finishedUrl,
         ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException;
 }

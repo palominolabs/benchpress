@@ -18,6 +18,7 @@ import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +48,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
         this.colName = column;
     }
 
+    @Nonnull
     @Override
     public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
         TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {

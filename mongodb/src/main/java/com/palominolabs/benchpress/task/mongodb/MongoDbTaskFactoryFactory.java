@@ -37,6 +37,7 @@ final class MongoDbTaskFactoryFactory extends TaskFactoryFactoryPartitionerBase 
         return TASK_TYPE;
     }
 
+    @Nonnull
     @Override
     public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
         MongoDbConfig c = getConfig(objectReader, configNode);

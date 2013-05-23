@@ -37,6 +37,7 @@ final class CassandraTaskFactoryFactory extends TaskFactoryFactoryPartitionerBas
         return TASK_TYPE;
     }
 
+    @Nonnull
     @Override
     public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
         CassandraConfig c = getConfig(objectReader, configNode);

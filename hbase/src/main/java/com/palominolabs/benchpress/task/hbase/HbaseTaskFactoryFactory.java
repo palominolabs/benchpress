@@ -25,6 +25,7 @@ final class HbaseTaskFactoryFactory extends TaskFactoryFactoryPartitionerBase im
         super(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry);
     }
 
+    @Nonnull
     @Override
     public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
         HBaseConfig c = getConfig(objectReader, configNode);

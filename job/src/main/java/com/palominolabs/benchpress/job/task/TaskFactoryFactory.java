@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.palominolabs.benchpress.job.id.Id;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 
@@ -21,5 +22,6 @@ public interface TaskFactoryFactory {
      * @param configNode   the config node for the task
      * @return a configured task factory
      */
+    @Nonnull
     TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException;
 }

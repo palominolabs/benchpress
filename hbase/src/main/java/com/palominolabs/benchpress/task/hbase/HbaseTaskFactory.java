@@ -12,6 +12,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -49,6 +50,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
         this.writeBufferSize = writeBufferSize;
     }
 
+    @Nonnull
     @Override
     public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
         TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {

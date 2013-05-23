@@ -13,6 +13,7 @@ import org.hbase.async.TableNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -40,6 +41,7 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
         this.qualifier = qualifier;
     }
 
+    @Nonnull
     @Override
     public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
         TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {

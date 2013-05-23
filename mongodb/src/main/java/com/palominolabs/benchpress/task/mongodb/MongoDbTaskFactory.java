@@ -10,6 +10,7 @@ import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +35,7 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
         this.collectionName = collectionName;
     }
 
+    @Nonnull
     @Override
     public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
         TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {

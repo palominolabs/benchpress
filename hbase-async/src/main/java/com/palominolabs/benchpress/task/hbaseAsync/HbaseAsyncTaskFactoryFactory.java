@@ -37,6 +37,7 @@ final class HbaseAsyncTaskFactoryFactory extends TaskFactoryFactoryPartitionerBa
         return TASK_TYPE;
     }
 
+    @Nonnull
     @Override
     public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
         HBaseAsyncConfig c = getConfig(objectReader, configNode);

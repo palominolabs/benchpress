@@ -2,6 +2,7 @@ package com.palominolabs.benchpress.job.task;
 
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
@@ -26,6 +27,7 @@ public interface TaskFactory {
      * @return runnables
      * @throws IOException
      */
+    @Nonnull
     Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId, TaskProgressClient taskProgressClient,
         AtomicInteger reportSequenceCounter) throws IOException;
 
