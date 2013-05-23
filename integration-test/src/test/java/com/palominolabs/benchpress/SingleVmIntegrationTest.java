@@ -19,7 +19,6 @@ import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPartitionerRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
-import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
@@ -131,13 +130,58 @@ public class SingleVmIntegrationTest {
     }
 
     @Test
-    public void testLockDeAdvertises() throws Exception {
+    public void testWorkerLockDeAdvertises() throws Exception {
         WorkerMetadata workerMetadata = advertiseWorker();
 
-        WorkerControl workerControl = workerControlFactory.getWorkerControl(workerMetadata);
-        assertTrue(workerControl.acquireLock(jobFarmer.getControllerId()));
+        assertTrue(lock(workerMetadata));
 
         assertNoWorkersAdvertised();
+    }
+
+    @Test
+    public void testWorkerUnlockReAdvertises() throws Exception {
+        WorkerMetadata workerMetadata = advertiseWorker();
+
+        lock(workerMetadata);
+
+        assertNoWorkersAdvertised();
+
+        assertTrue(unlock(workerMetadata));
+
+        assertWorkerAdvertised(workerMetadata);
+    }
+
+    @Test
+    public void testWorkerLockStatusShowsLockingController() throws Exception {
+        WorkerMetadata workerMetadata = advertiseWorker();
+
+        lock(workerMetadata);
+
+        assertEquals(jobFarmer.getControllerId().toString(), workerControlFactory.getWorkerControl(workerMetadata).locker());
+    }
+
+    private void assertWorkerAdvertised(WorkerMetadata workerMetadata) throws Exception {
+        Collection<ServiceInstance<WorkerMetadata>> instances =
+            serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
+        assertEquals(1, instances.size());
+
+        assertEquals(workerMetadata.getWorkerId(), instances.iterator().next().getPayload().getWorkerId());
+    }
+
+    /**
+     * @param workerMetadata worker to lock
+     * @return true if lock successful
+     */
+    private boolean lock(WorkerMetadata workerMetadata) {
+        return workerControlFactory.getWorkerControl(workerMetadata).acquireLock(jobFarmer.getControllerId());
+    }
+
+    /**
+     * @param workerMetadata worker to lock
+     * @return true if unlock successful
+     */
+    private boolean unlock(WorkerMetadata workerMetadata) {
+        return workerControlFactory.getWorkerControl(workerMetadata).releaseLock(jobFarmer.getControllerId());
     }
 
     private void assertNoWorkersAdvertised() throws Exception {
