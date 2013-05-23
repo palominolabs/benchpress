@@ -34,6 +34,7 @@ public abstract class TaskFactoryFactoryPartitionerBase implements TaskPartition
         this.valueGeneratorFactoryFactoryRegistry = valueGeneratorFactoryFactoryRegistry;
     }
 
+    @Nonnull
     @Override
     public List<Partition> partition(UUID jobId, int workers, String progressUrl, String finishedUrl,
         ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException {

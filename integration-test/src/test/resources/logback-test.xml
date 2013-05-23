@@ -26,6 +26,12 @@
   <logger name="com.google.inject.internal.util.$Stopwatch" level="info"/>
   <logger name="com.google.inject.internal.BytecodeGen" level="info"/>
 
+  <logger name="com.sun.jersey.core.spi.component.ProviderServices" level="WARN"/>
+  <logger name="com.sun.xml.bind.v2.runtime.reflect.opt.OptimizedAccessorFactory" level="info"/>
+  <logger name="com.sun.jersey.server.impl.ejb.EJBComponentProviderFactoryInitilizer" level="info"/>
+  <logger name="com.sun.jersey.server.impl.cdi.CDIComponentProviderFactoryInitializer" level="info"/>
+  <logger name="com.sun.jersey.server.impl.managedbeans.ManagedBeanComponentProviderFactoryInitilizer" level="info"/>
+
   <root>
     <level>DEBUG</level>
     <appender-ref ref="CONSOLE"/>

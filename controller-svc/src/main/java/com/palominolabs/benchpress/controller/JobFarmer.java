@@ -22,6 +22,7 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import java.util.UUID;
  * Tends to Jobs
  */
 @Singleton
+@ThreadSafe
 public final class JobFarmer {
     private static final Logger logger = LoggerFactory.getLogger(JobFarmer.class);
 
@@ -75,7 +77,7 @@ public final class JobFarmer {
      * @param job The job to cultivate
      * @return 202 on success with Job in the body, 412 on failure
      */
-    public Response submitJob(Job job) {
+    public synchronized Response submitJob(Job job) {
         JobStatus jobStatus = new JobStatus(job);
 
         // Create a set of workers we can lock
@@ -108,6 +110,11 @@ public final class JobFarmer {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
+        if (partitions.isEmpty()) {
+            logger.warn("No partitions created");
+            return Response.status(Response.Status.PRECONDITION_FAILED).entity("No partitions created").build();
+        }
+
         TandemIterator titerator = new TandemIterator(partitions.iterator(), lockedWorkers.iterator());
 
         // Submit the partition to the worker
@@ -130,7 +137,7 @@ public final class JobFarmer {
      * @param jobId The job to retrieve
      * @return A Job object corresponding to the given jobId
      */
-    public JobStatus getJob(UUID jobId) {
+    public synchronized JobStatus getJob(UUID jobId) {
         return jobs.get(jobId);
     }
 
@@ -139,7 +146,7 @@ public final class JobFarmer {
      *
      * @return A Set of job IDs
      */
-    public Set<UUID> getJobIds() {
+    public synchronized Set<UUID> getJobIds() {
         return jobs.keySet();
     }
 
@@ -150,7 +157,7 @@ public final class JobFarmer {
      * @param taskProgressReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
-    public Response handleProgressReport(UUID jobId, TaskProgressReport taskProgressReport) {
+    public synchronized Response handleProgressReport(UUID jobId, TaskProgressReport taskProgressReport) {
         if (!jobs.containsKey(jobId)) {
             logger.warn("Couldn't find job");
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -173,7 +180,8 @@ public final class JobFarmer {
      * @param taskPartitionFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
-    public Response handlePartitionFinishedReport(UUID jobId, TaskPartitionFinishedReport taskPartitionFinishedReport) {
+    public synchronized Response handlePartitionFinishedReport(UUID jobId,
+        TaskPartitionFinishedReport taskPartitionFinishedReport) {
         if (!jobs.containsKey(jobId)) {
             logger.warn("Couldn't find job <" + jobId + ">");
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -182,10 +190,12 @@ public final class JobFarmer {
         JobStatus jobStatus = jobs.get(jobId);
         PartitionStatus partitionStatus = jobStatus.getPartitionStatus(taskPartitionFinishedReport.getPartitionId());
         logger.info("Partition <" + partitionStatus.getPartition().getPartitionId() + "> finished");
+        partitionStatus.setFinished();
 
         WorkerControl workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
         workerControl.releaseLock(controllerId);
 
+        // TODO does this make sense to calculate job duration on a possibly intermediate partition?
         Duration totalDuration = new Duration(0);
         for (Integer partitionId : jobStatus.getPartitionStatuses().keySet()) {
             totalDuration = totalDuration.plus(jobStatus.getPartitionStatus(partitionId).computeTotalDuration());
@@ -195,24 +205,24 @@ public final class JobFarmer {
         return Response.status(Response.Status.ACCEPTED).build();
     }
 
-    public void setListenAddress(String httpListenHost) {
+    public synchronized void setListenAddress(String httpListenHost) {
         this.httpListenHost = httpListenHost;
     }
 
-    public void setListenPort(int httpListenPort) {
+    public synchronized void setListenPort(int httpListenPort) {
         this.httpListenPort = httpListenPort;
-    }
-
-    private String getProgressUrl(UUID jobId) {
-        return "http://" + httpListenHost + ":" + httpListenPort + "/job/" + jobId + PROGRESS_PATH;
     }
 
     public UUID getControllerId() {
         return controllerId;
     }
 
+    private String getProgressUrl(UUID jobId) {
+        return "http://" + httpListenHost + ":" + httpListenPort + "/controller/job/" + jobId + PROGRESS_PATH;
+    }
+
     private String getFinishedUrl(UUID jobId) {
-        return "http://" + httpListenHost + ":" + httpListenPort + "/job/" + jobId + FINISHED_PATH;
+        return "http://" + httpListenHost + ":" + httpListenPort + "/controller/job/" + jobId + FINISHED_PATH;
     }
 
     final class TandemIterator implements Iterator<TandemIterator.Pair> {

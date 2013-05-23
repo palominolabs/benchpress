@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.google.inject.AbstractModule;
 
 public final class IpcJsonModule extends AbstractModule {
@@ -12,8 +13,11 @@ public final class IpcJsonModule extends AbstractModule {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JodaModule());
 
-        bind(ObjectMapper.class).annotatedWith(Ipc.class).toInstance(objectMapper);
         bind(ObjectReader.class).annotatedWith(Ipc.class).toInstance(objectMapper.reader());
         bind(ObjectWriter.class).annotatedWith(Ipc.class).toInstance(objectMapper.writer());
+
+        // use ipc object mapper in Jersey
+        final JacksonJsonProvider provider = new JacksonJsonProvider();
+        provider.setMapper(objectMapper);
     }
 }

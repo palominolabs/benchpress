@@ -7,9 +7,11 @@ import com.palominolabs.benchpress.task.reporting.TaskProgressReport;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
 import org.joda.time.Duration;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+@NotThreadSafe
 public final class PartitionStatus {
     @JsonIgnore
     private final Partition partition;
@@ -19,6 +21,8 @@ public final class PartitionStatus {
      */
     @JsonIgnore
     private final WorkerMetadata workerMetadata;
+
+    private boolean finished = false;
 
     // TODO mvoe to getter
     @JsonProperty("progressReports")
@@ -50,4 +54,12 @@ public final class PartitionStatus {
         return totalDuration;
     }
 
+    public void setFinished() {
+        finished = true;
+    }
+
+    @JsonProperty("finished")
+    public boolean isFinished() {
+        return finished;
+    }
 }

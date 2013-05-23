@@ -22,7 +22,7 @@ import javax.ws.rs.core.Response;
 import java.util.Set;
 import java.util.UUID;
 
-@Path("job")
+@Path("controller/job")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public final class JobResource {
