@@ -3,6 +3,7 @@ package com.palominolabs.benchpress.controller;
 import com.google.inject.AbstractModule;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
+import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPartitionerRegistryModule;
@@ -29,7 +30,7 @@ public final class ControllerMainModule extends AbstractModule {
 
         bind(MetricsRegistry.class).toInstance(Metrics.defaultRegistry());
 
-        install(new ControllerServletModule());
+        install(new DefaultJerseyServletModule());
 
         install(new ResourceModule());
         install(new ConfigModuleBuilder().addConfiguration(new SystemConfiguration()).build());

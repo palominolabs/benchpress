@@ -19,7 +19,7 @@
     <dep.easymock>3.1</dep.easymock>
 
     <dep.guice>3.0</dep.guice>
-    <dep.jersey>1.12</dep.jersey>
+    <dep.jersey>1.17</dep.jersey>
     <dep.jetty>9.0.3.v20130506</dep.jetty>
 
     <dep.jackson>2.2.1</dep.jackson>
@@ -52,6 +52,7 @@
     <module>job-default-base</module>
     <module>key-gen</module>
     <module>value-gen</module>
+    <module>integration-test</module>
   </modules>
 
   <dependencyManagement>
@@ -144,6 +145,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>value-gen</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>worker-svc</artifactId>
         <version>${project.version}</version>
       </dependency>
 

@@ -1,7 +1,7 @@
 package com.palominolabs.benchpress.controller;
 
 import com.google.inject.AbstractModule;
-import com.palominolabs.benchpress.http.JobResource;
+import com.palominolabs.benchpress.controller.http.JobResource;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerFinder;
 

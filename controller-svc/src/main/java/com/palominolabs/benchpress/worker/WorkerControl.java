@@ -47,7 +47,7 @@ public final class WorkerControl {
      */
     public boolean acquireLock(UUID controllerId) {
         logger.info("Acquiring lock of worker <" + metadata.getWorkerId() + ">");
-        String lockUri = getUrlPrefix() + "/control/acquireLock/" + controllerId;
+        String lockUri = getUrlPrefix() + "/worker/control/acquireLock/" + controllerId;
         HttpPost httpPost = new HttpPost(lockUri);
 
         boolean locked = tellWorker(httpPost, Response.Status.NO_CONTENT);
@@ -66,7 +66,7 @@ public final class WorkerControl {
      */
     public boolean releaseLock(UUID controllerId) {
         logger.info("Releasing lock of worker <" + metadata.getWorkerId() + ">");
-        String unLockUri = getUrlPrefix() + "/control/releaseLock/" + controllerId;
+        String unLockUri = getUrlPrefix() + "/worker/control/releaseLock/" + controllerId;
         HttpPost httpPost = new HttpPost(unLockUri);
 
         boolean released = tellWorker(httpPost, Response.Status.NO_CONTENT);
@@ -101,7 +101,7 @@ public final class WorkerControl {
      * @return true if the partition was successfully submitted
      */
     public boolean submitPartition(UUID jobId, Partition partition) {
-        String submitUri = getUrlPrefix() + "/job/" + jobId + "/partition";
+        String submitUri = getUrlPrefix() + "/worker/job/" + jobId + "/partition";
         HttpPut httpPut = new HttpPut(submitUri);
 
         StringEntity stringEntity = null;
@@ -123,7 +123,7 @@ public final class WorkerControl {
     }
 
     private LockStatus getLockStatus() {
-        String unLockUri = getUrlPrefix() + "/control/lockStatus";
+        String unLockUri = getUrlPrefix() + "/worker/control/lockStatus";
         HttpGet httpGet = new HttpGet(unLockUri);
         try {
             return objectReader.withType(LockStatus.class).readValue(askWorker(httpGet));

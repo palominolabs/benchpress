@@ -43,16 +43,17 @@ public final class JobFarmer {
     private final WorkerControlFactory workerControlFactory;
 
     private final UUID controllerId = UUID.randomUUID();
-    private final Map<UUID, JobStatus> jobs = new HashMap<UUID, JobStatus>();
 
+    private final Map<UUID, JobStatus> jobs = new HashMap<UUID, JobStatus>();
     private final TaskPartitionerRegistry taskPartitionerRegistry;
 
     private final ObjectReader objectReader;
-    private final ObjectWriter objectWriter;
 
+    private final ObjectWriter objectWriter;
     // todo make final
     private String httpListenHost;
     private int httpListenPort;
+
     private static final String REPORT_PATH = "/report";
     private static final String PROGRESS_PATH = REPORT_PATH + "/progress";
     private static final String FINISHED_PATH = REPORT_PATH + "/finished";
@@ -206,6 +207,10 @@ public final class JobFarmer {
         return "http://" + httpListenHost + ":" + httpListenPort + "/job/" + jobId + PROGRESS_PATH;
     }
 
+    public UUID getControllerId() {
+        return controllerId;
+    }
+
     private String getFinishedUrl(UUID jobId) {
         return "http://" + httpListenHost + ":" + httpListenPort + "/job/" + jobId + FINISHED_PATH;
     }
@@ -229,12 +234,9 @@ public final class JobFarmer {
             return new Pair(piterator.next(), witerator.next());
         }
 
-        /**
-         * Does nothing.
-         */
         @Override
         public void remove() {
-            // No.
+            throw new UnsupportedOperationException();
         }
 
         public class Pair {

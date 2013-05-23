@@ -1,4 +1,4 @@
-package com.palominolabs.benchpress.http;
+package com.palominolabs.benchpress.controller.http;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

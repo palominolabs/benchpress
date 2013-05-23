@@ -17,12 +17,13 @@ import javax.ws.rs.core.Response;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-@Path("control")
+@Path("worker/control")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public final class ControlResource {
     private final Logger logger = LoggerFactory.getLogger(ControlResource.class);
 
+    // TODO tidy up thread safety
     private final AtomicBoolean locked = new AtomicBoolean(false);
     private final AtomicReference<String> controllerId = new AtomicReference<String>(null);
 

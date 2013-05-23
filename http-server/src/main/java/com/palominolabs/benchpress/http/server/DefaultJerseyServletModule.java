@@ -1,4 +1,4 @@
-package com.palominolabs.benchpress.worker;
+package com.palominolabs.benchpress.http.server;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Scopes;
@@ -10,7 +10,7 @@ import com.yammer.metrics.web.DefaultWebappMetricsFilter;
 
 import java.util.Map;
 
-public class WorkerServletModule extends ServletModule {
+public class DefaultJerseyServletModule extends ServletModule {
     @Override
     protected void configureServlets() {
         bind(DefaultWebappMetricsFilter.class).in(Scopes.SINGLETON);

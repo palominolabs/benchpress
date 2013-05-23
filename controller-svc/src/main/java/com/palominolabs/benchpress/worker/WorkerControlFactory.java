@@ -10,6 +10,7 @@ import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO should be threadsafe
 public final class WorkerControlFactory {
     private final ObjectWriter objectWriter;
     private final ObjectReader objectReader;

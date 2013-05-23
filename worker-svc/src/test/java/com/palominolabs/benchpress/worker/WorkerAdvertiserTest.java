@@ -10,6 +10,7 @@ import com.google.inject.servlet.GuiceFilter;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
+import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
@@ -34,7 +35,6 @@ import org.junit.Test;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public final class WorkerAdvertiserTest {
     @Inject
@@ -65,7 +65,7 @@ public final class WorkerAdvertiserTest {
 
                 bind(MetricsRegistry.class).toInstance(Metrics.defaultRegistry());
 
-                install(new WorkerServletModule());
+                install(new DefaultJerseyServletModule());
                 install(new ResourceModule());
                 install(new CuratorModule());
 
@@ -115,7 +115,7 @@ public final class WorkerAdvertiserTest {
 
         WorkerMetadata workerMetadata = instances.iterator().next().getPayload();
 
-        assertNotNull(workerMetadata.getWorkerId());
+        assertEquals(workerAdvertiser.getWorkerId(), workerMetadata.getWorkerId());
 
     }
 

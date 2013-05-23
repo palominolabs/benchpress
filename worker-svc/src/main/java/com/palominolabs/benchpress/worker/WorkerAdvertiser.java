@@ -21,14 +21,15 @@ public final class WorkerAdvertiser {
     private static final Logger logger = LoggerFactory.getLogger(WorkerAdvertiser.class);
 
     private final ZookeeperConfig zookeeperConfig;
-    private final UUID workerId = UUID.randomUUID();
-    private final ServiceDiscovery<WorkerMetadata> serviceDiscovery;
 
+    private final UUID workerId = UUID.randomUUID();
+
+    private final ServiceDiscovery<WorkerMetadata> serviceDiscovery;
     @GuardedBy("this")
     private String listenAddress;
+
     @GuardedBy("this")
     private int listenPort;
-
     @Inject
     WorkerAdvertiser(ZookeeperConfig zookeeperConfig, ServiceDiscovery<WorkerMetadata> serviceDiscovery) {
         this.zookeeperConfig = zookeeperConfig;
@@ -69,6 +70,10 @@ public final class WorkerAdvertiser {
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    public UUID getWorkerId() {
+        return workerId;
     }
 
     private ServiceInstance<WorkerMetadata> getServiceInstance() throws Exception {

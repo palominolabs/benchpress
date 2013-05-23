@@ -2,6 +2,7 @@ package com.palominolabs.benchpress.worker;
 
 import com.google.inject.AbstractModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
+import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.DefaultKeyGeneratorFactoriesModule;
@@ -34,7 +35,7 @@ public final class WorkerMainModule extends AbstractModule {
 
         bind(MetricsRegistry.class).toInstance(Metrics.defaultRegistry());
 
-        install(new WorkerServletModule());
+        install(new DefaultJerseyServletModule());
 
         install(new ResourceModule());
         install(new ConfigModuleBuilder().addConfiguration(new SystemConfiguration()).build());
