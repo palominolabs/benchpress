@@ -7,7 +7,6 @@ import com.palominolabs.benchpress.job.JobStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.logging.MdcKeys;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
-import com.palominolabs.benchpress.task.reporting.TaskProgressReport;
 import org.slf4j.MDC;
 
 import javax.ws.rs.Consumes;
@@ -66,28 +65,6 @@ public final class JobResource {
 
         stringBuilder.append("</html>");
         return Response.status(Response.Status.OK).entity(stringBuilder.toString()).build();
-    }
-
-    /**
-     * Where workers submit job results
-     *
-     * @param jobId The job that these results are for
-     * @param taskProgressReport The results object
-     * @return 202 on success, 404 on failure
-     */
-    @POST
-    @Path("{jobId}/report/progress")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response reportProgress(@PathParam("jobId") UUID jobId, TaskProgressReport taskProgressReport) {
-        MDC.put(MdcKeys.JOB_ID, jobId.toString());
-
-        Response response;
-        try {
-            response = jobFarmer.handleProgressReport(jobId, taskProgressReport);
-        } finally {
-            MDC.remove(MdcKeys.JOB_ID);
-        }
-        return response;
     }
 
     @POST

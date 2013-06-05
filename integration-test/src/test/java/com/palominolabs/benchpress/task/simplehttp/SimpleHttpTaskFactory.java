@@ -24,8 +24,7 @@ final class SimpleHttpTaskFactory implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
-        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId) throws IOException {
         List<Runnable> runnables = newArrayList();
         runnables.add(new Runnable() {
             @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

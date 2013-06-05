@@ -23,11 +23,9 @@ final class CassandraRunnable extends AbstractTaskRunnable {
     private MutationBatch batch;
 
     CassandraRunnable(KeyGenerator keyGenerator, UUID workerId, int partitionId, int numQuanta,
-        int batchSize, int progressReportQuantaInterval, TaskProgressClient taskProgressClient, UUID jobId,
-        ValueGenerator valueGenerator, AtomicInteger reportSequenceCounter, Keyspace keyspace,
+        int batchSize, UUID jobId, ValueGenerator valueGenerator, Keyspace keyspace,
         ColumnFamily<byte[], byte[]> columnFamily, byte[] columnName) {
-        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, progressReportQuantaInterval,
-            taskProgressClient, jobId, valueGenerator, reportSequenceCounter);
+        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
         this.keyspace = keyspace;
         this.columnFamily = columnFamily;
         this.columnName = columnName;

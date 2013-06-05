@@ -23,12 +23,10 @@ final class HbaseRunnable extends AbstractTaskRunnable implements Runnable {
 
     private final byte[] qualifier;
 
-    HbaseRunnable(HTable hTable, byte[] columnFamily, byte[] qualifier,
-            KeyGenerator keyGenerator, ValueGenerator valueGenerator, TaskProgressClient taskProgressClient,
-            AtomicInteger reportSequenceCounter, UUID jobId, UUID workerId,
-            int partitionId, int numQuanta, int batchSize, int progressReportQuantaInterval) {
-        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, progressReportQuantaInterval,
-            taskProgressClient, jobId, valueGenerator, reportSequenceCounter);
+    HbaseRunnable(HTable hTable, byte[] columnFamily, byte[] qualifier, KeyGenerator keyGenerator,
+                  ValueGenerator valueGenerator, UUID jobId, UUID workerId,
+                  int partitionId, int numQuanta, int batchSize) {
+        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
         this.hTable = hTable;
         this.columnFamily = columnFamily;
         this.qualifier = qualifier;

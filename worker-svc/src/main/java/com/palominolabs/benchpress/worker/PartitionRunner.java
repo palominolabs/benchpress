@@ -11,6 +11,8 @@ import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
 import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -31,7 +33,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.palominolabs.benchpress.logging.MdcKeys.JOB_ID;
 
@@ -79,18 +80,13 @@ public final class PartitionRunner {
             return false;
         }
 
-        AtomicInteger reportSequenceCounter = new AtomicInteger();
-
         jobRegistry.storeJob(partition.getJobId(), partition.getProgressUrl(), partition.getFinishedUrl());
 
         HashSet<Future<Void>> futures = new HashSet<Future<Void>>();
 
         Collection<Runnable> runnables;
         try {
-            runnables =
-                tf.getRunnables(
-                    partition.getJobId(), partition.getPartitionId(), workerId, taskProgressClient,
-                    reportSequenceCounter);
+            runnables = tf.getRunnables(partition.getJobId(), partition.getPartitionId(), workerId);
         } catch (IOException e) {
             logger.warn("Couldn't make runnables", e);
             return false;
@@ -102,7 +98,7 @@ public final class PartitionRunner {
 
         completionService.submit(
             new TaskThreadWatcher(futures, partition.getPartitionId(), partition.getJobId(), taskProgressClient,
-                jobRegistry, reportSequenceCounter), null);
+                jobRegistry), null);
 
         return true;
     }
@@ -159,22 +155,21 @@ public final class PartitionRunner {
         private final UUID jobId;
         private final TaskProgressClient taskProgressClient;
         private final JobRegistry jobRegistry;
-        private final AtomicInteger reportSequenceCounter;
 
         private TaskThreadWatcher(Set<Future<Void>> futures, int partitionId, UUID jobId,
-            TaskProgressClient taskProgressClient, JobRegistry jobRegistry, AtomicInteger reportSequenceCounter) {
+            TaskProgressClient taskProgressClient, JobRegistry jobRegistry) {
             this.futures = futures;
             this.partitionId = partitionId;
             this.jobId = jobId;
             this.taskProgressClient = taskProgressClient;
             this.jobRegistry = jobRegistry;
-            this.reportSequenceCounter = reportSequenceCounter;
         }
 
         @Override
         public void run() {
             MDC.put(JOB_ID, jobId.toString());
             try {
+                DateTime start = new DateTime();
 
                 while (!futures.isEmpty()) {
                     Iterator<Future<Void>> i = futures.iterator();
@@ -199,7 +194,7 @@ public final class PartitionRunner {
                     }
                 }
 
-                taskProgressClient.reportFinished(jobId, partitionId, reportSequenceCounter.getAndIncrement());
+                taskProgressClient.reportFinished(jobId, partitionId, new Duration(start, null));
                 jobRegistry.removeJob(jobId);
 
                 watcherLogger.info("All task threads finished");

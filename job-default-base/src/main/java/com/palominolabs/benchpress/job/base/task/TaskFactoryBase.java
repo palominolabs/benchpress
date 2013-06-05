@@ -12,19 +12,17 @@ public abstract class TaskFactoryBase {
     protected final KeyGeneratorFactory keyGeneratorFactory;
     protected final TaskOperation taskOperation;
     protected final int numThreads;
-    protected final int progressReportInterval;
     protected final int numQuanta;
     protected final int batchSize;
 
     protected TaskFactoryBase(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
-        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval) {
+        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads) {
         this.taskOperation = taskOperation;
         this.valueGeneratorFactory = valueGeneratorFactory;
         this.batchSize = batchSize;
         this.keyGeneratorFactory = keyGeneratorFactory;
         this.numQuanta = numQuanta;
         this.numThreads = numThreads;
-        this.progressReportInterval = progressReportInterval;
     }
 
 }

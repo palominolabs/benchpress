@@ -16,14 +16,12 @@ import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory {
 
@@ -36,10 +34,9 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
     private AstyanaxContext<Keyspace> context;
 
     CassandraTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
-        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,
+                         KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads,
         String cluster, String keyspace, int port, String seeds, String columnFamily, String column) {
-        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
-            progressReportInterval);
+        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads);
         this.clusterName = cluster;
         this.keyspaceName = keyspace;
         this.port = port;
@@ -50,8 +47,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
-        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId) throws IOException {
 
         context = new AstyanaxContext.Builder().forCluster(clusterName)
             .forKeyspace(keyspaceName)
@@ -76,8 +72,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
 
         for (int i = 0; i < numThreads; i++) {
             runnables.add(new CassandraRunnable(keyGeneratorFactory.getKeyGenerator(), workerId, partitionId, numQuanta,
-                batchSize, progressReportInterval, taskProgressClient, jobId, valueGeneratorFactory.getValueGenerator(),
-                reportSequenceCounter, keyspace, cfDef, colNameBytes));
+                batchSize, jobId, valueGeneratorFactory.getValueGenerator(), keyspace, cfDef, colNameBytes));
         }
 
         return runnables;

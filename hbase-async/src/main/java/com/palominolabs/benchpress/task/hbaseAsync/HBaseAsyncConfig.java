@@ -20,10 +20,10 @@ class HBaseAsyncConfig extends TaskConfigBase {
     HBaseAsyncConfig(@JsonProperty("op") TaskOperation taskOperation, @JsonProperty("threads") int numThreads,
         @JsonProperty("quanta") int numQuanta, @JsonProperty("batchSize") int batchSize,
         @JsonProperty("keyGen") KeyGen keyGen, @JsonProperty("valueGen") ValueGen valueGen,
-        @JsonProperty("progressReportInterval") int progressReportInterval, @JsonProperty("zkQuorum") String zkQuorum,
+        @JsonProperty("zkQuorum") String zkQuorum,
         @JsonProperty("table") String table, @JsonProperty("columnFamily") String columnFamily,
         @JsonProperty("qualifier") String qualifier) {
-        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen, progressReportInterval);
+        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen);
         this.zkQuorum = zkQuorum;
         this.table = table;
         this.columnFamily = columnFamily;
@@ -53,6 +53,6 @@ class HBaseAsyncConfig extends TaskConfigBase {
     @Override
     public HBaseAsyncConfig withNewQuanta(int newQuanta) {
         return new HBaseAsyncConfig(getTaskOperation(), getNumThreads(), newQuanta, getBatchSize(), getKeyGen(),
-            getValueGen(), getProgressReportInterval(), zkQuorum, table, columnFamily, qualifier);
+            getValueGen(), zkQuorum, table, columnFamily, qualifier);
     }
 }

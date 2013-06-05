@@ -4,9 +4,6 @@ import com.google.common.base.Charsets;
 import com.palominolabs.benchpress.job.key.KeyGenerator;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
 import com.palominolabs.benchpress.logging.MdcKeys;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -19,7 +16,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @NotThreadSafe
 public abstract class AbstractTaskRunnable implements Runnable {
@@ -38,25 +34,18 @@ public abstract class AbstractTaskRunnable implements Runnable {
     private final int partitionId;
     private final int numQuanta;
     private final int batchSize;
-    private final int progressReportQuantaInterval;
-    private final TaskProgressClient taskProgressClient;
     private final UUID jobId;
     private final ValueGenerator valueGenerator;
-    private final AtomicInteger reportSequenceCounter;
 
     protected AbstractTaskRunnable(
-        KeyGenerator keyGenerator, UUID workerId, int partitionId, int numQuanta, int batchSize,
-        int progressReportQuantaInterval, TaskProgressClient taskProgressClient, UUID jobId,
-        ValueGenerator valueGenerator, AtomicInteger reportSequenceCounter) {
+        KeyGenerator keyGenerator, UUID workerId, int partitionId, int numQuanta, int batchSize, UUID jobId,
+        ValueGenerator valueGenerator) {
         this.keyGenerator = keyGenerator;
-        this.reportSequenceCounter = reportSequenceCounter;
         threadId = Thread.currentThread().getId();
         this.workerId = workerId;
         this.partitionId = partitionId;
         this.numQuanta = numQuanta;
         this.batchSize = batchSize;
-        this.progressReportQuantaInterval = progressReportQuantaInterval;
-        this.taskProgressClient = taskProgressClient;
         this.jobId = jobId;
         this.valueGenerator = valueGenerator;
     }
@@ -91,9 +80,6 @@ public abstract class AbstractTaskRunnable implements Runnable {
 
         byte[] value = valueGenerator.getValue();
 
-        int quantaSinceLastReport = 0;
-        DateTime start = new DateTime();
-
         int counter = 0;
 
         while (counter < numQuanta) {
@@ -102,19 +88,7 @@ public abstract class AbstractTaskRunnable implements Runnable {
             onBatchStart();
 
             for (int i = 0; i < todo; i++) {
-
                 onQuanta(getKeyBytes(counter), value);
-
-                quantaSinceLastReport++;
-
-                if (quantaSinceLastReport == progressReportQuantaInterval) {
-
-                    taskProgressClient.reportProgress(jobId, partitionId, reportSequenceCounter.getAndIncrement(),
-                        new Duration(start, null), quantaSinceLastReport);
-
-                    quantaSinceLastReport = 0;
-                    start = new DateTime();
-                }
 
                 counter++;
             }
@@ -170,7 +144,6 @@ public abstract class AbstractTaskRunnable implements Runnable {
      * @return a byte buffer big enough to hold the capacity of keyCharBuf with the current encoder
      */
     private ByteBuffer getByteBuffer(CharBuffer keyCharBuf) {
-        return ByteBuffer
-            .allocate(keyCharBuf.capacity() * ((int) Math.ceil(encoder.maxBytesPerChar()) + 1));
+        return ByteBuffer.allocate(keyCharBuf.capacity() * ((int) Math.ceil(encoder.maxBytesPerChar()) + 1));
     }
 }

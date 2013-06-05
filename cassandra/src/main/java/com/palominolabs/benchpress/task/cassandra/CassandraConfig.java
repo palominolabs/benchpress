@@ -22,11 +22,10 @@ class CassandraConfig extends TaskConfigBase {
     CassandraConfig(@JsonProperty("op") TaskOperation taskOperation, @JsonProperty("threads") int numThreads,
         @JsonProperty("quanta") int numQuanta, @JsonProperty("batchSize") int batchSize,
         @JsonProperty("keyGen") KeyGen keyGen, @JsonProperty("valueGen") ValueGen valueGen,
-        @JsonProperty("progressReportInterval") int progressReportInterval,
         @JsonProperty("cluster") String cluster, @JsonProperty("keyspace") String keyspace,
         @JsonProperty("port") int port, @JsonProperty("seeds") String seeds,
         @JsonProperty("columnFamily") String columnFamily, @JsonProperty("column") String column) {
-        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen, progressReportInterval);
+        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen);
 
         this.cluster = cluster;
         this.keyspace = keyspace;
@@ -69,6 +68,6 @@ class CassandraConfig extends TaskConfigBase {
     @Override
     public CassandraConfig withNewQuanta(int newQuanta) {
         return new CassandraConfig(getTaskOperation(), getNumThreads(), newQuanta, getBatchSize(), getKeyGen(),
-            getValueGen(), getProgressReportInterval(), cluster, keyspace, port, seeds, columnFamily, column);
+            getValueGen(), cluster, keyspace, port, seeds, columnFamily, column);
     }
 }

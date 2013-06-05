@@ -12,7 +12,6 @@ import com.palominolabs.benchpress.job.json.Partition;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
 import com.palominolabs.benchpress.job.task.TaskPartitionerRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
-import com.palominolabs.benchpress.task.reporting.TaskProgressReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerFinder;
@@ -151,37 +150,13 @@ public final class JobFarmer {
     }
 
     /**
-     * Aggregate a worker's results about a partition.
-     *
-     * @param jobId              The jobId that this taskProgressReport is for
-     * @param taskProgressReport The results data
-     * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
-     */
-    public synchronized Response handleProgressReport(UUID jobId, TaskProgressReport taskProgressReport) {
-        if (!jobs.containsKey(jobId)) {
-            logger.warn("Couldn't find job");
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-
-        JobStatus jobStatus = jobs.get(jobId);
-        PartitionStatus partitionStatus = jobStatus.getPartitionStatus(taskProgressReport.getPartitionId());
-        partitionStatus.addProgressReport(taskProgressReport);
-
-        logger.info(
-            "Progress for partition <" + taskProgressReport.getPartitionId() + ">: " + taskProgressReport.toString());
-
-        return Response.status(Response.Status.ACCEPTED).build();
-    }
-
-    /**
      * Handle a completed partition
      *
      * @param jobId                       The jobId that this taskProgressReport is for
      * @param taskPartitionFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
-    public synchronized Response handlePartitionFinishedReport(UUID jobId,
-        TaskPartitionFinishedReport taskPartitionFinishedReport) {
+    public synchronized Response handlePartitionFinishedReport(UUID jobId, TaskPartitionFinishedReport taskPartitionFinishedReport) {
         if (!jobs.containsKey(jobId)) {
             logger.warn("Couldn't find job <" + jobId + ">");
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -190,7 +165,7 @@ public final class JobFarmer {
         JobStatus jobStatus = jobs.get(jobId);
         PartitionStatus partitionStatus = jobStatus.getPartitionStatus(taskPartitionFinishedReport.getPartitionId());
         logger.info("Partition <" + partitionStatus.getPartition().getPartitionId() + "> finished");
-        partitionStatus.setFinished();
+        partitionStatus.setFinished(taskPartitionFinishedReport.getDuration());
 
         WorkerControl workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
         workerControl.releaseLock(controllerId);
@@ -198,7 +173,7 @@ public final class JobFarmer {
         // TODO does this make sense to calculate job duration on a possibly intermediate partition?
         Duration totalDuration = new Duration(0);
         for (Integer partitionId : jobStatus.getPartitionStatuses().keySet()) {
-            totalDuration = totalDuration.plus(jobStatus.getPartitionStatus(partitionId).computeTotalDuration());
+            totalDuration = totalDuration.plus(jobStatus.getPartitionStatus(partitionId).getDuration());
         }
         jobStatus.setFinalDuration(totalDuration);
 
