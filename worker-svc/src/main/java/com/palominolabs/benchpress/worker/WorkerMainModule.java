@@ -16,7 +16,7 @@ import com.palominolabs.benchpress.task.hbase.HbaseModule;
 import com.palominolabs.benchpress.task.hbaseAsync.HbaseAsyncModule;
 import com.palominolabs.benchpress.task.mongodb.MongoDbModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
-import com.palominolabs.benchpress.worker.http.ResourceModule;
+import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.config.ConfigModule;
 import com.palominolabs.config.ConfigModuleBuilder;
@@ -37,7 +37,7 @@ public final class WorkerMainModule extends AbstractModule {
 
         install(new DefaultJerseyServletModule());
 
-        install(new ResourceModule());
+        install(new WorkerResourceModule());
         install(new ConfigModuleBuilder().addConfiguration(new SystemConfiguration()).build());
 
         install(new CuratorModule());
