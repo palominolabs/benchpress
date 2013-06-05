@@ -32,7 +32,7 @@ public final class ControllerMainModule extends AbstractModule {
 
         install(new DefaultJerseyServletModule());
 
-        install(new ResourceModule());
+        install(new ControllerResourceModule());
         install(new ConfigModuleBuilder().addConfiguration(new SystemConfiguration()).build());
 
         install(new CuratorModule());

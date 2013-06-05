@@ -12,8 +12,8 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
+import com.palominolabs.benchpress.controller.ControllerResourceModule;
 import com.palominolabs.benchpress.controller.JobFarmer;
-import com.palominolabs.benchpress.controller.ResourceModule;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerConfig;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
@@ -32,6 +32,7 @@ import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
+import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.config.ConfigModuleBuilder;
 import com.palominolabs.http.server.HttpServer;
@@ -125,14 +126,14 @@ public class SingleVmIntegrationTest {
                 install(new InstanceSerializerModule());
                 install(new IpcJsonModule());
                 install(new TaskPartitionerRegistryModule());
-                install(new ResourceModule());
+                install(new ControllerResourceModule());
 
                 // worker
                 install(new JobRegistryModule());
                 install(new TaskProgressClientModule());
                 install(new IpcHttpClientModule());
                 install(new TaskFactoryFactoryRegistryModule());
-                install(new com.palominolabs.benchpress.worker.http.ResourceModule());
+                install(new WorkerResourceModule());
 
                 // custom task
                 install(new SimpleHttpTaskModule());

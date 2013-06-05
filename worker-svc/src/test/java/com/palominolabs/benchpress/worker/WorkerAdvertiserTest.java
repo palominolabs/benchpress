@@ -18,7 +18,7 @@ import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.reporting.NoOpTaskProgressClient;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
-import com.palominolabs.benchpress.worker.http.ResourceModule;
+import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.http.server.HttpServerModule;
 import com.yammer.metrics.Metrics;
@@ -66,7 +66,7 @@ public final class WorkerAdvertiserTest {
                 bind(MetricsRegistry.class).toInstance(Metrics.defaultRegistry());
 
                 install(new DefaultJerseyServletModule());
-                install(new ResourceModule());
+                install(new WorkerResourceModule());
                 install(new CuratorModule());
 
                 install(new InstanceSerializerModule());
