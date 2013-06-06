@@ -28,8 +28,7 @@ final class SimpleHttpComponentFactory implements ComponentFactory {
     @Nullable
     @Override
     public TaskOutputProcessor getTaskOutputProcessor() {
-        // TODO make this a good example
-        return null;
+        return SimpleHttpTaskOutputProcessor.INSTANCE;
     }
 
     @Nonnull

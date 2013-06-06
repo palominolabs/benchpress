@@ -14,7 +14,7 @@ public interface QueueProvider {
      * @param jobId
      */
     @Nonnull
-    BlockingQueue<?> getQueue(String taskType, UUID jobId);
+    BlockingQueue<Object> getQueue(String taskType, UUID jobId);
 
     void removeJob(UUID jobId);
 }

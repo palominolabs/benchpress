@@ -28,7 +28,7 @@ final class DefaultQueueProvider implements QueueProvider {
     private static final int QUEUE_SIZE = 1024;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final ComponentFactoryRegistry componentFactoryRegistry;
-    private final Map<UUID, BlockingQueue<?>> queueMap = new HashMap<>();
+    private final Map<UUID, BlockingQueue<Object>> queueMap = new HashMap<>();
     private final Map<UUID, Future<?>> futureMap = new HashMap<>();
 
     @Inject
@@ -38,8 +38,8 @@ final class DefaultQueueProvider implements QueueProvider {
 
     @Nonnull
     @Override
-    public BlockingQueue<?> getQueue(String taskType, UUID jobId) {
-        BlockingQueue<?> blockingQueue = queueMap.get(jobId);
+    public BlockingQueue<Object> getQueue(String taskType, UUID jobId) {
+        BlockingQueue<Object> blockingQueue = queueMap.get(jobId);
         if (blockingQueue == null) {
             blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
             queueMap.put(jobId, blockingQueue);

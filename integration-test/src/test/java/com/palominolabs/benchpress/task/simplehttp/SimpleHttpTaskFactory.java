@@ -1,6 +1,8 @@
 package com.palominolabs.benchpress.task.simplehttp;
 
+import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.Response;
 import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 
@@ -23,8 +25,8 @@ final class SimpleHttpTaskFactory implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
-        QueueProvider queueProvider) throws IOException {
+    public Collection<Runnable> getRunnables(final UUID jobId, int partitionId, UUID workerId,
+        final QueueProvider queueProvider) throws IOException {
         List<Runnable> runnables = newArrayList();
         runnables.add(new Runnable() {
             @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
@@ -32,7 +34,13 @@ final class SimpleHttpTaskFactory implements TaskFactory {
             public void run() {
                 AsyncHttpClient client = new AsyncHttpClient();
                 try {
-                    client.prepareGet(url).execute().get();
+                    client.prepareGet(url).execute(new AsyncCompletionHandler<Object>() {
+                        @Override
+                        public Object onCompleted(Response response) throws Exception {
+                            queueProvider.getQueue("simple-http", jobId).add("foo");
+                            return null;
+                        }
+                    }).get();
                 } catch (InterruptedException e) {
                     propagate(e);
                 } catch (ExecutionException e) {

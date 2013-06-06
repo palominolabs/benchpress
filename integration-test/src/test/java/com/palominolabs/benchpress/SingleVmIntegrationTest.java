@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Stage;
@@ -15,7 +16,6 @@ import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.controller.ControllerCoreModule;
 import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
-import com.palominolabs.benchpress.controller.zookeeper.ZKServerConfig;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
@@ -28,6 +28,7 @@ import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
+import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskOutputProcessor;
 import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
@@ -53,6 +54,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,8 +75,6 @@ public class SingleVmIntegrationTest {
     HttpServerFactory httpServerFactory;
     @Inject
     ZKServer zkServer;
-    @Inject
-    ZKServerConfig zkServerConfig;
     @Inject
     CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
     @Inject
@@ -115,7 +115,7 @@ public class SingleVmIntegrationTest {
 
         File zkTmpDir = temporaryFolder.newFolder();
 
-        final Map<String, Object> configMap = new HashMap<String, Object>();
+        final Map<String, Object> configMap = new HashMap<>();
         configMap.put("benchpress.controller.zookeeper.embedded-server.tmp-dir", zkTmpDir.getAbsolutePath());
 
         createInjector(Stage.PRODUCTION, new AbstractModule() {
@@ -266,6 +266,10 @@ public class SingleVmIntegrationTest {
 
         // and should have hit the resource
         assertEquals(1, simpleHttpResource.counter.get());
+
+        // and the output processor should have gotten a single "foo"
+        // noinspection rawtypes
+        assertEquals((List) Lists.newArrayList("foo"), SimpleHttpTaskOutputProcessor.INSTANCE.getObjects());
     }
 
     private String getUrlPrefix() {
