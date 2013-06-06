@@ -44,7 +44,7 @@ final class MongoDbTaskFactoryFactory extends TaskFactoryFactoryPartitionerBase 
 
         return new MongoDbTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
             getKeyGeneratorFactory(c), c.getNumQuanta(),
-            c.getNumThreads(), c.getProgressReportInterval(), c.getHostname(), c.getPort(), c.getDbName(),
+            c.getNumThreads(), c.getHostname(), c.getPort(), c.getDbName(),
             c.getCollectionName());
     }
 }

@@ -23,12 +23,11 @@ class HBaseConfig extends TaskConfigBase {
     HBaseConfig(@JsonProperty("op") TaskOperation taskOperation, @JsonProperty("threads") int numThreads,
         @JsonProperty("quanta") int numQuanta, @JsonProperty("batchSize") int batchSize,
         @JsonProperty("keyGen") KeyGen keyGen, @JsonProperty("valueGen") ValueGen valueGen,
-        @JsonProperty("progressReportInterval") int progressReportInterval,
         @JsonProperty("zkQuorum") String zkQuorum, @JsonProperty("zkPort") int zkPort,
         @JsonProperty("table") String table, @JsonProperty("columnFamily") String columnFamily,
         @JsonProperty("qualifier") String qualifier, @JsonProperty("autoFlush") boolean autoFlush,
         @JsonProperty("writeBufferSize") Long writeBufferSize) {
-        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen, progressReportInterval);
+        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen);
         this.zkQuorum = zkQuorum;
         this.zkPort = zkPort;
         this.table = table;
@@ -76,7 +75,7 @@ class HBaseConfig extends TaskConfigBase {
     @Override
     public HBaseConfig withNewQuanta(int newQuanta) {
         return new HBaseConfig(getTaskOperation(), getNumThreads(), newQuanta, getBatchSize(), getKeyGen(),
-            getValueGen(), getProgressReportInterval(), zkQuorum, zkPort, table, columnFamily, qualifier, autoFlush,
+            getValueGen(), zkQuorum, zkPort, table, columnFamily, qualifier, autoFlush,
             writeBufferSize);
     }
 }

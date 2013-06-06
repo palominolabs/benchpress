@@ -17,9 +17,8 @@ final class MongoDbRunnable extends AbstractTaskRunnable implements Runnable {
     private final DBCollection collection;
 
     protected MongoDbRunnable(DB db, String collectionName, KeyGenerator keyGenerator, ValueGenerator valueGenerator,
-            TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter,
-            UUID jobId, UUID workerId, int partitionId, int numQuanta, int batchSize, int progressReportQuantaInterval) {
-        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, progressReportQuantaInterval, taskProgressClient, jobId, valueGenerator, reportSequenceCounter);
+            UUID jobId, UUID workerId, int partitionId, int numQuanta, int batchSize) {
+        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
         this.db = db;
         collection = db.getCollection(collectionName);
     }

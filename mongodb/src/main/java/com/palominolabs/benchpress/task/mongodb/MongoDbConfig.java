@@ -20,10 +20,9 @@ class MongoDbConfig extends TaskConfigBase {
     MongoDbConfig(@JsonProperty("op") TaskOperation taskOperation, @JsonProperty("threads") int numThreads,
         @JsonProperty("quanta") int numQuanta, @JsonProperty("batchSize") int batchSize,
         @JsonProperty("keyGen") KeyGen keyGen, @JsonProperty("valueGen") ValueGen valueGen,
-        @JsonProperty("progressReportInterval") int progressReportInterval,
         @JsonProperty("hostname") String hostname, @JsonProperty("port") int port,
         @JsonProperty("dbName") String dbName, @JsonProperty("collectionName") String collectionName) {
-        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen, progressReportInterval);
+        super(taskOperation, numThreads, numQuanta, batchSize, keyGen, valueGen);
 
         this.hostname = hostname;
         this.port = port;
@@ -54,6 +53,6 @@ class MongoDbConfig extends TaskConfigBase {
     @Override
     public MongoDbConfig withNewQuanta(int newQuanta) {
         return new MongoDbConfig(getTaskOperation(), getNumThreads(), newQuanta, getBatchSize(), getKeyGen(),
-            getValueGen(), getProgressReportInterval(), hostname, port, dbName, collectionName);
+            getValueGen(), hostname, port, dbName, collectionName);
     }
 }

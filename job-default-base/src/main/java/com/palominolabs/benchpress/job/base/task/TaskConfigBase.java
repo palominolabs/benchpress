@@ -28,17 +28,14 @@ public abstract class TaskConfigBase {
 
     private final ValueGen valueGen;
 
-    private final int progressReportInterval;
-
     protected TaskConfigBase(TaskOperation taskOperation, int numThreads, int numQuanta, int batchSize, KeyGen keyGen,
-        ValueGen valueGen, int progressReportInterval) {
+        ValueGen valueGen) {
         this.taskOperation = taskOperation;
         this.numThreads = numThreads;
         this.numQuanta = numQuanta;
         this.batchSize = batchSize;
         this.keyGen = keyGen;
         this.valueGen = valueGen;
-        this.progressReportInterval = progressReportInterval;
     }
 
     public int getBatchSize() {
@@ -63,10 +60,6 @@ public abstract class TaskConfigBase {
 
     public ValueGen getValueGen() {
         return valueGen;
-    }
-
-    public int getProgressReportInterval() {
-        return progressReportInterval;
     }
 
     /**

@@ -1,15 +1,15 @@
 package com.palominolabs.benchpress.task.reporting;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.joda.time.Duration;
 
 abstract class AbstractTaskReport {
     private final int partitionId;
-    private final int reportSequenceNum;
+    private final Duration duration;
 
-    AbstractTaskReport(
-        int partitionId, int reportSequenceNum) {
+    AbstractTaskReport(int partitionId, Duration duration) {
         this.partitionId = partitionId;
-        this.reportSequenceNum = reportSequenceNum;
+        this.duration = duration;
     }
 
 
@@ -18,12 +18,12 @@ abstract class AbstractTaskReport {
         return partitionId;
     }
 
-    @JsonProperty("sequenceNum")
-    public int getReportSequenceNum() {
-        return reportSequenceNum;
+    @JsonProperty("duration")
+    public Duration getDuration() {
+        return duration;
     }
 
     public String toString() {
-        return "partitionId:" + partitionId + ", reportSequenceNum:" + reportSequenceNum;
+        return "partitionId:" + partitionId + ", duration:" + duration;
     }
 }

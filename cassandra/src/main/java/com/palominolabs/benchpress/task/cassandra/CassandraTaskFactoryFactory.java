@@ -43,9 +43,7 @@ final class CassandraTaskFactoryFactory extends TaskFactoryFactoryPartitionerBas
         CassandraConfig c = getConfig(objectReader, configNode);
 
         return new CassandraTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
-            getKeyGeneratorFactory(c), c.getNumQuanta(),
-            c.getNumThreads(), c.getProgressReportInterval(), c.getCluster(), c.getKeyspace(), c.getPort(),
-            c.getSeeds(), c.getColumnFamily(),
-            c.getColumn());
+            getKeyGeneratorFactory(c), c.getNumQuanta(), c.getNumThreads(), c.getCluster(), c.getKeyspace(),
+            c.getPort(), c.getSeeds(), c.getColumnFamily(), c.getColumn());
     }
 }

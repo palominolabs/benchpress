@@ -7,7 +7,6 @@ import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
 
@@ -38,9 +36,8 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
     HbaseTaskFactory(String table, int zkPort, String zkQuorum, String columnFamily, String qualifier,
         boolean autoFlush, Long writeBufferSize, ValueGeneratorFactory valueGeneratorFactory,
         KeyGeneratorFactory keyGeneratorFactory, TaskOperation taskOperation, int numThreads, int numQuanta,
-        int batchSize, int progressReportInterval) {
-        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
-            progressReportInterval);
+        int batchSize) {
+        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads);
         this.table = table;
         this.port = zkPort;
         this.zkQuorum = zkQuorum;
@@ -52,8 +49,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
-        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         Configuration hBaseConfiguration = HBaseConfiguration.create();
@@ -74,8 +70,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
                 .add(
                     new HbaseRunnable(hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
                         keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
-                        taskProgressClient, reportSequenceCounter,
-                        jobId, workerId, partitionId, quantaPerThread, batchSize, progressReportInterval
+                        jobId, workerId, partitionId, quantaPerThread, batchSize
                     ));
         }
 

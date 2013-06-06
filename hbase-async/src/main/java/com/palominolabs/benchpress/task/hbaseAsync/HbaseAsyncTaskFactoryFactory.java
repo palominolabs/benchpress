@@ -43,7 +43,7 @@ final class HbaseAsyncTaskFactoryFactory extends TaskFactoryFactoryPartitionerBa
         HBaseAsyncConfig c = getConfig(objectReader, configNode);
 
         return new HbaseAsyncTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
-            getKeyGeneratorFactory(c), c.getNumQuanta(), c.getNumThreads(), c.getProgressReportInterval(),
-            c.getColumnFamily(), c.getZkQuorum(), c.getTable(), c.getQualifier());
+            getKeyGeneratorFactory(c), c.getNumQuanta(), c.getNumThreads(), c.getColumnFamily(), c.getZkQuorum(),
+            c.getTable(), c.getQualifier());
     }
 }

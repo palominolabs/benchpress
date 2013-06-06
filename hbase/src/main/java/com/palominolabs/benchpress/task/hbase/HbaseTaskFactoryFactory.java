@@ -32,8 +32,7 @@ final class HbaseTaskFactoryFactory extends TaskFactoryFactoryPartitionerBase im
 
         return new HbaseTaskFactory(c.getTable(), c.getZkPort(), c.getZkQuorum(), c.getColumnFamily(), c.getQualifier(),
             c.isAutoFlush(), c.getWriteBufferSize(), getValueGeneratorFactory(c), getKeyGeneratorFactory(c),
-            c.getTaskOperation(), c.getNumThreads(),
-            c.getNumQuanta(), c.getBatchSize(), c.getProgressReportInterval());
+            c.getTaskOperation(), c.getNumThreads(), c.getNumQuanta(), c.getBatchSize());
     }
 
     @Nonnull

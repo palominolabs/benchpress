@@ -7,7 +7,6 @@ import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.hbase.async.HBaseClient;
 import org.hbase.async.TableNotFoundException;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory {
 
@@ -31,10 +29,9 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
     private HBaseClient client;
 
     HbaseAsyncTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
-        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, int progressReportInterval,
-        String columnFamily, String zkQuorum, String table, String qualifier) {
-        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads,
-            progressReportInterval);
+                          KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads,
+                          String columnFamily, String zkQuorum, String table, String qualifier) {
+        super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads);
         this.columnFamily = columnFamily;
         this.zkQuorum = zkQuorum;
         this.table = table;
@@ -43,8 +40,7 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
-        TaskProgressClient taskProgressClient, AtomicInteger reportSequenceCounter) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         client = new HBaseClient(zkQuorum);
@@ -64,7 +60,7 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
         for (int i = 0; i < numThreads; i++) {
             runnables.add(new HbaseAsyncRunnable(client, quantaPerThread, table, columnFamily, qualifier,
                 keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(), workerId, partitionId,
-                batchSize, progressReportInterval, taskProgressClient, jobId, reportSequenceCounter));
+                batchSize, jobId));
         }
         return runnables;
     }
