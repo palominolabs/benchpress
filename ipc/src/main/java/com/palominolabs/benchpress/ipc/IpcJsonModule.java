@@ -19,5 +19,6 @@ public final class IpcJsonModule extends AbstractModule {
         // use ipc object mapper in Jersey
         final JacksonJsonProvider provider = new JacksonJsonProvider();
         provider.setMapper(objectMapper);
+        bind(JacksonJsonProvider.class).toInstance(provider);
     }
 }
