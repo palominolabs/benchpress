@@ -17,7 +17,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>worker-core</artifactId>
+      <artifactId>worker-data</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

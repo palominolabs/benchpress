@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>zookeeper</artifactId>
+  <artifactId>controller-core</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
   <parent>
@@ -14,39 +14,27 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.skife.config</groupId>
-      <artifactId>config-magic</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>logging</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.palominolabs.config</groupId>
-      <artifactId>config-inject</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>zookeeper</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.palominolabs.benchpress</groupId>
-      <artifactId>worker-data</artifactId>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>job</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>org.apache.curator</groupId>
-      <artifactId>curator-framework</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.curator</groupId>
-      <artifactId>curator-x-discovery</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -55,8 +43,23 @@
     </dependency>
 
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
+      <groupId>org.apache.curator</groupId>
+      <artifactId>curator-x-discovery</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
     </dependency>
   </dependencies>
 </project>

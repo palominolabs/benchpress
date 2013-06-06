@@ -12,7 +12,7 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
-import com.palominolabs.benchpress.controller.ControllerResourceModule;
+import com.palominolabs.benchpress.controller.ControllerCoreModule;
 import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerConfig;
@@ -60,9 +60,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import static com.google.inject.Guice.createInjector;
-import static com.mongodb.util.MyAsserts.assertFalse;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SingleVmIntegrationTest {
@@ -134,7 +134,7 @@ public class SingleVmIntegrationTest {
                 install(new InstanceSerializerModule());
                 install(new IpcJsonModule());
                 install(new TaskPartitionerRegistryModule());
-                install(new ControllerResourceModule());
+                install(new ControllerCoreModule());
 
                 // worker
                 install(new JobRegistryModule());

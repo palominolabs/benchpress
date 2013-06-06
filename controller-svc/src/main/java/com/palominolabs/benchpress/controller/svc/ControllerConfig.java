@@ -1,4 +1,4 @@
-package com.palominolabs.benchpress.controller;
+package com.palominolabs.benchpress.controller.svc;
 
 import org.skife.config.Config;
 import org.skife.config.Default;

@@ -42,7 +42,6 @@
     <module>task-reporting</module>
     <module>job-registry</module>
     <module>ipc</module>
-    <module>worker-core</module>
     <module>logging</module>
     <module>cassandra</module>
     <module>mongodb</module>
@@ -53,6 +52,10 @@
     <module>key-gen</module>
     <module>value-gen</module>
     <module>integration-test</module>
+    <module>worker-core</module>
+    <module>controller-core</module>
+    <module>controller-zk-server</module>
+    <module>worker-data</module>
   </modules>
 
   <dependencyManagement>
@@ -65,11 +68,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>zookeeper</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>controller-svc</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -99,7 +97,7 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>worker-core</artifactId>
+        <artifactId>worker-data</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -149,7 +147,17 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>worker-svc</artifactId>
+        <artifactId>controller-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>controller-zk-server</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>worker-core</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -190,6 +198,13 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
+        <version>${dep.slf4j}</version>
+        <optional>true</optional>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
         <version>${dep.slf4j}</version>
         <optional>true</optional>
         <scope>runtime</scope>
@@ -476,11 +491,44 @@
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-test</artifactId>
         <version>${dep.curator}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.curator</groupId>
         <artifactId>curator-x-discovery</artifactId>
         <version>${dep.curator}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>3.4.5</version>
+        <!-- like many apache projects, zk sucks at maven -->
+        <exclusions>
+          <exclusion>
+            <groupId>com.sun.jmx</groupId>
+            <artifactId>jmxri</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.jdmk</groupId>
+            <artifactId>jmxtools</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.jms</groupId>
+            <artifactId>jms</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>

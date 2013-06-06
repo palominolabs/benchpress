@@ -1,6 +1,7 @@
-package com.palominolabs.benchpress.controller;
+package com.palominolabs.benchpress.controller.svc;
 
 import com.google.inject.AbstractModule;
+import com.palominolabs.benchpress.controller.ControllerCoreModule;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
@@ -32,7 +33,7 @@ public final class ControllerMainModule extends AbstractModule {
 
         install(new DefaultJerseyServletModule());
 
-        install(new ControllerResourceModule());
+        install(new ControllerCoreModule());
         install(new ConfigModuleBuilder().addConfiguration(new SystemConfiguration()).build());
 
         install(new CuratorModule());

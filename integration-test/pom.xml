@@ -39,11 +39,15 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>controller-svc</artifactId>
+      <artifactId>controller-core</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>worker-svc</artifactId>
+      <artifactId>worker-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>controller-zk-server</artifactId>
     </dependency>
 
     <dependency>

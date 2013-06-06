@@ -67,6 +67,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>value-gen</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>worker-core</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>com.palominolabs.config</groupId>

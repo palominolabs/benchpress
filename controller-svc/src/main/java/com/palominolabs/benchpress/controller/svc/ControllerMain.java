@@ -1,9 +1,10 @@
-package com.palominolabs.benchpress.controller;
+package com.palominolabs.benchpress.controller.svc;
 
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.http.server.HttpServer;

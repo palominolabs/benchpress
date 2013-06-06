@@ -1,5 +1,6 @@
 package com.palominolabs.benchpress.worker;
 
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.io.Closeables;
 import com.google.inject.AbstractModule;
@@ -21,8 +22,6 @@ import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.http.server.HttpServerModule;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.MetricsRegistry;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.x.discovery.ServiceDiscovery;
@@ -63,7 +62,7 @@ public final class WorkerAdvertiserTest {
 
                 install(new HttpServerModule());
 
-                bind(MetricsRegistry.class).toInstance(Metrics.defaultRegistry());
+                bind(MetricRegistry.class).toInstance(new MetricRegistry());
 
                 install(new DefaultJerseyServletModule());
                 install(new WorkerResourceModule());
