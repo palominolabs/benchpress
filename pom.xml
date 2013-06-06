@@ -22,7 +22,7 @@
     <dep.jersey>1.17</dep.jersey>
     <dep.jetty>9.0.3.v20130506</dep.jetty>
 
-    <dep.jackson>2.2.1</dep.jackson>
+    <dep.jackson>2.2.2</dep.jackson>
     <dep.jackson.joda>2.2.1</dep.jackson.joda>
 
     <dep.metrics>3.0.0-BETA3</dep.metrics>
