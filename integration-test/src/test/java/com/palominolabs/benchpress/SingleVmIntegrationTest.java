@@ -39,13 +39,14 @@ import com.palominolabs.http.server.HttpServer;
 import com.palominolabs.http.server.HttpServerConfig;
 import com.palominolabs.http.server.HttpServerFactory;
 import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.io.FileUtils;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.core.MediaType;
@@ -55,6 +56,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 import static com.google.inject.Guice.createInjector;
@@ -95,6 +97,9 @@ public class SingleVmIntegrationTest {
     @Inject
     SimpleHttpResource simpleHttpResource;
 
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
     ExecutorService executorService;
     HttpServer httpServer;
     private HttpServerConfig httpServerConfig;
@@ -108,7 +113,10 @@ public class SingleVmIntegrationTest {
     @Before
     public void setUp() throws Exception {
 
+        File zkTmpDir = temporaryFolder.newFolder();
+
         final Map<String, Object> configMap = new HashMap<String, Object>();
+        configMap.put("benchpress.controller.zookeeper.embedded-server.tmp-dir", zkTmpDir.getAbsolutePath());
 
         createInjector(Stage.PRODUCTION, new AbstractModule() {
             @Override
@@ -141,8 +149,6 @@ public class SingleVmIntegrationTest {
             }
         }).injectMembers(this);
 
-        FileUtils.deleteDirectory(new File(zkServerConfig.getTmpDir()));
-
         executorService = Executors.newCachedThreadPool();
         executorService.submit(zkServer);
 
@@ -161,6 +167,9 @@ public class SingleVmIntegrationTest {
         httpServer.stop();
 
         executorService.shutdownNow();
+        if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
+            throw new RuntimeException("Executor did not shut down");
+        }
 
         serviceDiscovery.close();
     }
