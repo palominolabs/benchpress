@@ -7,7 +7,7 @@ import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
-import com.palominolabs.benchpress.job.task.TaskPartitionerRegistryModule;
+import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.cassandra.CassandraModule;
 import com.palominolabs.benchpress.task.hbase.HbaseModule;
@@ -48,7 +48,7 @@ public final class ControllerMainModule extends AbstractModule {
 
         install(new KeyGeneratorFactoryFactoryRegistryModule());
         install(new ValueGeneratorFactoryFactoryRegistryModule());
-        install(new TaskPartitionerRegistryModule());
+        install(new ComponentFactoryRegistryModule());
 
         install(new HbaseAsyncModule());
         install(new HbaseModule());

@@ -10,13 +10,13 @@ import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactory;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
+import com.palominolabs.benchpress.job.task.ComponentFactoryRegistry;
+import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.value.DefaultValueGeneratorFactoryFactoriesModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistry;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.cassandra.CassandraModule;
 import com.palominolabs.benchpress.task.hbase.HbaseModule;
 import com.palominolabs.benchpress.task.hbaseAsync.HbaseAsyncModule;
@@ -36,7 +36,7 @@ import java.util.logging.LogManager;
  */
 final class HbaseMain {
 
-    private final TaskFactoryFactoryRegistry registry;
+    private final ComponentFactoryRegistry registry;
 
     private final TaskProgressClient taskProgressClient;
 
@@ -44,7 +44,7 @@ final class HbaseMain {
     private final ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry;
 
     @Inject
-    HbaseMain(TaskFactoryFactoryRegistry registry, TaskProgressClient taskProgressClient,
+    HbaseMain(ComponentFactoryRegistry registry, TaskProgressClient taskProgressClient,
         KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
         ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
         this.registry = registry;
@@ -65,7 +65,7 @@ final class HbaseMain {
                 bind(HbaseMain.class);
             }
         }, new JobRegistryModule(), new HbaseModule(), new CassandraModule(), new HbaseAsyncModule(),
-            new TaskFactoryFactoryRegistryModule(), new KeyGeneratorFactoryFactoryRegistryModule(),
+            new ComponentFactoryRegistryModule(), new KeyGeneratorFactoryFactoryRegistryModule(),
             new DefaultKeyGeneratorFactoriesModule(), new ValueGeneratorFactoryFactoryRegistryModule(),
             new DefaultValueGeneratorFactoryFactoriesModule());
 

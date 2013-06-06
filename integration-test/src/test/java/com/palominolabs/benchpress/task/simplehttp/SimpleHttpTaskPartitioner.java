@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-@Id("simple-http")
 final class SimpleHttpTaskPartitioner implements TaskPartitioner {
     @Nonnull
     @Override

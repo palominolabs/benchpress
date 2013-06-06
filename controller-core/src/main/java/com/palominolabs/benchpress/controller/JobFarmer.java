@@ -9,8 +9,8 @@ import com.palominolabs.benchpress.job.JobStatus;
 import com.palominolabs.benchpress.job.PartitionStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Partition;
+import com.palominolabs.benchpress.job.task.ComponentFactoryRegistry;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
-import com.palominolabs.benchpress.job.task.TaskPartitionerRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
@@ -46,8 +46,8 @@ public final class JobFarmer {
     private final UUID controllerId = UUID.randomUUID();
 
     private final Map<UUID, JobStatus> jobs = new HashMap<UUID, JobStatus>();
-    private final TaskPartitionerRegistry taskPartitionerRegistry;
 
+    private final ComponentFactoryRegistry componentFactoryRegistry;
     private final ObjectReader objectReader;
 
     private final ObjectWriter objectWriter;
@@ -61,11 +61,11 @@ public final class JobFarmer {
 
     @Inject
     JobFarmer(WorkerFinder workerFinder, WorkerControlFactory workerControlFactory,
-        TaskPartitionerRegistry taskPartitionerRegistry, @Ipc ObjectReader objectReader,
+        ComponentFactoryRegistry componentFactoryRegistry, @Ipc ObjectReader objectReader,
         @Ipc ObjectWriter objectWriter) {
         this.workerFinder = workerFinder;
         this.workerControlFactory = workerControlFactory;
-        this.taskPartitionerRegistry = taskPartitionerRegistry;
+        this.componentFactoryRegistry = componentFactoryRegistry;
         this.objectReader = objectReader;
         this.objectWriter = objectWriter;
     }
@@ -97,7 +97,7 @@ public final class JobFarmer {
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No unlocked workers found").build();
         }
 
-        TaskPartitioner taskPartitioner = taskPartitionerRegistry.get(job.getTask().getTaskType());
+        TaskPartitioner taskPartitioner = componentFactoryRegistry.get(job.getTask().getTaskType()).getTaskPartitioner();
 
         List<Partition> partitions;
         try {

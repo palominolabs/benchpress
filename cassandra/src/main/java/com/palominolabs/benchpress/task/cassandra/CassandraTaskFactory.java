@@ -13,6 +13,7 @@ import com.netflix.astyanax.serializers.BytesArraySerializer;
 import com.netflix.astyanax.thrift.ThriftFamilyFactory;
 import com.palominolabs.benchpress.job.base.task.TaskFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
+import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
@@ -47,7 +48,8 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
+        QueueProvider queueProvider) throws IOException {
 
         context = new AstyanaxContext.Builder().forCluster(clusterName)
             .forKeyspace(keyspaceName)

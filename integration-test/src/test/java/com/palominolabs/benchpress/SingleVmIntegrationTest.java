@@ -25,10 +25,10 @@ import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistryModule;
-import com.palominolabs.benchpress.job.task.TaskPartitionerRegistryModule;
+import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
+import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
@@ -133,15 +133,15 @@ public class SingleVmIntegrationTest {
                 // controller
                 install(new InstanceSerializerModule());
                 install(new IpcJsonModule());
-                install(new TaskPartitionerRegistryModule());
                 install(new ControllerCoreModule());
 
                 // worker
                 install(new JobRegistryModule());
                 install(new TaskProgressClientModule());
                 install(new IpcHttpClientModule());
-                install(new TaskFactoryFactoryRegistryModule());
+                install(new ComponentFactoryRegistryModule());
                 install(new WorkerResourceModule());
+                install(new QueueProviderModule());
 
                 // custom task
                 install(new SimpleHttpTaskModule());
@@ -151,7 +151,6 @@ public class SingleVmIntegrationTest {
 
         executorService = Executors.newCachedThreadPool();
         executorService.submit(zkServer);
-
         httpServerConfig = new HttpServerConfig();
         httpServer = httpServerFactory.getHttpServer(this.httpServerConfig);
         httpServer.start();

@@ -7,9 +7,9 @@ import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.job.json.Partition;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistry;
+import com.palominolabs.benchpress.job.task.ComponentFactoryRegistry;
+import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactoryRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -53,17 +53,18 @@ public final class PartitionRunner {
 
     private final JobRegistry jobRegistry;
 
-    private final TaskFactoryFactoryRegistry taskFactoryFactoryRegistry;
-
     private final ObjectReader objectReader;
+    private final QueueProvider queueProvider;
+    private final ComponentFactoryRegistry componentFactoryRegistry;
 
     @Inject
-    PartitionRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry,
-        TaskFactoryFactoryRegistry taskFactoryFactoryRegistry, @Ipc ObjectReader objectReader) {
+    PartitionRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry, @Ipc ObjectReader objectReader,
+        QueueProvider queueProvider, ComponentFactoryRegistry componentFactoryRegistry) {
         this.taskProgressClient = taskProgressClient;
         this.jobRegistry = jobRegistry;
-        this.taskFactoryFactoryRegistry = taskFactoryFactoryRegistry;
         this.objectReader = objectReader;
+        this.queueProvider = queueProvider;
+        this.componentFactoryRegistry = componentFactoryRegistry;
 
         // TODO lifecycle would be nice for this
         completionService.submit(new ThreadExceptionWatcherRunnable(completionService), null);
@@ -86,7 +87,7 @@ public final class PartitionRunner {
 
         Collection<Runnable> runnables;
         try {
-            runnables = tf.getRunnables(partition.getJobId(), partition.getPartitionId(), workerId);
+            runnables = tf.getRunnables(partition.getJobId(), partition.getPartitionId(), workerId, queueProvider);
         } catch (IOException e) {
             logger.warn("Couldn't make runnables", e);
             return false;
@@ -107,9 +108,7 @@ public final class PartitionRunner {
     private TaskFactory getTaskFactory(Partition partition) throws IOException {
         Task t = partition.getTask();
 
-        TaskFactoryFactory taskFactoryFactory = taskFactoryFactoryRegistry.get(t.getTaskType());
-
-        return taskFactoryFactory.getTaskFactory(objectReader, t.getConfigNode());
+        return componentFactoryRegistry.get(t.getTaskType()).getTaskFactory(objectReader, t.getConfigNode());
     }
 
     private static class ThreadExceptionWatcherRunnable implements Runnable {

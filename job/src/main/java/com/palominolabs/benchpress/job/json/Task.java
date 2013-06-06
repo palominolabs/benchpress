@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.palominolabs.benchpress.job.id.Id;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
+import com.palominolabs.benchpress.job.task.ComponentFactory;
 
 public final class Task {
     private final String taskType;
@@ -20,7 +20,7 @@ public final class Task {
     /**
      * Don't mess with this JsonNode; just read from it.
      *
-     * @return json node representing the config data. {@link TaskFactoryFactory} implementations should deserialize as
+     * @return json node representing the config data. {@link ComponentFactory} implementations should deserialize as
      *         they see fit.
      */
     @JsonProperty("config")
@@ -29,7 +29,7 @@ public final class Task {
     }
 
     /**
-     * Should match the {@link Id} annotation on a {@link TaskFactoryFactory}
+     * Should match the {@link Id} annotation on a {@link ComponentFactory}
      *
      * @return the task type
      */

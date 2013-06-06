@@ -5,17 +5,16 @@ import com.mongodb.DB;
 import com.mongodb.Mongo;
 import com.palominolabs.benchpress.job.base.task.TaskFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
+import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
     private final String hostname;
@@ -36,8 +35,8 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId) throws IOException {
-
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
+        QueueProvider queueProvider) throws IOException {
         mongo = new Mongo(this.hostname, this.port);
         int quantaPerThread = numQuanta / numThreads;
 

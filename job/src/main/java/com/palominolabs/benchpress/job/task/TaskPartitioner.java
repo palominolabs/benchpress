@@ -12,9 +12,6 @@ import java.util.UUID;
 
 /**
  * Responsible for splitting a task-type-specific configuration into partitions (one for each worker).
- *
- * Implementations MUST be annotated with {@link com.palominolabs.benchpress.job.id.Id} to be usable from a json job
- * spec.
  */
 public interface TaskPartitioner {
 

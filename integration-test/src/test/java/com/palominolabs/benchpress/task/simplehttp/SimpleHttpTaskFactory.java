@@ -1,8 +1,8 @@
 package com.palominolabs.benchpress.task.simplehttp;
 
 import com.ning.http.client.AsyncHttpClient;
+import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
@@ -24,7 +23,8 @@ final class SimpleHttpTaskFactory implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId) throws IOException {
+    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
+        QueueProvider queueProvider) throws IOException {
         List<Runnable> runnables = newArrayList();
         runnables.add(new Runnable() {
             @SuppressWarnings("ThrowableResultOfMethodCallIgnored")

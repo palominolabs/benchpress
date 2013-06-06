@@ -2,19 +2,18 @@ package com.palominolabs.benchpress.job.task;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.palominolabs.benchpress.job.id.Id;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.Nullable;
 import java.io.IOException;
 
 /**
- * Responsible for extracting task-type-specific configuration and creating a usable TaskFactory.
+ * This is the main interface you need to implement to create BenchPress plugin.
  *
- * Implementations MUST be annotated with {@link Id} to be usable from a json job spec.
+ * Implementations MUST be annotated with {@link com.palominolabs.benchpress.job.id.Id} to be usable from a json job
+ * spec.
  */
-@ThreadSafe
-public interface TaskFactoryFactory {
+public interface ComponentFactory {
     /**
      * Read config data out of the config node using the supplied ObjectReader and create a TaskFactory.
      *
@@ -24,4 +23,13 @@ public interface TaskFactoryFactory {
      */
     @Nonnull
     TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException;
+
+    /**
+     * @return Output processor to use or null if not using an output processor
+     */
+    @Nullable
+    TaskOutputProcessor getTaskOutputProcessor();
+
+    @Nonnull
+    TaskPartitioner getTaskPartitioner();
 }

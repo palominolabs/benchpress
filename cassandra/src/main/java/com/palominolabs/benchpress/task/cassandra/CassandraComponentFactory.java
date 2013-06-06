@@ -6,21 +6,22 @@ import com.google.inject.Inject;
 import com.palominolabs.benchpress.job.base.task.TaskFactoryFactoryPartitionerBase;
 import com.palominolabs.benchpress.job.id.Id;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
+import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.job.task.TaskFactoryFactory;
+import com.palominolabs.benchpress.job.task.TaskOutputProcessor;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 
-@Id(CassandraTaskFactoryFactory.TASK_TYPE)
-final class CassandraTaskFactoryFactory extends TaskFactoryFactoryPartitionerBase implements TaskFactoryFactory, TaskPartitioner {
+final class CassandraComponentFactory extends TaskFactoryFactoryPartitionerBase implements ComponentFactory, TaskPartitioner {
 
     static final String TASK_TYPE = "CASSANDRA";
 
     @Inject
-    CassandraTaskFactoryFactory(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
+    CassandraComponentFactory(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
         ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
         super(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry);
     }
@@ -45,5 +46,17 @@ final class CassandraTaskFactoryFactory extends TaskFactoryFactoryPartitionerBas
         return new CassandraTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
             getKeyGeneratorFactory(c), c.getNumQuanta(), c.getNumThreads(), c.getCluster(), c.getKeyspace(),
             c.getPort(), c.getSeeds(), c.getColumnFamily(), c.getColumn());
+    }
+
+    @Nullable
+    @Override
+    public TaskOutputProcessor getTaskOutputProcessor() {
+        return null;
+    }
+
+    @Nonnull
+    @Override
+    public TaskPartitioner getTaskPartitioner() {
+        return this;
     }
 }
