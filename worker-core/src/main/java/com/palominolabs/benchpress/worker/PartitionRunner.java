@@ -42,7 +42,7 @@ public final class PartitionRunner {
     private static final Logger logger = LoggerFactory.getLogger(PartitionRunner.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private final CompletionService<Void> completionService = new ExecutorCompletionService<Void>(executorService);
+    private final CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
 
     /**
      * TODO figure out a good way to worker-scope a random uuid -- @WorkerId binding annotation perhaps? Wrapper class?
@@ -83,7 +83,7 @@ public final class PartitionRunner {
 
         jobRegistry.storeJob(partition.getJobId(), partition.getProgressUrl(), partition.getFinishedUrl());
 
-        HashSet<Future<Void>> futures = new HashSet<Future<Void>>();
+        HashSet<Future<Void>> futures = new HashSet<>();
 
         Collection<Runnable> runnables;
         try {
@@ -99,7 +99,7 @@ public final class PartitionRunner {
 
         completionService.submit(
             new TaskThreadWatcher(futures, partition.getPartitionId(), partition.getJobId(), taskProgressClient,
-                jobRegistry), null);
+                jobRegistry, queueProvider), null);
 
         return true;
     }
@@ -154,14 +154,16 @@ public final class PartitionRunner {
         private final UUID jobId;
         private final TaskProgressClient taskProgressClient;
         private final JobRegistry jobRegistry;
+        private final QueueProvider queueProvider;
 
         private TaskThreadWatcher(Set<Future<Void>> futures, int partitionId, UUID jobId,
-            TaskProgressClient taskProgressClient, JobRegistry jobRegistry) {
+            TaskProgressClient taskProgressClient, JobRegistry jobRegistry, QueueProvider queueProvider) {
             this.futures = futures;
             this.partitionId = partitionId;
             this.jobId = jobId;
             this.taskProgressClient = taskProgressClient;
             this.jobRegistry = jobRegistry;
+            this.queueProvider = queueProvider;
         }
 
         @Override
@@ -195,6 +197,7 @@ public final class PartitionRunner {
 
                 taskProgressClient.reportFinished(jobId, partitionId, new Duration(start, null));
                 jobRegistry.removeJob(jobId);
+                queueProvider.removeJob(jobId);
 
                 watcherLogger.info("All task threads finished");
             } finally {
