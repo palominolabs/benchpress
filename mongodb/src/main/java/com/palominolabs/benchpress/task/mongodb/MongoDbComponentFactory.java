@@ -1,9 +1,6 @@
 package com.palominolabs.benchpress.task.mongodb;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.google.inject.Inject;
-import com.palominolabs.benchpress.job.base.task.TaskFactoryFactoryPartitionerBase;
+import com.palominolabs.benchpress.job.base.task.TaskPartitionerBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
@@ -13,22 +10,23 @@ import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistr
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 
-final class MongoDbComponentFactory extends TaskFactoryFactoryPartitionerBase implements ComponentFactory {
+final class MongoDbComponentFactory extends TaskPartitionerBase implements ComponentFactory {
     static final String TASK_TYPE = "MONGODB";
 
-    @Inject
+    private final MongoDbConfig config;
+
     MongoDbComponentFactory(
         KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
+        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, MongoDbConfig config) {
         super(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry);
+        this.config = config;
     }
 
     @Nonnull
     @Override
-    public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        MongoDbConfig c = getConfig(objectReader, configNode);
+    public TaskFactory getTaskFactory() {
+        MongoDbConfig c = getConfig();
 
         return new MongoDbTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
             getKeyGeneratorFactory(c), c.getNumQuanta(),
@@ -38,7 +36,7 @@ final class MongoDbComponentFactory extends TaskFactoryFactoryPartitionerBase im
 
     @Nullable
     @Override
-    public TaskOutputProcessorFactory getTaskOutputProcessorFactory(ObjectReader objectReader, JsonNode configNode) {
+    public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
         return null;
     }
 
@@ -50,8 +48,8 @@ final class MongoDbComponentFactory extends TaskFactoryFactoryPartitionerBase im
 
     @Nonnull
     @Override
-    protected MongoDbConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(MongoDbConfig.class).readValue(configNode);
+    protected MongoDbConfig getConfig()  {
+        return config;
     }
 
     @Nonnull

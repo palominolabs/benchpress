@@ -15,7 +15,7 @@ import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.reporting.NoOpTaskProgressClient;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
@@ -75,7 +75,7 @@ public final class WorkerAdvertiserTest {
                 install(new JobRegistryModule());
                 bind(TaskProgressClient.class).to(NoOpTaskProgressClient.class);
 
-                install(new ComponentFactoryRegistryModule());
+                install(new TaskPluginRegistryModule());
                 install(new ValueGeneratorFactoryFactoryRegistryModule());
                 install(new KeyGeneratorFactoryFactoryRegistryModule());
                 install(new IpcJsonModule());

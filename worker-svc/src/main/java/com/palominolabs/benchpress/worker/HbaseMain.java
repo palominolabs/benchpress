@@ -10,8 +10,8 @@ import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactory;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistry;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.value.DefaultValueGeneratorFactoryFactoriesModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
@@ -36,7 +36,7 @@ import java.util.logging.LogManager;
  */
 final class HbaseMain {
 
-    private final ComponentFactoryRegistry registry;
+    private final TaskPluginRegistry registry;
 
     private final TaskProgressClient taskProgressClient;
 
@@ -44,7 +44,7 @@ final class HbaseMain {
     private final ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry;
 
     @Inject
-    HbaseMain(ComponentFactoryRegistry registry, TaskProgressClient taskProgressClient,
+    HbaseMain(TaskPluginRegistry registry, TaskProgressClient taskProgressClient,
         KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
         ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
         this.registry = registry;
@@ -65,7 +65,7 @@ final class HbaseMain {
                 bind(HbaseMain.class);
             }
         }, new JobRegistryModule(), new HbaseModule(), new CassandraModule(), new HbaseAsyncModule(),
-            new ComponentFactoryRegistryModule(), new KeyGeneratorFactoryFactoryRegistryModule(),
+            new TaskPluginRegistryModule(), new KeyGeneratorFactoryFactoryRegistryModule(),
             new DefaultKeyGeneratorFactoriesModule(), new ValueGeneratorFactoryFactoryRegistryModule(),
             new DefaultValueGeneratorFactoryFactoriesModule());
 

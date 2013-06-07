@@ -1,9 +1,6 @@
 package com.palominolabs.benchpress.task.hbase;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.google.inject.Inject;
-import com.palominolabs.benchpress.job.base.task.TaskFactoryFactoryPartitionerBase;
+import com.palominolabs.benchpress.job.base.task.TaskPartitionerBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
@@ -13,22 +10,23 @@ import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistr
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 
-final class HbaseComponentFactory extends TaskFactoryFactoryPartitionerBase implements ComponentFactory, TaskPartitioner {
+final class HbaseComponentFactory extends TaskPartitionerBase implements ComponentFactory, TaskPartitioner {
 
     static final String TASK_TYPE = "HBASE";
 
-    @Inject
+    private final HBaseConfig config;
+
     HbaseComponentFactory(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
+        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, HBaseConfig config) {
         super(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry);
+        this.config = config;
     }
 
     @Nonnull
     @Override
-    public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        HBaseConfig c = getConfig(objectReader, configNode);
+    public TaskFactory getTaskFactory() {
+        HBaseConfig c = getConfig();
 
         return new HbaseTaskFactory(c.getTable(), c.getZkPort(), c.getZkQuorum(), c.getColumnFamily(), c.getQualifier(),
             c.isAutoFlush(), c.getWriteBufferSize(), getValueGeneratorFactory(c), getKeyGeneratorFactory(c),
@@ -37,7 +35,7 @@ final class HbaseComponentFactory extends TaskFactoryFactoryPartitionerBase impl
 
     @Nullable
     @Override
-    public TaskOutputProcessorFactory getTaskOutputProcessorFactory(ObjectReader objectReader, JsonNode configNode) {
+    public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
         return null;
     }
 
@@ -49,8 +47,8 @@ final class HbaseComponentFactory extends TaskFactoryFactoryPartitionerBase impl
 
     @Nonnull
     @Override
-    protected HBaseConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(HBaseConfig.class).readValue(configNode);
+    protected HBaseConfig getConfig() {
+        return config;
     }
 
     @Nonnull

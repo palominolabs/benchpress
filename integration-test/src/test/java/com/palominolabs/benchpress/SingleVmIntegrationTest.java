@@ -25,7 +25,7 @@ import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskOutputProcessor;
@@ -139,7 +139,7 @@ public class SingleVmIntegrationTest {
                 install(new JobRegistryModule());
                 install(new TaskProgressClientModule());
                 install(new IpcHttpClientModule());
-                install(new ComponentFactoryRegistryModule());
+                install(new TaskPluginRegistryModule());
                 install(new WorkerResourceModule());
                 install(new QueueProviderModule());
 

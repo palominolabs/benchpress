@@ -1,9 +1,6 @@
 package com.palominolabs.benchpress.task.hbaseAsync;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.google.inject.Inject;
-import com.palominolabs.benchpress.job.base.task.TaskFactoryFactoryPartitionerBase;
+import com.palominolabs.benchpress.job.base.task.TaskPartitionerBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
@@ -13,22 +10,23 @@ import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistr
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 
-final class HbaseAsyncComponentFactory extends TaskFactoryFactoryPartitionerBase implements ComponentFactory, TaskPartitioner {
+final class HbaseAsyncComponentFactory extends TaskPartitionerBase implements ComponentFactory, TaskPartitioner {
 
     static final String TASK_TYPE = "HBASE_ASYNC";
 
-    @Inject
+    private final HbaseAsyncConfig config;
+
     HbaseAsyncComponentFactory(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
+        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, HbaseAsyncConfig config) {
         super(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry);
+        this.config = config;
     }
 
     @Nonnull
     @Override
-    protected HBaseAsyncConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(HBaseAsyncConfig.class).readValue(configNode);
+    protected HbaseAsyncConfig getConfig() {
+        return config;
     }
 
     @Nonnull
@@ -39,8 +37,8 @@ final class HbaseAsyncComponentFactory extends TaskFactoryFactoryPartitionerBase
 
     @Nonnull
     @Override
-    public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        HBaseAsyncConfig c = getConfig(objectReader, configNode);
+    public TaskFactory getTaskFactory() {
+        HbaseAsyncConfig c = getConfig();
 
         return new HbaseAsyncTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
             getKeyGeneratorFactory(c), c.getNumQuanta(), c.getNumThreads(), c.getColumnFamily(), c.getZkQuorum(),
@@ -49,7 +47,7 @@ final class HbaseAsyncComponentFactory extends TaskFactoryFactoryPartitionerBase
 
     @Nullable
     @Override
-    public TaskOutputProcessorFactory getTaskOutputProcessorFactory(ObjectReader objectReader, JsonNode configNode) {
+    public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
         return null;
     }
 

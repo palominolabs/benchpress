@@ -10,14 +10,14 @@ import com.palominolabs.benchpress.job.task.TaskOperation;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-class HBaseAsyncConfig extends TaskConfigBase {
+class HbaseAsyncConfig extends TaskConfigBase {
     private final String zkQuorum;
     private final String table;
     private final String columnFamily;
     private final String qualifier;
 
     @JsonCreator
-    HBaseAsyncConfig(@JsonProperty("op") TaskOperation taskOperation, @JsonProperty("threads") int numThreads,
+    HbaseAsyncConfig(@JsonProperty("op") TaskOperation taskOperation, @JsonProperty("threads") int numThreads,
         @JsonProperty("quanta") int numQuanta, @JsonProperty("batchSize") int batchSize,
         @JsonProperty("keyGen") KeyGen keyGen, @JsonProperty("valueGen") ValueGen valueGen,
         @JsonProperty("zkQuorum") String zkQuorum,
@@ -51,8 +51,8 @@ class HBaseAsyncConfig extends TaskConfigBase {
     }
 
     @Override
-    public HBaseAsyncConfig withNewQuanta(int newQuanta) {
-        return new HBaseAsyncConfig(getTaskOperation(), getNumThreads(), newQuanta, getBatchSize(), getKeyGen(),
+    public HbaseAsyncConfig withNewQuanta(int newQuanta) {
+        return new HbaseAsyncConfig(getTaskOperation(), getNumThreads(), newQuanta, getBatchSize(), getKeyGen(),
             getValueGen(), zkQuorum, table, columnFamily, qualifier);
     }
 }
