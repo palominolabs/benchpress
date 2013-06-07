@@ -55,7 +55,6 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -270,7 +269,9 @@ public class SingleVmIntegrationTest {
 
         // and the output processor should have gotten a single "foo"
         // noinspection rawtypes
-        assertEquals((List) Lists.newArrayList("foo"), SimpleHttpTaskOutputProcessor.INSTANCE.getObjects());
+        assertEquals(Lists.newArrayList((Object) "foo"), SimpleHttpTaskOutputProcessor.INSTANCE.getObjects());
+
+        assertEquals(1, SimpleHttpTaskOutputProcessor.INSTANCE.getCloseCount());
     }
 
     private String getUrlPrefix() {
