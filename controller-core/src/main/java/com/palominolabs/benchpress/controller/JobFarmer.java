@@ -45,7 +45,7 @@ public final class JobFarmer {
 
     private final UUID controllerId = UUID.randomUUID();
 
-    private final Map<UUID, JobStatus> jobs = new HashMap<UUID, JobStatus>();
+    private final Map<UUID, JobStatus> jobs = new HashMap<>();
 
     private final ComponentFactoryRegistry componentFactoryRegistry;
     private final ObjectReader objectReader;
@@ -80,7 +80,7 @@ public final class JobFarmer {
         JobStatus jobStatus = new JobStatus(job);
 
         // Create a set of workers we can lock
-        Set<WorkerMetadata> lockedWorkers = new HashSet<WorkerMetadata>();
+        Set<WorkerMetadata> lockedWorkers = new HashSet<>();
         for (ServiceInstance<WorkerMetadata> instance : workerFinder.getWorkers()) {
             WorkerMetadata workerMetadata = instance.getPayload();
             WorkerControl workerControl = workerControlFactory.getWorkerControl(workerMetadata);
@@ -97,7 +97,8 @@ public final class JobFarmer {
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No unlocked workers found").build();
         }
 
-        TaskPartitioner taskPartitioner = componentFactoryRegistry.get(job.getTask().getTaskType()).getTaskPartitioner();
+        TaskPartitioner taskPartitioner =
+            componentFactoryRegistry.get(job.getTask().getTaskType()).getTaskPartitioner();
 
         List<Partition> partitions;
         try {
@@ -124,6 +125,7 @@ public final class JobFarmer {
         }
 
         // Save the JobStatus for our accounting
+        jobStatus.setFullyPartitioned();
         jobs.put(job.getJobId(), jobStatus);
 
         logger.info("Cultivating job");
@@ -156,7 +158,8 @@ public final class JobFarmer {
      * @param taskPartitionFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
-    public synchronized Response handlePartitionFinishedReport(UUID jobId, TaskPartitionFinishedReport taskPartitionFinishedReport) {
+    public synchronized Response handlePartitionFinishedReport(UUID jobId,
+        TaskPartitionFinishedReport taskPartitionFinishedReport) {
         if (!jobs.containsKey(jobId)) {
             logger.warn("Couldn't find job <" + jobId + ">");
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -170,12 +173,14 @@ public final class JobFarmer {
         WorkerControl workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
         workerControl.releaseLock(controllerId);
 
-        // TODO does this make sense to calculate job duration on a possibly intermediate partition?
-        Duration totalDuration = new Duration(0);
-        for (Integer partitionId : jobStatus.getPartitionStatuses().keySet()) {
-            totalDuration = totalDuration.plus(jobStatus.getPartitionStatus(partitionId).getDuration());
+        // Only set the totalDuration of the job when all workers have been started and have finished
+        if (jobStatus.isFinished()) {
+            Duration totalDuration = new Duration(0);
+            for (PartitionStatus ps : jobStatus.getPartitionStatuses().values()) {
+                totalDuration = totalDuration.plus(ps.getDuration());
+            }
+            jobStatus.setFinalDuration(totalDuration);
         }
-        jobStatus.setFinalDuration(totalDuration);
 
         return Response.status(Response.Status.ACCEPTED).build();
     }
