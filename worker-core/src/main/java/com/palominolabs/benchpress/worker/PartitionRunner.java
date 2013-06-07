@@ -5,11 +5,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.job.json.Partition;
-import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistry;
+import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ComponentFactoryRegistry;
-import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
+import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
+import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
@@ -54,16 +56,16 @@ public final class PartitionRunner {
     private final JobRegistry jobRegistry;
 
     private final ObjectReader objectReader;
-    private final QueueProvider queueProvider;
+    private final TaskOutputQueueProvider taskOutputQueueProvider;
     private final ComponentFactoryRegistry componentFactoryRegistry;
 
     @Inject
     PartitionRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry, @Ipc ObjectReader objectReader,
-        QueueProvider queueProvider, ComponentFactoryRegistry componentFactoryRegistry) {
+        TaskOutputQueueProvider taskOutputQueueProvider, ComponentFactoryRegistry componentFactoryRegistry) {
         this.taskProgressClient = taskProgressClient;
         this.jobRegistry = jobRegistry;
         this.objectReader = objectReader;
-        this.queueProvider = queueProvider;
+        this.taskOutputQueueProvider = taskOutputQueueProvider;
         this.componentFactoryRegistry = componentFactoryRegistry;
 
         // TODO lifecycle would be nice for this
@@ -87,7 +89,8 @@ public final class PartitionRunner {
 
         Collection<Runnable> runnables;
         try {
-            runnables = tf.getRunnables(partition.getJobId(), partition.getPartitionId(), workerId, queueProvider);
+            runnables = tf.getRunnables(partition.getJobId(), partition.getPartitionId(), workerId,
+                taskOutputQueueProvider, getTaskOutputProcessorFactory(partition));
         } catch (IOException e) {
             logger.warn("Couldn't make runnables", e);
             return false;
@@ -99,16 +102,24 @@ public final class PartitionRunner {
 
         completionService.submit(
             new TaskThreadWatcher(futures, partition.getPartitionId(), partition.getJobId(), taskProgressClient,
-                jobRegistry, queueProvider), null);
+                jobRegistry, taskOutputQueueProvider), null);
 
         return true;
     }
 
+    @Nullable
+    private TaskOutputProcessorFactory getTaskOutputProcessorFactory(Partition partition) {
+        return getComponentFactory(partition).getTaskOutputProcessorFactory(objectReader, partition.getTask().getConfigNode());
+    }
+
+    @Nonnull
+    private ComponentFactory getComponentFactory(Partition partition) {
+        return componentFactoryRegistry.get(partition.getTask().getTaskType());
+    }
+
     @Nonnull
     private TaskFactory getTaskFactory(Partition partition) throws IOException {
-        Task t = partition.getTask();
-
-        return componentFactoryRegistry.get(t.getTaskType()).getTaskFactory(objectReader, t.getConfigNode());
+        return getComponentFactory(partition).getTaskFactory(objectReader, partition.getTask().getConfigNode());
     }
 
     private static class ThreadExceptionWatcherRunnable implements Runnable {
@@ -154,16 +165,16 @@ public final class PartitionRunner {
         private final UUID jobId;
         private final TaskProgressClient taskProgressClient;
         private final JobRegistry jobRegistry;
-        private final QueueProvider queueProvider;
+        private final TaskOutputQueueProvider taskOutputQueueProvider;
 
         private TaskThreadWatcher(Set<Future<Void>> futures, int partitionId, UUID jobId,
-            TaskProgressClient taskProgressClient, JobRegistry jobRegistry, QueueProvider queueProvider) {
+            TaskProgressClient taskProgressClient, JobRegistry jobRegistry, TaskOutputQueueProvider taskOutputQueueProvider) {
             this.futures = futures;
             this.partitionId = partitionId;
             this.jobId = jobId;
             this.taskProgressClient = taskProgressClient;
             this.jobRegistry = jobRegistry;
-            this.queueProvider = queueProvider;
+            this.taskOutputQueueProvider = taskOutputQueueProvider;
         }
 
         @Override
@@ -197,7 +208,7 @@ public final class PartitionRunner {
 
                 taskProgressClient.reportFinished(jobId, partitionId, new Duration(start, null));
                 jobRegistry.removeJob(jobId);
-                queueProvider.removeJob(jobId);
+                taskOutputQueueProvider.removeJob(jobId);
 
                 watcherLogger.info("All task threads finished");
             } finally {

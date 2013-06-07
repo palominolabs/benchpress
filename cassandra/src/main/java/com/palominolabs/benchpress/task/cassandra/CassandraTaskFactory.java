@@ -13,12 +13,14 @@ import com.netflix.astyanax.serializers.BytesArraySerializer;
 import com.netflix.astyanax.thrift.ThriftFamilyFactory;
 import com.palominolabs.benchpress.job.base.task.TaskFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
-import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
+import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
+import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,8 +50,8 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(UUID jobId, int partitionId, UUID workerId,
-        QueueProvider queueProvider) throws IOException {
+    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int partitionId, @Nonnull UUID workerId,
+        @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
 
         context = new AstyanaxContext.Builder().forCluster(clusterName)
             .forKeyspace(keyspaceName)
@@ -66,7 +68,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
         Keyspace keyspace = context.getEntity();
 
         ColumnFamily<byte[], byte[]> cfDef =
-            new ColumnFamily<byte[], byte[]>(columnFamilyName, BytesArraySerializer.get(), BytesArraySerializer.get());
+            new ColumnFamily<>(columnFamilyName, BytesArraySerializer.get(), BytesArraySerializer.get());
 
         ArrayList<Runnable> runnables = Lists.newArrayList();
 

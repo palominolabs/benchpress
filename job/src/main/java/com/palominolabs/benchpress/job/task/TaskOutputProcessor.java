@@ -1,7 +1,7 @@
 package com.palominolabs.benchpress.job.task;
 
 /**
- * Plugins may choose to implement this interface and use the QueueProvider to defer processing results of tasks.
+ * Plugins may choose to implement this interface and use the TaskOutputQueueProvider to defer processing results of tasks.
  */
 public interface TaskOutputProcessor {
     /**

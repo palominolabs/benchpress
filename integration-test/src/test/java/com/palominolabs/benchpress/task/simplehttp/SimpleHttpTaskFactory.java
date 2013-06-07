@@ -3,16 +3,19 @@ package com.palominolabs.benchpress.task.simplehttp;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
-import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskFactory;
+import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
+import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -25,9 +28,13 @@ final class SimpleHttpTaskFactory implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(final UUID jobId, int partitionId, UUID workerId,
-        final QueueProvider queueProvider) throws IOException {
+    public Collection<Runnable> getRunnables(@Nonnull final UUID jobId, int partitionId, @Nonnull UUID workerId,
+        @Nonnull final TaskOutputQueueProvider taskOutputQueueProvider,
+        @Nullable final TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
+        checkNotNull(taskOutputProcessorFactory);
+
         List<Runnable> runnables = newArrayList();
+
         runnables.add(new Runnable() {
             @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
             @Override
@@ -37,15 +44,11 @@ final class SimpleHttpTaskFactory implements TaskFactory {
                     client.prepareGet(url).execute(new AsyncCompletionHandler<Object>() {
                         @Override
                         public Object onCompleted(Response response) throws Exception {
-                            queueProvider.getQueue("simple-http", jobId).add("foo");
+                            taskOutputQueueProvider.getQueue(jobId, taskOutputProcessorFactory).add("foo");
                             return null;
                         }
                     }).get();
-                } catch (InterruptedException e) {
-                    propagate(e);
-                } catch (ExecutionException e) {
-                    propagate(e);
-                } catch (IOException e) {
+                } catch (InterruptedException | ExecutionException | IOException e) {
                     propagate(e);
                 }
             }

@@ -17,7 +17,7 @@ public interface ComponentFactory {
     /**
      * Read config data out of the config node using the supplied ObjectReader and create a TaskFactory.
      *
-     * @param objectReader the ObjectReader to use to deserialize
+     * @param objectReader the ObjectReader to use to deserialize configNode
      * @param configNode   the config node for the task
      * @return a configured task factory
      */
@@ -25,10 +25,14 @@ public interface ComponentFactory {
     TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException;
 
     /**
-     * @return Output processor to use or null if not using an output processor
+     * Optional method. Return null if not using output processing.
+     *
+     * @param objectReader the ObjectReader to use to deserialize configNode
+     * @param configNode   the config node for the task
+     * @return TaskOutputProcessorFactory to use, or null if not using output processors
      */
     @Nullable
-    TaskOutputProcessor getTaskOutputProcessor();
+    TaskOutputProcessorFactory getTaskOutputProcessorFactory(ObjectReader objectReader, JsonNode configNode);
 
     @Nonnull
     TaskPartitioner getTaskPartitioner();

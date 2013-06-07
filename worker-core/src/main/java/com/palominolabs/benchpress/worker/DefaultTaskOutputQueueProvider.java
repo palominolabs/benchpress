@@ -1,10 +1,9 @@
 package com.palominolabs.benchpress.worker;
 
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistry;
-import com.palominolabs.benchpress.job.task.QueueProvider;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessor;
+import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
+import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,35 +21,24 @@ import java.util.concurrent.Future;
  * Queue provider that uses a single thread for all tasks of the same type in a single job.
  */
 @Singleton
-final class DefaultQueueProvider implements QueueProvider {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultQueueProvider.class);
+final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultTaskOutputQueueProvider.class);
 
     private static final int QUEUE_SIZE = 1024;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private final ComponentFactoryRegistry componentFactoryRegistry;
     private final Map<UUID, BlockingQueue<Object>> queueMap = new HashMap<>();
     private final Map<UUID, Future<?>> futureMap = new HashMap<>();
 
-    @Inject
-    DefaultQueueProvider(ComponentFactoryRegistry componentFactoryRegistry) {
-        this.componentFactoryRegistry = componentFactoryRegistry;
-    }
-
     @Nonnull
     @Override
-    public BlockingQueue<Object> getQueue(String taskType, UUID jobId) {
+    public BlockingQueue<Object> getQueue(@Nonnull UUID jobId,
+        @Nonnull TaskOutputProcessorFactory taskOutputProcessorFactory) {
         BlockingQueue<Object> blockingQueue = queueMap.get(jobId);
         if (blockingQueue == null) {
             blockingQueue = new ArrayBlockingQueue<>(QUEUE_SIZE);
             queueMap.put(jobId, blockingQueue);
 
-            final TaskOutputProcessor taskOutputProcessor =
-                componentFactoryRegistry.get(taskType).getTaskOutputProcessor();
-            if (taskOutputProcessor == null) {
-                throw new IllegalArgumentException(
-                    "Attempted to create TaskOutputProcessor for task type " + taskType +
-                        " but got null. Does your TaskFactory use the QueueProvider?");
-            }
+            final TaskOutputProcessor taskOutputProcessor = taskOutputProcessorFactory.getTaskOutputProcessor();
             final BlockingQueue<?> finalBlockingQueue = blockingQueue;
             Future<?> future = executorService.submit(new Runnable() {
                 @Override
@@ -76,7 +64,7 @@ final class DefaultQueueProvider implements QueueProvider {
     }
 
     @Override
-    public void removeJob(UUID jobId) {
+    public void removeJob(@Nonnull UUID jobId) {
         Future<?> future = futureMap.remove(jobId);
         if (future != null) {
             future.cancel(true);

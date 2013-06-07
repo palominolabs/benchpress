@@ -7,6 +7,7 @@ import com.palominolabs.benchpress.job.id.Id;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessor;
+import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
 
 import javax.annotation.Nonnull;
@@ -27,8 +28,14 @@ final class SimpleHttpComponentFactory implements ComponentFactory {
 
     @Nullable
     @Override
-    public TaskOutputProcessor getTaskOutputProcessor() {
-        return SimpleHttpTaskOutputProcessor.INSTANCE;
+    public TaskOutputProcessorFactory getTaskOutputProcessorFactory(ObjectReader objectReader, JsonNode configNode) {
+        return new TaskOutputProcessorFactory() {
+            @Nonnull
+            @Override
+            public TaskOutputProcessor getTaskOutputProcessor() {
+                return SimpleHttpTaskOutputProcessor.INSTANCE;
+            }
+        };
     }
 
     @Nonnull
