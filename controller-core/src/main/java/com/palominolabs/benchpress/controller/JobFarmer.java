@@ -9,8 +9,8 @@ import com.palominolabs.benchpress.job.JobStatus;
 import com.palominolabs.benchpress.job.PartitionStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Partition;
-import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
@@ -97,10 +97,11 @@ public final class JobFarmer {
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No unlocked workers found").build();
         }
 
-
         List<Partition> partitions;
         try {
-            TaskPartitioner taskPartitioner = taskPluginRegistry.get(job.getTask().getTaskType()).getComponentFactory(objectReader, job.getTask().getConfigNode()).getTaskPartitioner();
+            TaskPartitioner taskPartitioner =
+                taskPluginRegistry.get(job.getTask().getTaskType()).getControllerComponentFactory(
+                    objectReader, job.getTask().getConfigNode()).getTaskPartitioner();
 
             partitions = taskPartitioner
                 .partition(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
@@ -157,7 +158,8 @@ public final class JobFarmer {
      * @param taskPartitionFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
-    public synchronized Response handlePartitionFinishedReport(UUID jobId, TaskPartitionFinishedReport taskPartitionFinishedReport) {
+    public synchronized Response handlePartitionFinishedReport(UUID jobId,
+        TaskPartitionFinishedReport taskPartitionFinishedReport) {
         if (!jobs.containsKey(jobId)) {
             logger.warn("Couldn't find job <" + jobId + ">");
             return Response.status(Response.Status.NOT_FOUND).build();

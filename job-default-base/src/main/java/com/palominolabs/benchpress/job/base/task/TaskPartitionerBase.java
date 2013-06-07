@@ -8,11 +8,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 import com.palominolabs.benchpress.job.id.Id;
 import com.palominolabs.benchpress.job.json.Partition;
 import com.palominolabs.benchpress.job.json.Task;
-import com.palominolabs.benchpress.job.key.KeyGeneratorFactory;
-import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
-import com.palominolabs.benchpress.job.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -25,14 +21,6 @@ import java.util.UUID;
  */
 public abstract class TaskPartitionerBase implements TaskPartitioner {
 
-    private final KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry;
-    private final ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry;
-
-    protected TaskPartitionerBase(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
-        this.keyGeneratorFactoryFactoryRegistry = keyGeneratorFactoryFactoryRegistry;
-        this.valueGeneratorFactoryFactoryRegistry = valueGeneratorFactoryFactoryRegistry;
-    }
 
     @Nonnull
     @Override
@@ -46,6 +34,7 @@ public abstract class TaskPartitionerBase implements TaskPartitioner {
         int quantaPerPartition = (int) Math.ceil(c.getNumQuanta() / workers);
         for (int partitionId = 0; partitionId < workers; partitionId++) {
             int newQuanta;
+            // TODO
             if (partitionId == workers) {
                 newQuanta = quantaPerPartition;
             } else {
@@ -74,15 +63,6 @@ public abstract class TaskPartitionerBase implements TaskPartitioner {
      */
     @Nonnull
     protected abstract TaskConfigBase getConfig();
-
-    protected KeyGeneratorFactory getKeyGeneratorFactory(TaskConfigBase config) {
-        return keyGeneratorFactoryFactoryRegistry.get(config.getKeyGen().keyGenType).getKeyGeneratorFactory();
-    }
-
-    protected ValueGeneratorFactory getValueGeneratorFactory(TaskConfigBase config) {
-        return valueGeneratorFactoryFactoryRegistry.get(config.getValueGen().getValueGenType())
-            .getFactory(config.getValueGen().getConfig());
-    }
 
     /**
      * @return the task type string that would be included in {@link Id} annotations and the "type" field of task json.

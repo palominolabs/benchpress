@@ -29,6 +29,7 @@ import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskOutputProcessor;
+import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskPlugin;
 import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
@@ -226,7 +227,7 @@ public class SingleVmIntegrationTest {
         configNode.put("url", "http://" + httpServer.getHttpListenHost() + ":" + httpServer.getHttpListenPort() +
             "/simple-http-test-endpoint");
 
-        Job j = new Job(new Task("simple-http", configNode), null);
+        Job j = new Job(new Task(SimpleHttpTaskPlugin.TASK_TYPE, configNode), null);
 
         // submit job
 

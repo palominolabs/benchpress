@@ -1,44 +1,29 @@
 package com.palominolabs.benchpress.task.cassandra;
 
-import com.palominolabs.benchpress.job.base.task.TaskPartitionerBase;
+import com.palominolabs.benchpress.job.base.task.ComponentFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
-import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-final class CassandraComponentFactory extends TaskPartitionerBase implements ComponentFactory, TaskPartitioner {
+final class CassandraComponentFactory extends ComponentFactoryBase {
 
-    static final String TASK_TYPE = "CASSANDRA";
+    private final CassandraConfig config;
 
-    private final CassandraConfig cassandraConfig;
-
-    CassandraComponentFactory(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, CassandraConfig cassandraConfig) {
+    CassandraComponentFactory(
+        KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
+        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, CassandraConfig config) {
         super(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry);
-        this.cassandraConfig = cassandraConfig;
-    }
-
-    @Nonnull
-    @Override
-    protected CassandraConfig getConfig() {
-        return cassandraConfig;
-    }
-
-    @Nonnull
-    @Override
-    protected String getTaskType() {
-        return TASK_TYPE;
+        this.config = config;
     }
 
     @Nonnull
     @Override
     public TaskFactory getTaskFactory() {
-        CassandraConfig c = getConfig();
+        CassandraConfig c = config;
 
         return new CassandraTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
             getKeyGeneratorFactory(c), c.getNumQuanta(), c.getNumThreads(), c.getCluster(), c.getKeyspace(),
@@ -49,11 +34,5 @@ final class CassandraComponentFactory extends TaskPartitionerBase implements Com
     @Override
     public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
         return null;
-    }
-
-    @Nonnull
-    @Override
-    public TaskPartitioner getTaskPartitioner() {
-        return this;
     }
 }

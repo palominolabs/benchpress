@@ -22,7 +22,4 @@ public interface ComponentFactory {
      */
     @Nullable
     TaskOutputProcessorFactory getTaskOutputProcessorFactory();
-
-    @Nonnull
-    TaskPartitioner getTaskPartitioner();
 }

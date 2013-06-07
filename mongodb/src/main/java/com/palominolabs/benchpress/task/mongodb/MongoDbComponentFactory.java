@@ -1,18 +1,16 @@
 package com.palominolabs.benchpress.task.mongodb;
 
-import com.palominolabs.benchpress.job.base.task.TaskPartitionerBase;
+import com.palominolabs.benchpress.job.base.task.ComponentFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-final class MongoDbComponentFactory extends TaskPartitionerBase implements ComponentFactory {
-    static final String TASK_TYPE = "MONGODB";
+final class MongoDbComponentFactory extends ComponentFactoryBase implements ComponentFactory {
 
     private final MongoDbConfig config;
 
@@ -26,35 +24,14 @@ final class MongoDbComponentFactory extends TaskPartitionerBase implements Compo
     @Nonnull
     @Override
     public TaskFactory getTaskFactory() {
-        MongoDbConfig c = getConfig();
-
-        return new MongoDbTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
-            getKeyGeneratorFactory(c), c.getNumQuanta(),
-            c.getNumThreads(), c.getHostname(), c.getPort(), c.getDbName(),
-            c.getCollectionName());
+        return new MongoDbTaskFactory(config.getTaskOperation(), getValueGeneratorFactory(config),
+            config.getBatchSize(), getKeyGeneratorFactory(config), config.getNumQuanta(), config.getNumThreads(),
+            config.getHostname(), config.getPort(), config.getDbName(), config.getCollectionName());
     }
 
     @Nullable
     @Override
     public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
         return null;
-    }
-
-    @Nonnull
-    @Override
-    public TaskPartitioner getTaskPartitioner() {
-        return this;
-    }
-
-    @Nonnull
-    @Override
-    protected MongoDbConfig getConfig()  {
-        return config;
-    }
-
-    @Nonnull
-    @Override
-    protected String getTaskType() {
-        return TASK_TYPE;
     }
 }

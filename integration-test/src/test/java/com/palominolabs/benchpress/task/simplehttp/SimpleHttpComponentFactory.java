@@ -4,7 +4,6 @@ import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessor;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,11 +32,5 @@ final class SimpleHttpComponentFactory implements ComponentFactory {
                 return SimpleHttpTaskOutputProcessor.INSTANCE;
             }
         };
-    }
-
-    @Nonnull
-    @Override
-    public TaskPartitioner getTaskPartitioner() {
-        return new SimpleHttpTaskPartitioner();
     }
 }
