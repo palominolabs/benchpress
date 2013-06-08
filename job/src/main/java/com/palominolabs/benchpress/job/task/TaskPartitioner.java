@@ -15,8 +15,6 @@ import java.util.UUID;
  */
 public interface TaskPartitioner {
 
-    // TODO make this more elegant -- sucks that each impl has to re-serialize by itself
-
     /**
      * Split this job into partitions.
      *
