@@ -7,16 +7,17 @@ import com.palominolabs.benchpress.ipc.Ipc;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO should be threadsafe
+@ThreadSafe
 public final class WorkerControlFactory {
     private final ObjectWriter objectWriter;
     private final ObjectReader objectReader;
 
     private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
-    private final Map<WorkerMetadata, WorkerControl> workerControls = new HashMap<WorkerMetadata, WorkerControl>();
+    private final Map<WorkerMetadata, WorkerControl> workerControls = new HashMap<>();
 
     @Inject
     WorkerControlFactory(@Ipc ObjectWriter objectWriter, @Ipc ObjectReader objectReader) {
@@ -24,10 +25,12 @@ public final class WorkerControlFactory {
         this.objectReader = objectReader;
     }
 
-    public WorkerControl getWorkerControl(WorkerMetadata workerMetadata) {
-        if (!workerControls.containsKey(workerMetadata)) {
-            workerControls.put(workerMetadata, new WorkerControl(workerMetadata, httpClient, objectWriter, objectReader));
+    public synchronized WorkerControl getWorkerControl(WorkerMetadata workerMetadata) {
+        WorkerControl wc = workerControls.get(workerMetadata);
+        if (wc == null) {
+            wc = new WorkerControl(workerMetadata, httpClient, objectWriter, objectReader);
+            workerControls.put(workerMetadata, wc);
         }
-        return workerControls.get(workerMetadata);
+        return wc;
     }
 }
