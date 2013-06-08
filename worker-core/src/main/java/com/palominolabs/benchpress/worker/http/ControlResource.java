@@ -7,6 +7,8 @@ import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,18 +16,19 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.UUID;
 
 @Path("worker/control")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 public final class ControlResource {
-    private final Logger logger = LoggerFactory.getLogger(ControlResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(ControlResource.class);
 
-    // TODO tidy up thread safety
-    private final AtomicBoolean locked = new AtomicBoolean(false);
-    private final AtomicReference<String> controllerId = new AtomicReference<String>(null);
+    @GuardedBy("this")
+    private boolean locked = false;
+    @GuardedBy("this")
+    @Nullable
+    private UUID lockingControllerId = null;
 
     private final WorkerAdvertiser workerAdvertiser;
 
@@ -40,8 +43,21 @@ public final class ControlResource {
      */
     @POST
     @Path("acquireLock/{controllerId}")
-    public synchronized Response acquireLock(@PathParam("controllerId") String controllerId) {
-        return swapFrom(false, true, controllerId);
+    public Response acquireLock(@PathParam("controllerId") UUID controllerId) {
+        synchronized (this) {
+            Response response = expectLockStatus(false);
+            if (response != null) {
+                return response;
+            }
+
+            logger.info("Lock granted to controllerId <" + controllerId + ">");
+            lockingControllerId = controllerId;
+            locked = true;
+        }
+
+        workerAdvertiser.deAdvertiseAvailability();
+
+        return Response.noContent().build();
     }
 
     /**
@@ -50,43 +66,53 @@ public final class ControlResource {
      */
     @POST
     @Path("releaseLock/{controllerId}")
-    public synchronized Response releaseLock(@PathParam("controllerId") String controllerId) {
-        return swapFrom(true, false, controllerId);
+    public synchronized Response releaseLock(@PathParam("controllerId") UUID controllerId) {
+        synchronized (this) {
+            Response response = expectLockStatus(true);
+            if (response != null) {
+                return response;
+            }
+
+            if (!controllerId.equals(lockingControllerId)) {
+                logger.info(
+                    "Attempt to unlock with controllerId <" + controllerId + "> but locked by <" + lockingControllerId +
+                        ">");
+                return Response.status(Response.Status.PRECONDITION_FAILED).build();
+            }
+
+            logger.info("controllerId <" + controllerId + "> released lock");
+            lockingControllerId = null;
+            locked = false;
+        }
+
+        workerAdvertiser.advertiseAvailability();
+
+        return Response.noContent().build();
     }
 
     /**
-     * @return 200 and the JSON LockStatus object
+     * @return the JSON LockStatus object
      */
     @GET
     @Path("lockStatus")
     public synchronized LockStatus getLockStatus() {
-        return new LockStatus(locked.get(), controllerId.get());
+        return new LockStatus(locked, lockingControllerId);
     }
 
-    private Response swapFrom(boolean expect, boolean update, String newControllerId) {
-        if (locked.get() && !newControllerId.equals(controllerId.get())) {
-            logger.info("Attempt to unlock with controllerId <" + newControllerId + "> but locked by <" + controllerId.get() + ">");
+    /**
+     * @param expected expected state of {@code locked}
+     * @return Response null if the check succeeds (so no error response needs to be sent back), or an error response if
+     *         the check failed
+     */
+    @Nullable
+    private Response expectLockStatus(boolean expected) {
+        logger.debug("Expecting lockStatus to be " + expected + " (it is " + locked + ")");
+
+        if (locked != expected) {
+            lockingControllerId = null;
             return Response.status(Response.Status.PRECONDITION_FAILED).build();
         }
 
-        logger.debug("Expecting lockStatus to be " + expect + " (it is " + locked.get() + ") for update to " + update);
-        boolean success = locked.compareAndSet(expect, update);
-
-        if (success) {
-            if (locked.get()) {
-                logger.info("Lock granted to controllerId <" + newControllerId + ">");
-                controllerId.set(newControllerId);
-                workerAdvertiser.deAdvertiseAvailability();
-            } else {
-                logger.info("controllerId <" + newControllerId + "> released lock");
-                controllerId.set(null);
-                workerAdvertiser.advertiseAvailability();
-            }
-
-            return Response.noContent().build();
-        }
-
-        controllerId.set(null);
-        return Response.status(Response.Status.PRECONDITION_FAILED).build();
+        return null;
     }
 }

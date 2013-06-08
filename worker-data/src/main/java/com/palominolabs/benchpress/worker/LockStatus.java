@@ -3,15 +3,19 @@ package com.palominolabs.benchpress.worker;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.annotation.concurrent.Immutable;
+import java.util.UUID;
+
+@Immutable
 public class LockStatus {
     @JsonProperty("locked")
     private final boolean locked;
 
     @JsonProperty("controllerId")
-    private final String controllerId;
+    private final UUID controllerId;
 
     @JsonCreator
-    public LockStatus(@JsonProperty("locked") boolean locked, @JsonProperty("controllerId") String controllerId) {
+    public LockStatus(@JsonProperty("locked") boolean locked, @JsonProperty("controllerId") UUID controllerId) {
         this.locked = locked;
         this.controllerId = controllerId;
     }
@@ -20,7 +24,7 @@ public class LockStatus {
         return locked;
     }
 
-    public String getControllerId() {
+    public UUID getControllerId() {
         return controllerId;
     }
 }

@@ -201,7 +201,7 @@ public class SingleVmIntegrationTest {
 
         lock(workerMetadata);
 
-        assertEquals(jobFarmer.getControllerId().toString(),
+        assertEquals(jobFarmer.getControllerId(),
             workerControlFactory.getWorkerControl(workerMetadata).locker());
     }
 

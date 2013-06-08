@@ -89,7 +89,7 @@ public final class WorkerControl {
     /**
      * @return the controller that has this worker locked, null if the worker is not locked
      */
-    public String locker() {
+    public UUID locker() {
         return getLockStatus().getControllerId();
     }
 
