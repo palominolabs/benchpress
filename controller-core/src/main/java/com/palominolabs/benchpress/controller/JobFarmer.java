@@ -126,6 +126,7 @@ public final class JobFarmer {
         }
 
         // Save the JobStatus for our accounting
+        jobStatus.setFullyPartitioned();
         jobs.put(job.getJobId(), jobStatus);
 
         logger.info("Cultivating job");
@@ -173,12 +174,14 @@ public final class JobFarmer {
         WorkerControl workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
         workerControl.releaseLock(controllerId);
 
-        // TODO does this make sense to calculate job duration on a possibly intermediate partition?
-        Duration totalDuration = new Duration(0);
-        for (Integer partitionId : jobStatus.getPartitionStatuses().keySet()) {
-            totalDuration = totalDuration.plus(jobStatus.getPartitionStatus(partitionId).getDuration());
+        // Only set the totalDuration of the job when all workers have been started and have finished
+        if (jobStatus.isFinished()) {
+            Duration totalDuration = new Duration(0);
+            for (PartitionStatus ps : jobStatus.getPartitionStatuses().values()) {
+                totalDuration = totalDuration.plus(ps.getDuration());
+            }
+            jobStatus.setFinalDuration(totalDuration);
         }
-        jobStatus.setFinalDuration(totalDuration);
 
         return Response.status(Response.Status.ACCEPTED).build();
     }
