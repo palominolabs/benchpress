@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import java.util.concurrent.Future;
  * Queue provider that uses a single thread for all tasks of the same type in a single job.
  */
 @Singleton
+@ThreadSafe
 final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTaskOutputQueueProvider.class);
 
@@ -31,7 +33,7 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
 
     @Nonnull
     @Override
-    public BlockingQueue<Object> getQueue(@Nonnull UUID jobId,
+    public synchronized BlockingQueue<Object> getQueue(@Nonnull UUID jobId,
         @Nonnull TaskOutputProcessorFactory taskOutputProcessorFactory) {
         BlockingQueue<Object> blockingQueue = queueMap.get(jobId);
         if (blockingQueue == null) {
@@ -39,6 +41,7 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
             queueMap.put(jobId, blockingQueue);
 
             final TaskOutputProcessor taskOutputProcessor = taskOutputProcessorFactory.getTaskOutputProcessor();
+
             final BlockingQueue<?> finalBlockingQueue = blockingQueue;
             Future<?> future = executorService.submit(new Runnable() {
                 @Override
@@ -49,6 +52,7 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                             logger.info("Queue consumer interrupted");
+                            taskOutputProcessor.close();
                             break;
                         } catch (RuntimeException e) {
                             logger.warn("TaskOutputProcessor failed", e);
@@ -64,7 +68,7 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
     }
 
     @Override
-    public void removeJob(@Nonnull UUID jobId) {
+    public synchronized void removeJob(@Nonnull UUID jobId) {
         Future<?> future = futureMap.remove(jobId);
         if (future != null) {
             future.cancel(true);

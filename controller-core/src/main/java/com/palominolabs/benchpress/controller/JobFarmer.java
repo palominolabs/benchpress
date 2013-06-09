@@ -9,8 +9,8 @@ import com.palominolabs.benchpress.job.JobStatus;
 import com.palominolabs.benchpress.job.PartitionStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Partition;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistry;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
@@ -47,7 +47,7 @@ public final class JobFarmer {
 
     private final Map<UUID, JobStatus> jobs = new HashMap<>();
 
-    private final ComponentFactoryRegistry componentFactoryRegistry;
+    private final TaskPluginRegistry taskPluginRegistry;
     private final ObjectReader objectReader;
 
     private final ObjectWriter objectWriter;
@@ -61,11 +61,11 @@ public final class JobFarmer {
 
     @Inject
     JobFarmer(WorkerFinder workerFinder, WorkerControlFactory workerControlFactory,
-        ComponentFactoryRegistry componentFactoryRegistry, @Ipc ObjectReader objectReader,
+        TaskPluginRegistry taskPluginRegistry, @Ipc ObjectReader objectReader,
         @Ipc ObjectWriter objectWriter) {
         this.workerFinder = workerFinder;
         this.workerControlFactory = workerControlFactory;
-        this.componentFactoryRegistry = componentFactoryRegistry;
+        this.taskPluginRegistry = taskPluginRegistry;
         this.objectReader = objectReader;
         this.objectWriter = objectWriter;
     }
@@ -97,11 +97,12 @@ public final class JobFarmer {
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No unlocked workers found").build();
         }
 
-        TaskPartitioner taskPartitioner =
-            componentFactoryRegistry.get(job.getTask().getTaskType()).getTaskPartitioner();
-
         List<Partition> partitions;
         try {
+            TaskPartitioner taskPartitioner =
+                taskPluginRegistry.get(job.getTask().getTaskType()).getControllerComponentFactory(
+                    objectReader, job.getTask().getConfigNode()).getTaskPartitioner();
+
             partitions = taskPartitioner
                 .partition(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
                     getFinishedUrl(job.getJobId()), objectReader, job.getTask().getConfigNode(), objectWriter);

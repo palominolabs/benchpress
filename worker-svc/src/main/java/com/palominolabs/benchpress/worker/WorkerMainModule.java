@@ -8,7 +8,7 @@ import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.key.DefaultKeyGeneratorFactoriesModule;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.job.value.DefaultValueGeneratorFactoryFactoriesModule;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.cassandra.CassandraModule;
@@ -59,7 +59,7 @@ public final class WorkerMainModule extends AbstractModule {
         install(new DefaultKeyGeneratorFactoriesModule());
         install(new DefaultValueGeneratorFactoryFactoriesModule());
 
-        install(new ComponentFactoryRegistryModule());
+        install(new TaskPluginRegistryModule());
         install(new HbaseAsyncModule());
         install(new HbaseModule());
         install(new CassandraModule());

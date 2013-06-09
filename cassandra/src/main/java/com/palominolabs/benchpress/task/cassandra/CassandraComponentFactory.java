@@ -1,46 +1,29 @@
 package com.palominolabs.benchpress.task.cassandra;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.google.inject.Inject;
-import com.palominolabs.benchpress.job.base.task.TaskFactoryFactoryPartitionerBase;
+import com.palominolabs.benchpress.job.base.task.ComponentFactoryBase;
 import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistry;
-import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
 import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 
-final class CassandraComponentFactory extends TaskFactoryFactoryPartitionerBase implements ComponentFactory, TaskPartitioner {
+final class CassandraComponentFactory extends ComponentFactoryBase {
 
-    static final String TASK_TYPE = "CASSANDRA";
+    private final CassandraConfig config;
 
-    @Inject
-    CassandraComponentFactory(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
-        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
+    CassandraComponentFactory(
+        KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
+        ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry, CassandraConfig config) {
         super(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry);
+        this.config = config;
     }
 
     @Nonnull
     @Override
-    protected CassandraConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(CassandraConfig.class).readValue(configNode);
-    }
-
-    @Nonnull
-    @Override
-    protected String getTaskType() {
-        return TASK_TYPE;
-    }
-
-    @Nonnull
-    @Override
-    public TaskFactory getTaskFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        CassandraConfig c = getConfig(objectReader, configNode);
+    public TaskFactory getTaskFactory() {
+        CassandraConfig c = config;
 
         return new CassandraTaskFactory(c.getTaskOperation(), getValueGeneratorFactory(c), c.getBatchSize(),
             getKeyGeneratorFactory(c), c.getNumQuanta(), c.getNumThreads(), c.getCluster(), c.getKeyspace(),
@@ -49,13 +32,7 @@ final class CassandraComponentFactory extends TaskFactoryFactoryPartitionerBase 
 
     @Nullable
     @Override
-    public TaskOutputProcessorFactory getTaskOutputProcessorFactory(ObjectReader objectReader, JsonNode configNode) {
+    public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
         return null;
-    }
-
-    @Nonnull
-    @Override
-    public TaskPartitioner getTaskPartitioner() {
-        return this;
     }
 }

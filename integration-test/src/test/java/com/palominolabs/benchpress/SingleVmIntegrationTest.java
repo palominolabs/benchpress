@@ -25,10 +25,11 @@ import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
-import com.palominolabs.benchpress.job.task.ComponentFactoryRegistryModule;
+import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskOutputProcessor;
+import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskPlugin;
 import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
@@ -54,7 +55,6 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -139,7 +139,7 @@ public class SingleVmIntegrationTest {
                 install(new JobRegistryModule());
                 install(new TaskProgressClientModule());
                 install(new IpcHttpClientModule());
-                install(new ComponentFactoryRegistryModule());
+                install(new TaskPluginRegistryModule());
                 install(new WorkerResourceModule());
                 install(new QueueProviderModule());
 
@@ -226,7 +226,7 @@ public class SingleVmIntegrationTest {
         configNode.put("url", "http://" + httpServer.getHttpListenHost() + ":" + httpServer.getHttpListenPort() +
             "/simple-http-test-endpoint");
 
-        Job j = new Job(new Task("simple-http", configNode), null);
+        Job j = new Job(new Task(SimpleHttpTaskPlugin.TASK_TYPE, configNode), null);
 
         // submit job
 
@@ -269,7 +269,9 @@ public class SingleVmIntegrationTest {
 
         // and the output processor should have gotten a single "foo"
         // noinspection rawtypes
-        assertEquals((List) Lists.newArrayList("foo"), SimpleHttpTaskOutputProcessor.INSTANCE.getObjects());
+        assertEquals(Lists.newArrayList((Object) "foo"), SimpleHttpTaskOutputProcessor.INSTANCE.getObjects());
+
+        assertEquals(1, SimpleHttpTaskOutputProcessor.INSTANCE.getCloseCount());
     }
 
     private String getUrlPrefix() {
