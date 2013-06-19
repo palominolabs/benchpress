@@ -26,6 +26,8 @@ import java.util.concurrent.Future;
 final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTaskOutputQueueProvider.class);
 
+    static final Object END_OF_QUEUE = new Object();
+
     private static final int QUEUE_SIZE = 1024;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Map<UUID, BlockingQueue<Object>> queueMap = new HashMap<>();
@@ -43,23 +45,7 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
             final TaskOutputProcessor taskOutputProcessor = taskOutputProcessorFactory.getTaskOutputProcessor();
 
             final BlockingQueue<?> finalBlockingQueue = blockingQueue;
-            Future<?> future = executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        try {
-                            taskOutputProcessor.handleOutput(finalBlockingQueue.take());
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            logger.info("Queue consumer interrupted");
-                            taskOutputProcessor.close();
-                            break;
-                        } catch (RuntimeException e) {
-                            logger.warn("TaskOutputProcessor failed", e);
-                        }
-                    }
-                }
-            });
+            Future<?> future = executorService.submit(new QueueWatcherRunnable(finalBlockingQueue, taskOutputProcessor));
 
             futureMap.put(jobId, future);
         }
@@ -69,11 +55,46 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
 
     @Override
     public synchronized void removeJob(@Nonnull UUID jobId) {
-        Future<?> future = futureMap.remove(jobId);
-        if (future != null) {
-            future.cancel(true);
+        futureMap.remove(jobId);
+        BlockingQueue<Object> queue = queueMap.remove(jobId);
+        if (queue != null) {
+            if (!queue.offer(END_OF_QUEUE)) {
+                logger.warn("Could not add end of queue marker for job " + jobId);
+            }
+        }
+    }
+
+    private static class QueueWatcherRunnable implements Runnable {
+        private final BlockingQueue<?> finalBlockingQueue;
+        private final TaskOutputProcessor taskOutputProcessor;
+
+        public QueueWatcherRunnable(BlockingQueue<?> finalBlockingQueue, TaskOutputProcessor taskOutputProcessor) {
+            this.finalBlockingQueue = finalBlockingQueue;
+            this.taskOutputProcessor = taskOutputProcessor;
         }
 
-        queueMap.remove(jobId);
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    Object obj = finalBlockingQueue.take();
+
+                    if (obj == END_OF_QUEUE) {
+                        logger.debug("Queue end reached; exiting");
+                        taskOutputProcessor.close();
+                        return;
+                    }
+
+                    taskOutputProcessor.handleOutput(obj);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    logger.info("Queue consumer interrupted");
+                    taskOutputProcessor.close();
+                    break;
+                } catch (RuntimeException e) {
+                    logger.warn("TaskOutputProcessor failed", e);
+                }
+            }
+        }
     }
 }
