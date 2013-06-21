@@ -10,8 +10,10 @@ import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
 
+@ThreadSafe
 public final class WorkerFinder {
     private final ZookeeperConfig zookeeperConfig;
     private final ServiceDiscovery<WorkerMetadata> discovery;

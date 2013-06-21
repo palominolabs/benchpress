@@ -21,9 +21,11 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,6 +47,7 @@ public final class JobFarmer {
 
     private final UUID controllerId = UUID.randomUUID();
 
+    @GuardedBy("this")
     private final Map<UUID, JobStatus> jobs = new HashMap<>();
 
     private final TaskPluginRegistry taskPluginRegistry;
@@ -52,7 +55,9 @@ public final class JobFarmer {
 
     private final ObjectWriter objectWriter;
     // todo make final
+    @GuardedBy("this")
     private String httpListenHost;
+    @GuardedBy("this")
     private int httpListenPort;
 
     private static final String REPORT_PATH = "/report";
@@ -76,12 +81,12 @@ public final class JobFarmer {
      * @param job The job to cultivate
      * @return 202 on success with Job in the body, 412 on failure
      */
-    public synchronized Response submitJob(Job job) {
-        JobStatus jobStatus = new JobStatus(job);
+    public Response submitJob(Job job) {
 
         // Create a set of workers we can lock
         Set<WorkerMetadata> lockedWorkers = new HashSet<>();
-        for (ServiceInstance<WorkerMetadata> instance : workerFinder.getWorkers()) {
+        Collection<ServiceInstance<WorkerMetadata>> registeredWorkers = workerFinder.getWorkers();
+        for (ServiceInstance<WorkerMetadata> instance : registeredWorkers) {
             WorkerMetadata workerMetadata = instance.getPayload();
             WorkerControl workerControl = workerControlFactory.getWorkerControl(workerMetadata);
             if (!workerControl.acquireLock(controllerId)) {
@@ -117,6 +122,7 @@ public final class JobFarmer {
         }
 
         TandemIterator titerator = new TandemIterator(partitions.iterator(), lockedWorkers.iterator());
+        JobStatus jobStatus = new JobStatus(job);
 
         // Submit the partition to the worker
         while (titerator.hasNext()) {
@@ -127,7 +133,9 @@ public final class JobFarmer {
 
         // Save the JobStatus for our accounting
         jobStatus.setFullyPartitioned();
-        jobs.put(job.getJobId(), jobStatus);
+        synchronized (this) {
+            jobs.put(job.getJobId(), jobStatus);
+        }
 
         logger.info("Cultivating job");
         return Response.status(Response.Status.ACCEPTED).entity(job).build();
