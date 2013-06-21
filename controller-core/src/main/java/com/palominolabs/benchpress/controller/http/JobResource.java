@@ -12,7 +12,6 @@ import org.slf4j.MDC;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -36,7 +35,7 @@ public final class JobResource {
      * @param job The job to start
      * @return 202 & the Job object as JSON, 412 on failure
      */
-    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response submit(Job job) {
         MDC.put(MdcKeys.JOB_ID, job.getJobId().toString());

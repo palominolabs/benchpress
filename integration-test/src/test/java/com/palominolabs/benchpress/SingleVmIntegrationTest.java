@@ -230,7 +230,7 @@ public class SingleVmIntegrationTest {
 
         // submit job
 
-        Response response = asyncHttpClient.preparePut(
+        Response response = asyncHttpClient.preparePost(
             getUrlPrefix() + "/controller/job")
             .setBody(objectWriter.writeValueAsString(j))
             .addHeader("Content-Type", MediaType.APPLICATION_JSON)
