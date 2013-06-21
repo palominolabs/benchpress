@@ -3,9 +3,8 @@ package com.palominolabs.benchpress.worker;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.inject.Inject;
+import com.ning.http.client.AsyncHttpClient;
 import com.palominolabs.benchpress.ipc.Ipc;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.HashMap;
@@ -16,7 +15,7 @@ public final class WorkerControlFactory {
     private final ObjectWriter objectWriter;
     private final ObjectReader objectReader;
 
-    private final DefaultHttpClient httpClient = new DefaultHttpClient(new PoolingClientConnectionManager());
+    private final AsyncHttpClient httpClient = new AsyncHttpClient();
     private final Map<WorkerMetadata, WorkerControl> workerControls = new HashMap<>();
 
     @Inject

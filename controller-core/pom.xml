@@ -58,8 +58,8 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
+      <groupId>com.ning</groupId>
+      <artifactId>async-http-client</artifactId>
     </dependency>
   </dependencies>
 </project>
