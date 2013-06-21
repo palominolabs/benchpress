@@ -159,28 +159,37 @@ public final class JobFarmer {
      * @param taskPartitionFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
-    public synchronized Response handlePartitionFinishedReport(UUID jobId,
+    public Response handlePartitionFinishedReport(UUID jobId,
         TaskPartitionFinishedReport taskPartitionFinishedReport) {
-        if (!jobs.containsKey(jobId)) {
-            logger.warn("Couldn't find job <" + jobId + ">");
-            return Response.status(Response.Status.NOT_FOUND).build();
+
+        WorkerControl workerControl;
+        JobStatus jobStatus;
+        synchronized (this) {
+            if (!jobs.containsKey(jobId)) {
+                logger.warn("Couldn't find job <" + jobId + ">");
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+
+            jobStatus = jobs.get(jobId);
+            PartitionStatus partitionStatus =
+                jobStatus.getPartitionStatus(taskPartitionFinishedReport.getPartitionId());
+            logger.info("Partition <" + partitionStatus.getPartition().getPartitionId() + "> finished");
+            partitionStatus.setFinished(taskPartitionFinishedReport.getDuration());
+
+            workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
         }
 
-        JobStatus jobStatus = jobs.get(jobId);
-        PartitionStatus partitionStatus = jobStatus.getPartitionStatus(taskPartitionFinishedReport.getPartitionId());
-        logger.info("Partition <" + partitionStatus.getPartition().getPartitionId() + "> finished");
-        partitionStatus.setFinished(taskPartitionFinishedReport.getDuration());
-
-        WorkerControl workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
         workerControl.releaseLock(controllerId);
 
-        // Only set the totalDuration of the job when all workers have been started and have finished
-        if (jobStatus.isFinished()) {
-            Duration totalDuration = new Duration(0);
-            for (PartitionStatus ps : jobStatus.getPartitionStatuses().values()) {
-                totalDuration = totalDuration.plus(ps.getDuration());
+        synchronized (this) {
+            // Only set the totalDuration of the job when all workers have been started and have finished
+            if (jobStatus.isFinished()) {
+                Duration totalDuration = new Duration(0);
+                for (PartitionStatus ps : jobStatus.getPartitionStatuses().values()) {
+                    totalDuration = totalDuration.plus(ps.getDuration());
+                }
+                jobStatus.setFinalDuration(totalDuration);
             }
-            jobStatus.setFinalDuration(totalDuration);
         }
 
         return Response.status(Response.Status.ACCEPTED).build();
