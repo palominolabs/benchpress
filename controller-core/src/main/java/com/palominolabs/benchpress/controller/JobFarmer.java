@@ -102,6 +102,8 @@ public final class JobFarmer {
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No unlocked workers found").build();
         }
 
+        // TODO unlock locked workers if job partitioning, etc. fails to avoid losing workers permanently
+
         List<Partition> partitions;
         try {
             TaskPartitioner taskPartitioner =
