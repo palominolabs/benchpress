@@ -29,6 +29,10 @@
 
     <dep.curator>2.0.0-incubating</dep.curator>
 
+    <dep.hadoop>1.0.4</dep.hadoop>
+    <dep.hbase>0.94.9</dep.hbase>
+    <dep.zookeeper>3.4.5</dep.zookeeper>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -388,7 +392,7 @@
       <dependency>
         <groupId>org.apache.hbase</groupId>
         <artifactId>hbase</artifactId>
-        <version>0.92.1</version>
+        <version>${dep.hbase}</version>
         <exclusions>
           <exclusion>
             <groupId>log4j</groupId>
@@ -414,38 +418,9 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
           </exclusion>
-        </exclusions>
-      </dependency>
-      <!-- taken from the hadoop-1.0 profile in hbase pom -->
-      <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-core</artifactId>
-        <version>1.0.0</version>
-        <optional>true</optional>
-        <exclusions>
           <exclusion>
-            <groupId>hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>net.sf.kosmosfs</groupId>
-            <artifactId>kfs</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>net.java.dev.jets3t</groupId>
-            <artifactId>jets3t</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>oro</groupId>
-            <artifactId>oro</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-minicluster</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -485,7 +460,7 @@
       <dependency>
         <groupId>org.apache.zookeeper</groupId>
         <artifactId>zookeeper</artifactId>
-        <version>3.4.5</version>
+        <version>${dep.zookeeper}</version>
         <!-- like many apache projects, zk sucks at maven -->
         <exclusions>
           <exclusion>
@@ -633,6 +608,7 @@
   </reporting>
 
   <profiles>
+
     <profile>
       <id>site-reports</id>
       <reporting>
@@ -651,6 +627,71 @@
         </plugins>
       </reporting>
     </profile>
+
+    <profile>
+      <id>hadoop-1</id>
+      <activation>
+        <property>
+          <name>!hadoop.profile</name>
+        </property>
+      </activation>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-core</artifactId>
+            <version>${dep.hadoop}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>net.sf.kosmosfs</groupId>
+                <artifactId>kfs</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>core</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>net.java.dev.jets3t</groupId>
+                <artifactId>jets3t</artifactId>
+              </exclusion>
+              <exclusion>
+                <groupId>oro</groupId>
+                <artifactId>oro</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+    </profile>
+
+    <profile>
+      <id>hadoop-2</id>
+      <activation>
+        <property>
+          <name>hadoop.profile</name>
+          <value>2.0</value>
+        </property>
+      </activation>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${dep.hadoop}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-annotations</artifactId>
+            <version>${dep.hadoop}</version>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+    </profile>
+
   </profiles>
 
 </project>
