@@ -3,14 +3,12 @@ package com.palominolabs.benchpress.task.mongodb;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
 import com.palominolabs.benchpress.job.key.KeyGenerator;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
-import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 final class MongoDbRunnable extends AbstractTaskRunnable implements Runnable {
     private final DB db;
