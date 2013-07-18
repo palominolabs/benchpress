@@ -30,11 +30,11 @@ final class WorkerIdThreadIdCounterKeyGeneratorFactoryFactory implements KeyGene
     @ThreadSafe
     private static class Generator implements KeyGenerator {
         @Override
-        public void writeKey(CharBuffer buf, UUID workerId, long threadId, int partitionId, int counter) {
+        public void writeKey(CharBuffer buf, UUID workerId, long threadId, int partitionId, long counter) {
             buf.append(workerId.toString());
             buf.append('|').append(Long.toString(threadId)).append('|').append(Integer.toString(partitionId))
                 .append('|')
-                .append(Integer.toString(counter));
+                .append(Long.toString(counter));
         }
     }
 }
