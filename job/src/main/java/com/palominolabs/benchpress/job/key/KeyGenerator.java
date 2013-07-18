@@ -21,5 +21,5 @@ public interface KeyGenerator {
      * @throws BufferOverflowException if buf overflows while writing the key
      */
     void writeKey(CharBuffer buf, UUID workerId, long threadId, int partitionId,
-                  int counter) throws BufferOverflowException;
+                  long counter) throws BufferOverflowException;
 }
