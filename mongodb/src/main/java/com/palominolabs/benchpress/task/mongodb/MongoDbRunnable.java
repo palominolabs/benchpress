@@ -5,6 +5,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
 import com.palominolabs.benchpress.job.key.KeyGenerator;
+import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
 
 import java.io.IOException;
@@ -14,28 +15,49 @@ final class MongoDbRunnable extends AbstractTaskRunnable implements Runnable {
     private final DB db;
     private final DBCollection collection;
 
-    protected MongoDbRunnable(DB db, String collectionName, KeyGenerator keyGenerator, ValueGenerator valueGenerator,
-            UUID jobId, UUID workerId, int partitionId, int numQuanta, int batchSize) {
-        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
+    protected MongoDbRunnable(TaskOperation taskOperation, DB db, String collectionName,
+            KeyGenerator keyGenerator, ValueGenerator valueGenerator, UUID jobId, UUID workerId,
+            int partitionId, int numQuanta, int batchSize) {
+        super(taskOperation, keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
         this.db = db;
         collection = db.getCollection(collectionName);
     }
 
     @Override
+    protected void onBatchStart() {
+        // no op
+    }
+
+    @Override
     protected void onBatchCompletion() throws IOException {
-        db.command("{fsync:1}");
+        switch (getTaskOperation()) {
+
+        case WRITE:
+            db.command("{fsync:1}");
+            break;
+
+        default:
+            break;
+
+        }
     }
 
     @Override
     protected void onQuanta(byte[] keyBytes, byte[] valueBytes) {
         BasicDBObject dbObject = new BasicDBObject("key", keyBytes);
-        dbObject.put("value", valueBytes);
-        collection.save(dbObject);
-    }
 
-    @Override
-    protected void onBatchStart() {
-        // no op
+        switch (getTaskOperation()) {
+
+        case WRITE:
+            dbObject.put("value", valueBytes);
+            collection.save(dbObject);
+            break;
+
+        case READ:
+            // TODO
+            break;
+
+        }
     }
 
     @Override

@@ -62,9 +62,9 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
         int quantaPerThread = numQuanta / numThreads;
 
         for (int i = 0; i < numThreads; i++) {
-            runnables.add(new HbaseAsyncRunnable(client, quantaPerThread, table, columnFamily, qualifier,
-                keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(), workerId, partitionId,
-                batchSize, jobId));
+            runnables.add(new HbaseAsyncRunnable(taskOperation, client, quantaPerThread, table, columnFamily,
+                qualifier, keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
+                workerId, partitionId, batchSize, jobId));
         }
         return runnables;
     }

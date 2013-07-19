@@ -1,6 +1,7 @@
 package com.palominolabs.benchpress.task.hbaseAsync;
 
 import com.palominolabs.benchpress.job.key.KeyGenerator;
+import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
 import com.palominolabs.benchpress.job.base.task.AbstractTaskRunnable;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
@@ -25,10 +26,10 @@ final class HbaseAsyncRunnable extends AbstractTaskRunnable implements Runnable 
     private final byte[] columnFamily;
     private final byte[] qualifier;
 
-    public HbaseAsyncRunnable(HBaseClient client, int numQuanta, String table, String columnFamily, String qualifier,
-                              KeyGenerator keyGenerator, ValueGenerator valueGenerator, UUID workerId, int partitionId,
-                              int batchSize, UUID jobId) {
-        super(keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
+    public HbaseAsyncRunnable(TaskOperation taskOperation, HBaseClient client, int numQuanta, String table,
+            String columnFamily, String qualifier, KeyGenerator keyGenerator, ValueGenerator valueGenerator,
+            UUID workerId, int partitionId, int batchSize, UUID jobId) {
+        super(taskOperation, keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
         this.client = client;
         this.table = table.getBytes(UTF_8);
         this.columnFamily = columnFamily.getBytes(UTF_8);
@@ -36,9 +37,23 @@ final class HbaseAsyncRunnable extends AbstractTaskRunnable implements Runnable 
     }
 
     @Override
+    protected void onBatchStart() {
+        // no op
+    }
+
+    @Override
     protected void onBatchCompletion() throws IOException {
-        // TODO this flushes for all threads...
-        client.flush();
+        switch (getTaskOperation()) {
+
+        case WRITE:
+            // TODO this flushes for all threads...
+            client.flush();
+            break;
+
+        default:
+            break;
+
+        }
     }
 
     @Override
@@ -48,18 +63,24 @@ final class HbaseAsyncRunnable extends AbstractTaskRunnable implements Runnable 
 
     @Override
     protected void onQuanta(byte[] keyBytes, byte[] valueBytes) {
-        PutRequest request = new PutRequest(table, keyBytes, columnFamily, qualifier,
-            valueBytes);
-        Deferred<Object> d = client.put(request);
-        try {
-            logger.info("Put result: " + d.joinUninterruptibly());
-        } catch (Exception e) {
-            logger.warn("Error while waiting for deferred", e);
+        switch (getTaskOperation()) {
+
+        case WRITE:
+            PutRequest request = new PutRequest(table, keyBytes, columnFamily, qualifier,
+                valueBytes);
+            Deferred<Object> d = client.put(request);
+            try {
+                logger.info("Put result: " + d.joinUninterruptibly());
+            } catch (Exception e) {
+                logger.warn("Error while waiting for deferred", e);
+            }
+            break;
+
+        case READ:
+            // TODO
+            break;
+
         }
     }
 
-    @Override
-    protected void onBatchStart() {
-        // no op
-    }
 }
