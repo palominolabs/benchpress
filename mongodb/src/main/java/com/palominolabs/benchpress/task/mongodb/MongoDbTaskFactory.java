@@ -46,7 +46,7 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
         for (int i = 0; i < numThreads; i++) {
             DB db = mongo.getDB(this.dbName);
 
-            runnables.add(new MongoDbRunnable(db, collectionName,
+            runnables.add(new MongoDbRunnable(taskOperation, db, collectionName,
                 keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
                 jobId, workerId, partitionId, quantaPerThread, batchSize
             ));

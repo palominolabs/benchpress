@@ -1,5 +1,8 @@
 package com.palominolabs.benchpress.job.task;
 
 public enum TaskOperation {
-    WRITE
+    /** A write operation */
+    WRITE,
+    /** A read operation */
+    READ
 }

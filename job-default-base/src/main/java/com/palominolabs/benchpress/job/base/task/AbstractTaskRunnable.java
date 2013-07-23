@@ -2,6 +2,7 @@ package com.palominolabs.benchpress.job.base.task;
 
 import com.google.common.base.Charsets;
 import com.palominolabs.benchpress.job.key.KeyGenerator;
+import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.job.value.ValueGenerator;
 import com.palominolabs.benchpress.logging.MdcKeys;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public abstract class AbstractTaskRunnable implements Runnable {
 
     private static final int DEFAULT_KEY_BUF_LENGTH = 64;
 
+    private final TaskOperation taskOperation;
     private final KeyGenerator keyGenerator;
     private final UUID workerId;
     private final CharsetEncoder encoder = Charsets.UTF_8.newEncoder().onMalformedInput(CodingErrorAction.IGNORE)
@@ -38,8 +40,9 @@ public abstract class AbstractTaskRunnable implements Runnable {
     private final ValueGenerator valueGenerator;
 
     protected AbstractTaskRunnable(
-        KeyGenerator keyGenerator, UUID workerId, int partitionId, int numQuanta, int batchSize, UUID jobId,
-        ValueGenerator valueGenerator) {
+        TaskOperation taskOperation, KeyGenerator keyGenerator, UUID workerId, int partitionId,
+        int numQuanta, int batchSize, UUID jobId, ValueGenerator valueGenerator) {
+        this.taskOperation = taskOperation;
         this.keyGenerator = keyGenerator;
         threadId = Thread.currentThread().getId();
         this.workerId = workerId;
@@ -75,6 +78,10 @@ public abstract class AbstractTaskRunnable implements Runnable {
 
     protected abstract void onBatchStart();
 
+    protected TaskOperation getTaskOperation() {
+        return taskOperation;
+    }
+    
     private void doRun() {
         logger.info("Starting");
 
