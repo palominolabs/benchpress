@@ -5,6 +5,10 @@ import org.skife.config.Default;
 
 public interface MetricsReporterConfig {
 
+    //
+    // Common
+    //
+
     @Config("benchpress.metrics.reporter.connection-string")
     @Default("")
     public String getConnectionString();
@@ -22,7 +26,15 @@ public interface MetricsReporterConfig {
     public String getDurationsTimeUnit();
 
     @Config("benchpress.metrics.reporter.rates.units")
-    @Default("SECONDS")
+    @Default("MINUTES")
     public String getRatesTimeUnit();
+
+    //
+    // For Ganglia only
+    //
+
+    @Config("benchpress.metrics.reporter.connection-mode")
+    @Default("UNICAST") // EC2 does not support multicast
+    public String getConnectionMode();
 
 }
