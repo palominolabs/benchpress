@@ -10,5 +10,6 @@ public final class DefaultKeyGeneratorFactoriesModule extends AbstractModule {
             Multibinder.newSetBinder(binder(), KeyGeneratorFactoryFactory.class);
         binder.addBinding().to(WorkerIdThreadIdCounterKeyGeneratorFactoryFactory.class);
         binder.addBinding().to(MD5PrefixedCounterKeyGeneratorFactoryFactory.class);
+        binder.addBinding().to(SaltedCounterKeyGeneratorFactoryFactory.class);
     }
 }
