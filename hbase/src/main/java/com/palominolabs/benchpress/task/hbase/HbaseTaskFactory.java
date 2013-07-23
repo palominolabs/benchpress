@@ -72,7 +72,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
 
             runnables
                 .add(
-                    new HbaseRunnable(hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
+                    new HbaseRunnable(taskOperation, hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
                         keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
                         jobId, workerId, partitionId, quantaPerThread, batchSize
                     ));

@@ -75,7 +75,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
         byte[] colNameBytes = colName.getBytes(Charsets.UTF_8);
 
         for (int i = 0; i < numThreads; i++) {
-            runnables.add(new CassandraRunnable(keyGeneratorFactory.getKeyGenerator(), workerId, partitionId, numQuanta,
+            runnables.add(new CassandraRunnable(taskOperation, keyGeneratorFactory.getKeyGenerator(), workerId, partitionId, numQuanta,
                 batchSize, jobId, valueGeneratorFactory.getValueGenerator(), keyspace, cfDef, colNameBytes));
         }
 
