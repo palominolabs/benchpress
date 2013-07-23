@@ -3,6 +3,9 @@ package com.palominolabs.benchpress.job.key;
 import com.palominolabs.benchpress.job.id.Id;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import org.apache.commons.configuration.Configuration;
+
 import java.nio.CharBuffer;
 import java.util.UUID;
 
@@ -13,7 +16,7 @@ final class WorkerIdThreadIdCounterKeyGeneratorFactoryFactory implements KeyGene
     private static final Factory FACTORY = new Factory();
 
     @Override
-    public KeyGeneratorFactory getKeyGeneratorFactory() {
+    public KeyGeneratorFactory getKeyGeneratorFactory(Configuration c) {
         return FACTORY;
     }
 
