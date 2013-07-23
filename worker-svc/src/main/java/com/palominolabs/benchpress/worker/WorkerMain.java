@@ -23,14 +23,16 @@ final class WorkerMain {
     private final WorkerAdvertiser workerAdvertiser;
     private final WorkerConfig workerConfig;
     private final CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
+    private final MetricsReporter metricsReporter;
 
     @Inject
     WorkerMain(HttpServerFactory httpServerFactory, WorkerAdvertiser workerAdvertiser, WorkerConfig workerConfig,
-        CuratorModule.CuratorLifecycleHook curatorLifecycleHook) {
+        CuratorModule.CuratorLifecycleHook curatorLifecycleHook, MetricsReporter metricsReporter) {
         this.httpServerFactory = httpServerFactory;
         this.workerAdvertiser = workerAdvertiser;
         this.workerConfig = workerConfig;
         this.curatorLifecycleHook = curatorLifecycleHook;
+        this.metricsReporter = metricsReporter;
     }
 
     public static void main(String[] args) throws Exception {
@@ -45,6 +47,8 @@ final class WorkerMain {
 
     void go() throws Exception {
         curatorLifecycleHook.start();
+
+        metricsReporter.start();
 
         HttpServerConfig config = new HttpServerConfig();
         config.setHttpListenHost(workerConfig.getHttpServerIp());
