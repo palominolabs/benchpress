@@ -18,7 +18,8 @@ public abstract class ComponentFactoryBase implements ComponentFactory {
     }
 
     protected KeyGeneratorFactory getKeyGeneratorFactory(TaskConfigBase config) {
-        return keyGeneratorFactoryFactoryRegistry.get(config.getKeyGen().keyGenType).getKeyGeneratorFactory();
+        return keyGeneratorFactoryFactoryRegistry.get(config.getKeyGen().keyGenType)
+            .getKeyGeneratorFactory(config.getKeyGen().getConfig());
     }
 
     protected ValueGeneratorFactory getValueGeneratorFactory(TaskConfigBase config) {
