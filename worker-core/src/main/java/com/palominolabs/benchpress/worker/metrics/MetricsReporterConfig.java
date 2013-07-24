@@ -1,13 +1,9 @@
-package com.palominolabs.benchpress.worker;
+package com.palominolabs.benchpress.worker.metrics;
 
 import org.skife.config.Config;
 import org.skife.config.Default;
 
 public interface MetricsReporterConfig {
-
-    //
-    // Common
-    //
 
     @Config("benchpress.metrics.reporter.connection-string")
     @Default("")
@@ -28,13 +24,5 @@ public interface MetricsReporterConfig {
     @Config("benchpress.metrics.reporter.rates.units")
     @Default("MINUTES")
     public String getRatesTimeUnit();
-
-    //
-    // For Ganglia only
-    //
-
-    @Config("benchpress.metrics.reporter.connection-mode")
-    @Default("UNICAST") // EC2 does not support multicast
-    public String getConnectionMode();
 
 }

@@ -1,4 +1,4 @@
-package com.palominolabs.benchpress.worker;
+package com.palominolabs.benchpress.worker.metrics;
 
 public interface MetricsReporter {
      public void start();

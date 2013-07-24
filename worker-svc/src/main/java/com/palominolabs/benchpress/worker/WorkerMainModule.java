@@ -34,7 +34,6 @@ public final class WorkerMainModule extends AbstractModule {
         install(new HttpServerModule());
 
         bind(MetricsRegistry.class).toInstance(Metrics.defaultRegistry());
-        install(new DefaultMetricsReporterModule());
 
         install(new DefaultJerseyServletModule());
 
