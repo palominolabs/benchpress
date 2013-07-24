@@ -1,22 +1,20 @@
-package com.palominolabs.benchpress.worker;
+package com.palominolabs.benchpress.worker.metrics.graphite;
 
-import info.ganglia.gmetric4j.gmetric.GMetric;
-import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
-
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.ganglia.GangliaReporter;
-
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.palominolabs.benchpress.worker.metrics.MetricsReporter;
+import com.palominolabs.benchpress.worker.metrics.MetricsReporterConfig;
 
 @Singleton
-final class GangliaMetricsReporter implements MetricsReporter {
-    private static final Logger logger = LoggerFactory.getLogger(GangliaMetricsReporter.class);
+final class GraphiteMetricsReporter implements MetricsReporter {
+    private static final Logger logger = LoggerFactory.getLogger(GraphiteMetricsReporter.class);
 
     @Inject private MetricRegistry metricRegistry;
     @Inject private MetricsReporterConfig metricsReporterConfig;
@@ -46,13 +44,12 @@ final class GangliaMetricsReporter implements MetricsReporter {
 
         // Start the Graphite metrics reporter
         try {
-            UDPAddressingMode mode = UDPAddressingMode.valueOf(metricsReporterConfig.getConnectionMode());
-            GMetric ganglia = new GMetric(host, port, mode, 1);
-            GangliaReporter.forRegistry(metricRegistry)
+            Graphite graphite = new Graphite(new InetSocketAddress(host, port));
+            GraphiteReporter.forRegistry(metricRegistry)
                 .convertDurationsTo(TimeUnit.valueOf(metricsReporterConfig.getDurationsTimeUnit()))
                 .convertRatesTo(TimeUnit.valueOf(metricsReporterConfig.getRatesTimeUnit()))
-                .build(ganglia)
-                .start(metricsReporterConfig.getInterval(),
+                .build(graphite)
+                .start(metricsReporterConfig.getInterval(), 
                     TimeUnit.valueOf(metricsReporterConfig.getIntervalTimeUnit()));
         } catch (Exception e) {
             logger.error("Could not start metrics reporter", e);

@@ -1,24 +1,22 @@
-package com.palominolabs.benchpress.worker;
+package com.palominolabs.benchpress.worker.metrics.ganglia;
 
-import java.net.InetSocketAddress;
+import info.ganglia.gmetric4j.gmetric.GMetric;
+import info.ganglia.gmetric4j.gmetric.GMetric.UDPAddressingMode;
 import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.graphite.Graphite;
-import com.codahale.metrics.graphite.GraphiteReporter;
-
+import com.codahale.metrics.ganglia.GangliaReporter;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.palominolabs.benchpress.worker.metrics.MetricsReporter;
 
 @Singleton
-final class GraphiteMetricsReporter implements MetricsReporter {
-    private static final Logger logger = LoggerFactory.getLogger(GraphiteMetricsReporter.class);
+final class GangliaMetricsReporter implements MetricsReporter {
+    private static final Logger logger = LoggerFactory.getLogger(GangliaMetricsReporter.class);
 
     @Inject private MetricRegistry metricRegistry;
-    @Inject private MetricsReporterConfig metricsReporterConfig;
+    @Inject private GangliaMetricsReporterConfig metricsReporterConfig;
 
     @Override
     public void start() {
@@ -45,12 +43,13 @@ final class GraphiteMetricsReporter implements MetricsReporter {
 
         // Start the Graphite metrics reporter
         try {
-            Graphite graphite = new Graphite(new InetSocketAddress(host, port));
-            GraphiteReporter.forRegistry(metricRegistry)
+            UDPAddressingMode mode = UDPAddressingMode.valueOf(metricsReporterConfig.getConnectionMode());
+            GMetric ganglia = new GMetric(host, port, mode, 1);
+            GangliaReporter.forRegistry(metricRegistry)
                 .convertDurationsTo(TimeUnit.valueOf(metricsReporterConfig.getDurationsTimeUnit()))
                 .convertRatesTo(TimeUnit.valueOf(metricsReporterConfig.getRatesTimeUnit()))
-                .build(graphite)
-                .start(metricsReporterConfig.getInterval(), 
+                .build(ganglia)
+                .start(metricsReporterConfig.getInterval(),
                     TimeUnit.valueOf(metricsReporterConfig.getIntervalTimeUnit()));
         } catch (Exception e) {
             logger.error("Could not start metrics reporter", e);
