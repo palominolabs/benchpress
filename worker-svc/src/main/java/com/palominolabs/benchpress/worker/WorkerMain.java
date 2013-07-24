@@ -24,6 +24,7 @@ final class WorkerMain {
     private final WorkerAdvertiser workerAdvertiser;
     private final WorkerConfig workerConfig;
     private final CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
+    @Inject private Injector injector;
 
     @Inject
     WorkerMain(HttpServerFactory httpServerFactory, WorkerAdvertiser workerAdvertiser, WorkerConfig workerConfig,
@@ -57,9 +58,9 @@ final class WorkerMain {
         // Set up metrics reporting
         String metricsReporterPlugin = System.getProperty("benchpress.plugin.metrics-reporter");
         if (metricsReporterPlugin != null) {
-            Injector injector = Guice.createInjector(Stage.PRODUCTION,
-                getModuleForModuleNamesString(metricsReporterPlugin));
-            injector.getInstance(MetricsReporter.class).start();
+            injector.createChildInjector(
+                    getModuleForModuleNamesString(metricsReporterPlugin))
+                .getInstance(MetricsReporter.class).start();
         }
 
         workerAdvertiser.initListenInfo(httpServer.getHttpListenHost(), httpServer.getHttpListenPort());
