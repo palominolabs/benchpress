@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
+import com.palominolabs.benchpress.worker.metrics.MetricsReporter;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.http.server.HttpServer;
 import com.palominolabs.http.server.HttpServerConfig;
@@ -23,16 +24,15 @@ final class WorkerMain {
     private final WorkerAdvertiser workerAdvertiser;
     private final WorkerConfig workerConfig;
     private final CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
-    private final MetricsReporter metricsReporter;
+    @Inject private Injector injector;
 
     @Inject
     WorkerMain(HttpServerFactory httpServerFactory, WorkerAdvertiser workerAdvertiser, WorkerConfig workerConfig,
-        CuratorModule.CuratorLifecycleHook curatorLifecycleHook, MetricsReporter metricsReporter) {
+        CuratorModule.CuratorLifecycleHook curatorLifecycleHook) {
         this.httpServerFactory = httpServerFactory;
         this.workerAdvertiser = workerAdvertiser;
         this.workerConfig = workerConfig;
         this.curatorLifecycleHook = curatorLifecycleHook;
-        this.metricsReporter = metricsReporter;
     }
 
     public static void main(String[] args) throws Exception {
@@ -48,14 +48,20 @@ final class WorkerMain {
     void go() throws Exception {
         curatorLifecycleHook.start();
 
-        metricsReporter.start();
-
         HttpServerConfig config = new HttpServerConfig();
         config.setHttpListenHost(workerConfig.getHttpServerIp());
         config.setHttpListenPort(workerConfig.getHttpServerPort());
         HttpServer httpServer = httpServerFactory.getHttpServer(config);
         httpServer.start();
         logger.info("Worker started listening on port " + httpServer.getHttpListenPort());
+
+        // Set up metrics reporting
+        String metricsReporterPlugin = System.getProperty("benchpress.plugin.metrics-reporter");
+        if (metricsReporterPlugin != null) {
+            injector.createChildInjector(
+                    getModuleForModuleNamesString(metricsReporterPlugin))
+                .getInstance(MetricsReporter.class).start();
+        }
 
         workerAdvertiser.initListenInfo(httpServer.getHttpListenHost(), httpServer.getHttpListenPort());
         workerAdvertiser.advertiseAvailability();
