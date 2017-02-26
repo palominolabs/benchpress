@@ -1,0 +1,27 @@
+apply plugin: 'application'
+
+mainClassName = 'com.palominolabs.benchpress.worker.WorkerMain'
+
+dependencies {
+  compile project(':logging')
+  compile project(':job')
+  compile project(':zookeeper')
+  compile project(':job-registry')
+  compile project(':cassandra')
+  compile project(':hbase')
+  compile project(':hbase-async')
+  compile project(':mongodb')
+  compile project(':id-registry')
+  compile project(':reflection-module')
+  compile project(':http-server')
+  compile project(':key-gen')
+  compile project(':value-gen')
+  compile project(':worker-core')
+
+  compile "com.palominolabs.config:config-inject:${depVersions.configInject}"
+
+  compile "org.slf4j:jul-to-slf4j:${depVersions.slf4j}"
+  runtime "org.slf4j:jcl-over-slf4j:${depVersions.slf4j}"
+  runtime "org.slf4j:log4j-over-slf4j:${depVersions.slf4j}"
+  runtime "ch.qos.logback:logback-classic:${depVersions.logback}"
+}

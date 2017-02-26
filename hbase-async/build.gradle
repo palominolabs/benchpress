@@ -1,0 +1,7 @@
+dependencies {
+  compile project(':task-reporting')
+  compile project(':job-default-base')
+
+  compile "org.hbase:asynchbase:${depVersions.asyncHbase}"
+}
+

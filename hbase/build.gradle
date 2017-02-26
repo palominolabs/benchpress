@@ -1,0 +1,20 @@
+dependencies {
+  compile project(':task-reporting')
+  compile project(':job-default-base')
+
+  compile("org.apache.hbase:hbase:${depVersions.hbase}") {
+    exclude group: 'org.codehaus.jackson'
+    exclude group: 'org.mortbay.jetty'
+    exclude group: 'javax.servlet'
+    exclude group: 'org.apache.hadoop', module: 'hadoop-minicluster'
+  }
+
+  // TODO hadoop 2
+  compile("org.apache.hadoop:hadoop-core:${depVersions.hadoop}") {
+    exclude group: 'hsqldb'
+    exclude group: 'net.sf.kosmosfs'
+    exclude group: 'org.eclipse.jdt'
+    exclude group: 'net.java.dev.jets3t'
+    exclude group: 'oro'
+  }
+}

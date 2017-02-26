@@ -11,3 +11,6 @@ target
 .~lock.*.od*#
 tmp
 *.tar.gz
+
+build
+.gradle

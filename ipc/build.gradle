@@ -1,0 +1,17 @@
+dependencies {
+  compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"
+  compile "org.slf4j:slf4j-api:${depVersions.slf4j}"
+
+  compile "com.ning:async-http-client:${depVersions.ahc}"
+
+  compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
+  compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:${depVersions.jackson}"
+  compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${depVersions.jackson}"
+
+  compile "com.google.inject:guice:${depVersions.guice}"
+
+  // TODO get rid of this
+  compile("com.sun.jersey:jersey-json:${depVersions.jersey}") {
+    exclude group: 'org.codehaus.jackson'
+  }
+}

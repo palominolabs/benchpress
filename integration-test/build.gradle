@@ -1,0 +1,18 @@
+dependencies {
+  testCompile project(':logging')
+  testCompile project(':job')
+  testCompile project(':zookeeper')
+  testCompile project(':task-reporting')
+  testCompile project(':http-server')
+  testCompile project(':reflection-module')
+  testCompile project(':worker-core')
+  testCompile project(':controller-core')
+  testCompile project(':controller-zk-server')
+
+  testCompile "org.slf4j:jul-to-slf4j:${depVersions.slf4j}"
+  testRuntime "org.slf4j:jcl-over-slf4j:${depVersions.slf4j}"
+  testRuntime "org.slf4j:log4j-over-slf4j:${depVersions.slf4j}"
+  testRuntime "ch.qos.logback:logback-classic:${depVersions.logback}"
+
+  testCompile "junit:junit:${depVersions.junit}"
+}

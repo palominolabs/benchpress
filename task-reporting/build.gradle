@@ -1,0 +1,15 @@
+dependencies {
+  compile project(':job-registry')
+  compile project(':ipc')
+
+  compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"
+
+  compile "org.slf4j:slf4j-api:${depVersions.slf4j}"
+
+  compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
+
+  compile "com.google.inject:guice:${depVersions.guice}"
+
+  compile "com.ning:async-http-client:${depVersions.ahc}"
+
+}

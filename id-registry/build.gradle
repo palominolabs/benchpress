@@ -1,0 +1,10 @@
+dependencies {
+  compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"
+
+  compile "com.google.guava:guava:${depVersions.guava}"
+
+  compile "com.google.inject:guice:${depVersions.guice}"
+  compile "com.google.inject.extensions:guice-multibindings:${depVersions.guice}"
+
+  testCompile "junit:junit:${depVersions.junit}"
+}

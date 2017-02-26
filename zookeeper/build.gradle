@@ -1,0 +1,16 @@
+dependencies {
+  compile project(':worker-data')
+
+  compile "com.palominolabs.config:config-inject:${depVersions.configInject}"
+
+  compile "org.slf4j:slf4j-api:${depVersions.slf4j}"
+
+  compile "com.google.inject:guice:${depVersions.guice}"
+
+  compile "com.google.guava:guava:${depVersions.guava}"
+
+  compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
+
+  compile "org.apache.curator:curator-framework:${depVersions.curator}"
+  compile "org.apache.curator:curator-x-discovery:${depVersions.curator}"
+}

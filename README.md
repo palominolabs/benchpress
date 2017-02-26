@@ -5,14 +5,14 @@ Check out some blog posts on BenchPress: [an introduction](http://blog.palominol
 
 First, build the project from the root directory.
 
-    mvn clean install
+    ./gradlew build
 
-Create a tarball for both `controller-svc` & `worker-svc` by descending into
+Create archives for both `controller-svc` & `worker-svc` by descending into
 the respective directories and running:
 
-    mvn package assembly:single -DskipTests
+    ./gradlew distZip
 
-The resulting *-dist.tar.gz files in the respective `target` directories are all you need to deploy BenchPress nodes.
+The resulting `.zip` files in the respective `build/distributions` directories are all you need to deploy BenchPress nodes.
 
 ## Runing BenchPress
 
@@ -24,7 +24,7 @@ settings assume the controller and ZooKeeper are on localhost.
 
 If you wish to use an external ZooKeeper, you must provide the connection information.
 
-    sh run.sh -Dbenchpress.zookeeper.client.connection-string=zkhost:zkport
+    -Dbenchpress.zookeeper.client.connection-string=zkhost:zkport
 
 
 In that case, you should inform the controller to not start up an embedded ZooKeeper:
@@ -49,7 +49,7 @@ Jobs are submitted to the controller by PUTing to `/job`:
     curl -X PUT -H "Content-Type: application/json" -d @test-jobs/hbase.json http://controller:7000/job
 
 The controller will return a simple HTML page listing the active jobs if you `GET`
-`/job`. You'll need to be running the appropriate server (HBase, in this case) and set up the
+`/controller/job`. You'll need to be running the appropriate server (HBase, in this case) and set up the
 table and column family.
 
 # Flow of Execution
@@ -77,7 +77,7 @@ the job on the `/job/{jobId}/partition endpoint`.  The worker passes the
 `Partition` to its `PartitionRunner`, which runs the job, reporting back to the
 controller as specified in the job config.
 
-# Futher notes
+# Further notes
 
 ## Custom job types
 If you want to use a storage system that's not supported out of the box, or you want more flexibility than the current simple JSON structure allows, you can register your own job types. More documentation is coming soon (pending the completion of an in-progress

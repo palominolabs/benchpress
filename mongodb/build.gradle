@@ -1,0 +1,6 @@
+dependencies {
+  compile project(':task-reporting')
+  compile project(':job-default-base')
+
+  compile "org.mongodb:mongo-java-driver:${depVersions.mongodb}"
+}

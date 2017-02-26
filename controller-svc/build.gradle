@@ -1,0 +1,33 @@
+apply plugin: 'application'
+
+mainClassName = 'com.palominolabs.benchpress.controller.svc.ControllerMain'
+
+dependencies {
+  compile project(':logging')
+  compile project(':zookeeper')
+  compile project(':task-reporting')
+  compile project(':job')
+  compile project(':http-server')
+  compile project(':cassandra')
+  compile project(':hbase')
+  compile project(':hbase-async')
+  compile project(':mongodb')
+  compile project(':reflection-module')
+  compile project(':controller-core')
+  compile project(':controller-zk-server')
+
+  compile "com.palominolabs.config:config-inject:${depVersions.configInject}"
+
+  compile "org.slf4j:jul-to-slf4j:${depVersions.slf4j}"
+  runtime "org.slf4j:jcl-over-slf4j:${depVersions.slf4j}"
+  runtime "org.slf4j:log4j-over-slf4j:${depVersions.slf4j}"
+  runtime "ch.qos.logback:logback-classic:${depVersions.logback}"
+
+  compile "org.apache.curator:curator-framework:${depVersions.curator}"
+  compile "org.apache.curator:curator-x-discovery:${depVersions.curator}"
+
+  compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
+  compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:${depVersions.jackson}"
+  compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${depVersions.jackson}"
+
+}

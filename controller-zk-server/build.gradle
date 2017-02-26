@@ -1,0 +1,6 @@
+dependencies {
+  compile "com.palominolabs.config:config-inject:${depVersions.configInject}"
+  compile "org.slf4j:slf4j-api:${depVersions.slf4j}"
+  compile "com.google.inject:guice:${depVersions.guice}"
+  compile "org.apache.zookeeper:zookeeper:${depVersions.zookeeper}"
+}

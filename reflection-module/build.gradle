@@ -1,0 +1,13 @@
+dependencies {
+  compile project(':task-reporting')
+  compile project(':job-default-base')
+
+  compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"
+  compile "org.slf4j:slf4j-api:${depVersions.slf4j}"
+
+  compile "com.google.inject:guice:${depVersions.guice}"
+
+  testCompile "junit:junit:${depVersions.junit}"
+
+  testRuntime "org.slf4j:slf4j-simple:${depVersions.slf4j}"
+}

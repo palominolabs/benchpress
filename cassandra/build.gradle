@@ -1,0 +1,12 @@
+dependencies {
+  compile project(':task-reporting')
+  compile project(':job-default-base')
+
+  compile "com.google.inject:guice:${depVersions.guice}"
+
+  compile "com.netflix.astyanax:astyanax:${depVersions.astyanax}"
+  compile("org.apache.cassandra:cassandra-all:${depVersions.cassandra}") {
+    exclude group: 'javax.servlet'
+    exclude group: 'org.mortbay.jetty'
+  }
+}

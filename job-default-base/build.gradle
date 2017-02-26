@@ -1,0 +1,9 @@
+dependencies {
+  compile project(':id-registry')
+  compile project(':job')
+  compile project(':logging')
+
+  compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"
+
+  compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
+}
