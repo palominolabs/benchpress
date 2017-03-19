@@ -3,8 +3,6 @@ dependencies {
   compile project(':job')
   compile project(':job-registry')
   compile project(':id-registry')
-  compile project(':key-gen')
-  compile project(':value-gen')
   compile project(':zookeeper')
 
   compile "com.codahale.metrics:metrics-core:${depVersions.metrics}"

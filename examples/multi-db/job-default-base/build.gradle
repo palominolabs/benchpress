@@ -2,6 +2,8 @@ dependencies {
   compile project(':id-registry')
   compile project(':job')
   compile project(':logging')
+  compile project(':examples:multi-db:key-gen')
+  compile project(':examples:multi-db:value-gen')
 
   compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"
 

@@ -1,6 +1,6 @@
 dependencies {
   compile project(':task-reporting')
-  compile project(':job-default-base')
+  compile project(':examples:multi-db:job-default-base')
 
   compile "com.google.inject:guice:${depVersions.guice}"
 
