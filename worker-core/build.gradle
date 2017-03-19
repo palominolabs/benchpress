@@ -5,10 +5,6 @@ dependencies {
   compile project(':id-registry')
   compile project(':zookeeper')
 
-  compile "com.codahale.metrics:metrics-core:${depVersions.metrics}"
-  compile "com.codahale.metrics:metrics-graphite:${depVersions.metrics}"
-  compile "com.codahale.metrics:metrics-ganglia:${depVersions.metrics}"
-
   testCompile project(':http-server')
   testCompile "junit:junit:${depVersions.junit}"
 

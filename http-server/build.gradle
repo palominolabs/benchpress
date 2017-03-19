@@ -20,6 +20,4 @@ dependencies {
   compile("com.sun.jersey:jersey-json:${depVersions.jersey}") {
     exclude group: 'org.codehaus.jackson'
   }
-
-  compile "com.codahale.metrics:metrics-servlet:${depVersions.metrics}"
 }

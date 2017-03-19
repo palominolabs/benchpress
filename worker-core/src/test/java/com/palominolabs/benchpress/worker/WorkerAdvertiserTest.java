@@ -1,6 +1,5 @@
 package com.palominolabs.benchpress.worker;
 
-import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.io.Closeables;
 import com.google.inject.AbstractModule;
@@ -61,8 +60,6 @@ public final class WorkerAdvertiserTest {
                 install(new TestConfigModule(testingServer.getPort()));
 
                 install(new HttpServerModule());
-
-                bind(MetricRegistry.class).toInstance(new MetricRegistry());
 
                 install(new DefaultJerseyServletModule());
                 install(new WorkerResourceModule());
