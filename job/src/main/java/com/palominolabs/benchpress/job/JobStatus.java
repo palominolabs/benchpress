@@ -3,9 +3,7 @@ package com.palominolabs.benchpress.job;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.palominolabs.benchpress.job.json.Job;
-import org.joda.time.Duration;
-
-import java.util.Map;
+import java.time.Duration;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 

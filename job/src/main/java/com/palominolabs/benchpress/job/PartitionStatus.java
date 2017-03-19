@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.palominolabs.benchpress.job.json.Partition;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
-import org.joda.time.Duration;
 
+import java.time.Duration;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe

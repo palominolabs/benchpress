@@ -20,5 +20,7 @@ include 'id-registry',
     'examples:multi-db:key-gen',
     'examples:multi-db:value-gen',
     'examples:multi-db:mongodb',
-    'examples:multi-db:job-default-base'
+    'examples:multi-db:job-default-base',
+    'examples:multi-db:multi-db-worker',
+    'examples:multi-db:multi-db-controller'
 

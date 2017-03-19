@@ -11,8 +11,8 @@ import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import java.time.Duration;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -169,7 +169,7 @@ public final class PartitionRunner {
         public void run() {
             MDC.put(JOB_ID, jobId.toString());
             try {
-                DateTime start = new DateTime();
+                Instant start = Instant.now();
 
                 while (!futures.isEmpty()) {
                     Iterator<Future<Void>> i = futures.iterator();
@@ -194,7 +194,7 @@ public final class PartitionRunner {
                     }
                 }
 
-                taskProgressClient.reportFinished(jobId, partitionId, new Duration(start, null));
+                taskProgressClient.reportFinished(jobId, partitionId, Duration.between(start, Instant.now()));
                 jobRegistry.removeJob(jobId);
                 taskOutputQueueProvider.removeJob(jobId);
 

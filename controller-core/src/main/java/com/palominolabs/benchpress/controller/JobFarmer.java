@@ -16,8 +16,8 @@ import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerFinder;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
+import java.time.Duration;
 import org.apache.curator.x.discovery.ServiceInstance;
-import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,7 +194,7 @@ public final class JobFarmer {
         synchronized (this) {
             // Only set the totalDuration of the job when all workers have been started and have finished
             if (jobStatus.isFinished()) {
-                Duration totalDuration = new Duration(0);
+                Duration totalDuration = Duration.ZERO;
                 for (PartitionStatus ps : jobStatus.getPartitionStatuses().values()) {
                     totalDuration = totalDuration.plus(ps.getDuration());
                 }

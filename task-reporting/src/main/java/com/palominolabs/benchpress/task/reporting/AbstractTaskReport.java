@@ -1,7 +1,7 @@
 package com.palominolabs.benchpress.task.reporting;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.joda.time.Duration;
+import java.time.Duration;
 
 abstract class AbstractTaskReport {
     private final int partitionId;

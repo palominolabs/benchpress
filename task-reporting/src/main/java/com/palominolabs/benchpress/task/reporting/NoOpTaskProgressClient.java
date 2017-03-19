@@ -1,7 +1,7 @@
 package com.palominolabs.benchpress.task.reporting;
 
-import org.joda.time.Duration;
 
+import java.time.Duration;
 import java.util.UUID;
 
 /**

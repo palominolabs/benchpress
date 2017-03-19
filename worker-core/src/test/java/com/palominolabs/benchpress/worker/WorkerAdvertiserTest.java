@@ -12,10 +12,8 @@ import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
-import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
-import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.task.reporting.NoOpTaskProgressClient;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
@@ -73,8 +71,6 @@ public final class WorkerAdvertiserTest {
                 bind(TaskProgressClient.class).to(NoOpTaskProgressClient.class);
 
                 install(new TaskPluginRegistryModule());
-                install(new ValueGeneratorFactoryFactoryRegistryModule());
-                install(new KeyGeneratorFactoryFactoryRegistryModule());
                 install(new IpcJsonModule());
             }
         });
@@ -95,9 +91,9 @@ public final class WorkerAdvertiserTest {
     @After
     public void tearDown() throws Exception {
         workerAdvertiser = null;
-        Closeables.closeQuietly(curatorFramework);
-        Closeables.closeQuietly(serviceDiscovery);
-        Closeables.closeQuietly(testingServer);
+        Closeables.close(curatorFramework, true);
+        Closeables.close(serviceDiscovery, true);
+        Closeables.close(testingServer, true);
 
         guiceFilter.destroy();
     }

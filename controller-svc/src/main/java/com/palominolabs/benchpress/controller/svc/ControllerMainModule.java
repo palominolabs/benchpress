@@ -6,9 +6,7 @@ import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
-import com.palominolabs.benchpress.job.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
-import com.palominolabs.benchpress.job.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.config.ConfigModule;
 import com.palominolabs.config.ConfigModuleBuilder;
@@ -38,8 +36,6 @@ public final class ControllerMainModule extends AbstractModule {
 
         install(new ZKServerModule());
 
-        install(new KeyGeneratorFactoryFactoryRegistryModule());
-        install(new ValueGeneratorFactoryFactoryRegistryModule());
         install(new TaskPluginRegistryModule());
     }
 }

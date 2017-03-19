@@ -8,7 +8,7 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.job.registry.JobRegistry;
-import org.joda.time.Duration;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

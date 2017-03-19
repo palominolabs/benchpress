@@ -16,25 +16,24 @@ subprojects {
 ext {
   depVersions = [
       'jsr305'       : '3.0.1',
-      'slf4j'        : '1.7.24',
-      'guava'        : '13.0',
-      'guice'        : '3.0',
+      'slf4j'        : '1.7.25',
+      'logback'      : '1.2.2',
+      'guava'        : '21.0',
+      'guice'        : '4.1.0',
       'junit'        : '4.12',
       'ahc'          : '1.7.4',
-      'jackson'      : '2.7.8',
+      'jackson'      : '2.8.7',
       'jersey'       : '1.19.3',
-      'jodaTime'     : '2.2.1',
       'commonsConfig': '1.10',
-      'logback'      : '1.2.1',
       'jetty'        : '9.4.2.v20170220',
       'configInject' : '1.0.0',
-      'curator'      : '2.0.0-incubating',
+      'curator'      : '3.3.0',
+      'zookeeper'    : '3.4.5',
       'astyanax'     : '1.0.3',
       'cassandra'    : '1.1.1',
       'hbase'        : '0.94.9',
       'hadoop'       : '1.0.4',
       'asyncHbase'   : '1.4.1',
       'mongodb'      : '2.7.3',
-      'zookeeper'    : '3.4.5'
   ]
 }

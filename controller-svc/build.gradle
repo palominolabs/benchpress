@@ -23,7 +23,6 @@ dependencies {
   compile "org.apache.curator:curator-x-discovery:${depVersions.curator}"
 
   compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
-  compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:${depVersions.jackson}"
   compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${depVersions.jackson}"
 
 }

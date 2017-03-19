@@ -12,7 +12,5 @@ dependencies {
 
   compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
 
-  compile "joda-time:joda-time:${depVersions.jodaTime}"
-
   compile "commons-configuration:commons-configuration:${depVersions.commonsConfig}"
 }
