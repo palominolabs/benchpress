@@ -15,8 +15,7 @@ public final class IpcJsonModule extends AbstractModule {
         bind(ObjectWriter.class).annotatedWith(Ipc.class).toInstance(objectMapper.writer());
 
         // use ipc object mapper in Jersey
-        final JacksonJsonProvider provider = new JacksonJsonProvider();
-        provider.setMapper(objectMapper);
-        bind(JacksonJsonProvider.class).toInstance(provider);
+        bind(ObjectMapperContextResolver.class).annotatedWith(Ipc.class)
+                .toInstance(new ObjectMapperContextResolver(objectMapper));
     }
 }

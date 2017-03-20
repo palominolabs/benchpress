@@ -1,0 +1,6 @@
+dependencies {
+  compile "com.google.inject:guice:${depVersions.guice}"
+  compile "com.squarespace.jersey2-guice:jersey2-guice-impl:${depVersions.jersey2Guice}"
+  compile "org.glassfish.jersey.containers:jersey-container-servlet:$depVersions.jersey"
+
+}

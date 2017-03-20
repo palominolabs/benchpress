@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule;
 import com.palominolabs.benchpress.controller.ControllerCoreModule;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
-import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
@@ -20,8 +19,6 @@ public final class ControllerMainModule extends AbstractModule {
         bind(ControllerMain.class);
 
         install(new HttpServerModule());
-
-        install(new DefaultJerseyServletModule());
 
         install(new ControllerCoreModule());
         install(new ConfigModuleBuilder().addConfiguration(new SystemConfiguration()).build());

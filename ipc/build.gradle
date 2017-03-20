@@ -9,8 +9,6 @@ dependencies {
 
   compile "com.google.inject:guice:${depVersions.guice}"
 
-  // TODO get rid of this
-  compile("com.sun.jersey:jersey-json:${depVersions.jersey}") {
-    exclude group: 'org.codehaus.jackson'
-  }
+  compile "org.glassfish.jersey.media:jersey-media-json-jackson:$depVersions.jersey"
+
 }

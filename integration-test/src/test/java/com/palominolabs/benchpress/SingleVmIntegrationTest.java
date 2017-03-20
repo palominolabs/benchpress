@@ -18,7 +18,6 @@ import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
-import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;

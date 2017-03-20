@@ -14,10 +14,4 @@ dependencies {
 
   compile "org.eclipse.jetty:jetty-server:${depVersions.jetty}"
   compile "org.eclipse.jetty:jetty-servlet:${depVersions.jetty}"
-
-  compile "com.sun.jersey.contribs:jersey-guice:${depVersions.jersey}"
-  // TODO
-  compile("com.sun.jersey:jersey-json:${depVersions.jersey}") {
-    exclude group: 'org.codehaus.jackson'
-  }
 }

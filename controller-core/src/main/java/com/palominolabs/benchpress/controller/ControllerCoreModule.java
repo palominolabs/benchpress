@@ -12,5 +12,7 @@ public final class ControllerCoreModule extends AbstractModule {
         bind(WorkerControlFactory.class);
         bind(JobFarmer.class);
         bind(JobResource.class);
+
+        bind(ControllerJerseyApp.class);
     }
 }

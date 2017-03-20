@@ -10,7 +10,6 @@ import com.google.inject.servlet.GuiceFilter;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
 import com.palominolabs.benchpress.curator.InstanceSerializerModule;
-import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
@@ -59,7 +58,6 @@ public final class WorkerAdvertiserTest {
 
                 install(new HttpServerModule());
 
-                install(new DefaultJerseyServletModule());
                 install(new WorkerResourceModule());
                 install(new CuratorModule());
                 install(new QueueProviderModule());

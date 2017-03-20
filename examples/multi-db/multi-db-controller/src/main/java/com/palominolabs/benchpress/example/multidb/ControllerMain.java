@@ -4,8 +4,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.Stage;
+import com.google.inject.servlet.ServletModule;
 import com.palominolabs.benchpress.controller.ControllerCoreModule;
+import com.palominolabs.benchpress.controller.ControllerJerseyApp;
 import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
@@ -16,22 +20,22 @@ import com.palominolabs.benchpress.example.multidb.hbaseasync.HbaseAsyncModule;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.example.multidb.mongodb.MongoDbModule;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistryModule;
-import com.palominolabs.benchpress.http.server.DefaultJerseyServletModule;
-import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
+import com.palominolabs.benchpress.jersey.GuiceServiceLocatorGenerator;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.config.ConfigModuleBuilder;
 import com.palominolabs.http.server.HttpServerConnectorConfig;
-import com.palominolabs.http.server.HttpServerWrapper;
 import com.palominolabs.http.server.HttpServerWrapperConfig;
 import com.palominolabs.http.server.HttpServerWrapperFactory;
 import com.palominolabs.http.server.HttpServerWrapperModule;
+import com.squarespace.jersey2.guice.JerseyGuiceUtils;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.LogManager;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -43,8 +47,17 @@ final class ControllerMain {
     private final JobFarmer jobFarmer;
     private final ZKServer zkServer;
     private final CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
-
     private final ExecutorService zkServerExService = Executors.newCachedThreadPool();
+
+    public static void main(String[] args) throws Exception {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.install();
+
+        Injector injector = Guice.createInjector(Stage.PRODUCTION, new ControllerMainModule());
+        JerseyGuiceUtils.install(new GuiceServiceLocatorGenerator(injector));
+
+        injector.getInstance(ControllerMain.class).go();
+    }
 
     @Inject
     ControllerMain(HttpServerWrapperFactory httpServerFactory, JobFarmer jobFarmer,
@@ -55,15 +68,10 @@ final class ControllerMain {
         this.curatorLifecycleHook = curatorLifecycleHook;
     }
 
-    public static void main(String[] args) throws Exception {
-        LogManager.getLogManager().reset();
-        SLF4JBridgeHandler.install();
-        Injector injector = Guice.createInjector(Stage.PRODUCTION, new ControllerMainModule());
-
-        injector.getInstance(ControllerMain.class).go();
-    }
-
     void go() throws Exception {
+        // Disable Zookeeper's annoying attempt to start its own out-of-date Jetty
+        System.setProperty("zookeeper.admin.enableServer", "false");
+
         if (zkServer.isEnabled()) {
             Future<?> zkFuture = zkServerExService.submit(zkServer);
             zkServerExService.submit(new FutureWatcher(zkFuture));
@@ -117,6 +125,7 @@ final class ControllerMain {
 
         @Override
         protected void configure() {
+            binder().requireExplicitBindings();
             binder().requireAtInjectOnConstructors();
             binder().requireExactBindingAnnotations();
 
@@ -130,7 +139,6 @@ final class ControllerMain {
             install(new ValueGeneratorFactoryFactoryRegistryModule());
 
             install(new ControllerCoreModule());
-            install(new DefaultJerseyServletModule());
             install(new ZKServerModule());
             install(new TaskPluginRegistryModule());
             install(new IpcJsonModule());
@@ -139,6 +147,19 @@ final class ControllerMain {
             install(new ConfigModuleBuilder().build());
 
             install(new HttpServerWrapperModule());
+
+            install(new ServletModule() {
+                @Override
+                protected void configureServlets() {
+                    serve("/*").with(ServletContainer.class);
+                }
+            });
+        }
+
+        @Singleton
+        @Provides
+        ServletContainer getServletContainer(ControllerJerseyApp app) {
+            return new ServletContainer(app);
         }
     }
 }
