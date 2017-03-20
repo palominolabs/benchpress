@@ -13,9 +13,7 @@ public final class IpcJsonModule extends AbstractModule {
 
         bind(ObjectReader.class).annotatedWith(Ipc.class).toInstance(objectMapper.reader());
         bind(ObjectWriter.class).annotatedWith(Ipc.class).toInstance(objectMapper.writer());
-
-        // use ipc object mapper in Jersey
-        bind(ObjectMapperContextResolver.class).annotatedWith(Ipc.class)
-                .toInstance(new ObjectMapperContextResolver(objectMapper));
+        // have to have ObjectMapper for Jersey integration
+        bind(ObjectMapper.class).annotatedWith(Ipc.class).toInstance(objectMapper);
     }
 }

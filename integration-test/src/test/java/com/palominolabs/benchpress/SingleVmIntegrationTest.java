@@ -21,6 +21,7 @@ import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
+import com.palominolabs.benchpress.jersey.JerseySupportModule;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
@@ -39,6 +40,15 @@ import com.palominolabs.config.ConfigModuleBuilder;
 import com.palominolabs.http.server.HttpServer;
 import com.palominolabs.http.server.HttpServerConfig;
 import com.palominolabs.http.server.HttpServerFactory;
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.LogManager;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
@@ -49,16 +59,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.LogManager;
 
 import static com.google.inject.Guice.createInjector;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
@@ -122,12 +122,11 @@ public class SingleVmIntegrationTest {
             protected void configure() {
                 install(new ConfigModuleBuilder().addConfiguration(new MapConfiguration(configMap))
                     .build());
+                install(new JerseySupportModule());
 
                 // basic zookeeper
                 install(new ZKServerModule());
                 install(new CuratorModule());
-
-                install(new DefaultJerseyServletModule());
 
                 // controller
                 install(new InstanceSerializerModule());
@@ -145,6 +144,8 @@ public class SingleVmIntegrationTest {
                 // custom task
                 install(new SimpleHttpTaskModule());
                 bind(SimpleHttpResource.class);
+
+                // TODO bind ServletContainer
             }
         }).injectMembers(this);
 

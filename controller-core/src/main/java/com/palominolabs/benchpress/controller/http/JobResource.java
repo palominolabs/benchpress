@@ -7,8 +7,8 @@ import com.palominolabs.benchpress.job.JobStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.logging.MdcKeys;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
-import org.slf4j.MDC;
-
+import java.util.Set;
+import java.util.UUID;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -17,8 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Set;
-import java.util.UUID;
+import org.slf4j.MDC;
 
 @Path("controller/job")
 @Singleton

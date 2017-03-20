@@ -22,6 +22,7 @@ import com.palominolabs.benchpress.example.multidb.mongodb.MongoDbModule;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.jersey.GuiceServiceLocatorGenerator;
+import com.palominolabs.benchpress.jersey.JerseySupportModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.config.ConfigModuleBuilder;
@@ -146,14 +147,7 @@ final class ControllerMain {
             install(new CuratorModule());
             install(new ConfigModuleBuilder().build());
 
-            install(new HttpServerWrapperModule());
-
-            install(new ServletModule() {
-                @Override
-                protected void configureServlets() {
-                    serve("/*").with(ServletContainer.class);
-                }
-            });
+            install(new JerseySupportModule());
         }
 
         @Singleton

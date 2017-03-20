@@ -1,18 +1,16 @@
 package com.palominolabs.benchpress.worker;
 
-import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
+import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.UUID;
 
 // TODO re-advertise if connection breaks and comes back up
 @Singleton
@@ -57,7 +55,7 @@ public final class WorkerAdvertiser {
         try {
             serviceDiscovery.registerService(getServiceInstance());
         } catch (Exception e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -68,7 +66,7 @@ public final class WorkerAdvertiser {
         try {
             serviceDiscovery.unregisterService(getServiceInstance());
         } catch (Exception e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 

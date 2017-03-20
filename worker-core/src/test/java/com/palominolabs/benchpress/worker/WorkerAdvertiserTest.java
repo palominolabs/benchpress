@@ -17,7 +17,6 @@ import com.palominolabs.benchpress.task.reporting.NoOpTaskProgressClient;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
 import com.palominolabs.benchpress.zookeeper.CuratorModule;
-import com.palominolabs.http.server.HttpServerModule;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.x.discovery.ServiceDiscovery;
@@ -55,8 +54,6 @@ public final class WorkerAdvertiserTest {
             protected void configure() {
                 binder().requireExplicitBindings();
                 install(new TestConfigModule(testingServer.getPort()));
-
-                install(new HttpServerModule());
 
                 install(new WorkerResourceModule());
                 install(new CuratorModule());

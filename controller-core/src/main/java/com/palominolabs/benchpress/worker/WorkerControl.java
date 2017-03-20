@@ -2,18 +2,16 @@ package com.palominolabs.benchpress.worker;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.common.base.Throwables;
 import com.ning.http.client.AsyncHttpClient;
 import com.palominolabs.benchpress.job.json.Partition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class WorkerControl {
     private static final Logger logger = LoggerFactory.getLogger(WorkerControl.class);
@@ -116,10 +114,10 @@ public final class WorkerControl {
     private LockStatus getLockStatus() {
         String unLockUri = getUrlPrefix() + "/worker/control/lockStatus";
         try {
-            return objectReader.withType(LockStatus.class).readValue(askWorker(httpClient.prepareGet(unLockUri)));
+            return objectReader.forType(LockStatus.class).readValue(askWorker(httpClient.prepareGet(unLockUri)));
         } catch (IOException e) {
             logger.warn("Error reading worker lock status");
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -147,7 +145,7 @@ public final class WorkerControl {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.info("Interrupted");
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -172,11 +170,11 @@ public final class WorkerControl {
             return response.getResponseBodyAsStream();
         } catch (IOException | ExecutionException e) {
             logger.warn("Unable to communicated with worker " + metadata.toString());
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.info("Interrupted");
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 }

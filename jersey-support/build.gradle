@@ -1,6 +1,13 @@
 dependencies {
+  compile project(':ipc')
+
+  compile "com.palominolabs.http:jetty-http-server-wrapper:${depVersions.jettyWrapper}"
+
   compile "com.google.inject:guice:${depVersions.guice}"
+  compile "com.google.inject.extensions:guice-servlet:${depVersions.guice}"
   compile "com.squarespace.jersey2-guice:jersey2-guice-impl:${depVersions.jersey2Guice}"
   compile "org.glassfish.jersey.containers:jersey-container-servlet:$depVersions.jersey"
+
+  compile "org.glassfish.jersey.media:jersey-media-json-jackson:$depVersions.jersey"
 
 }

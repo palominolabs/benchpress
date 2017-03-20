@@ -1,4 +1,4 @@
-package com.palominolabs.benchpress.ipc;
+package com.palominolabs.benchpress.jersey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;

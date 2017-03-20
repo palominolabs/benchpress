@@ -68,6 +68,7 @@ final class WorkerMain {
 
         @Override
         protected void configure() {
+            binder().requireExplicitBindings();
             binder().requireAtInjectOnConstructors();
             binder().requireExactBindingAnnotations();
 
