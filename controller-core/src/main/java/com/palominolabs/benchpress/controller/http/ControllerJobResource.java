@@ -22,11 +22,11 @@ import org.slf4j.MDC;
 @Path("controller/job")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-public final class JobResource {
+public final class ControllerJobResource {
     private JobFarmer jobFarmer;
 
     @Inject
-    JobResource(JobFarmer jobFarmer) {
+    ControllerJobResource(JobFarmer jobFarmer) {
         this.jobFarmer = jobFarmer;
     }
 

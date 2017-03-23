@@ -1,5 +1,6 @@
 package com.palominolabs.benchpress;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import javax.ws.rs.GET;
@@ -11,6 +12,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class SimpleHttpResource {
 
     AtomicInteger counter = new AtomicInteger();
+
+    @Inject
+    SimpleHttpResource() {
+    }
 
     @GET
     public String get() {

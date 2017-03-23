@@ -5,7 +5,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
-import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.example.multidb.cassandra.CassandraModule;
 import com.palominolabs.benchpress.example.multidb.hbase.HbaseModule;
 import com.palominolabs.benchpress.example.multidb.hbaseasync.HbaseAsyncModule;
@@ -13,7 +12,7 @@ import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactor
 import com.palominolabs.benchpress.example.multidb.mongodb.MongoDbModule;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistryModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
-import com.palominolabs.benchpress.zookeeper.CuratorModule;
+import com.palominolabs.benchpress.curator.CuratorModule;
 import com.palominolabs.config.ConfigModuleBuilder;
 import com.palominolabs.http.server.HttpServerConnectorConfig;
 import com.palominolabs.http.server.HttpServerWrapperConfig;
@@ -82,7 +81,6 @@ final class WorkerMain {
 
 //            install(new TaskPluginRegistryModule());
 //            install(new IpcJsonModule());
-            install(new InstanceSerializerModule());
             install(new CuratorModule());
             install(new ConfigModuleBuilder().build());
 

@@ -1,5 +1,6 @@
 package com.palominolabs.benchpress.worker;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessor;
 import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
@@ -32,6 +33,10 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final Map<UUID, BlockingQueue<Object>> queueMap = new HashMap<>();
     private final Map<UUID, Future<?>> futureMap = new HashMap<>();
+
+    @Inject
+    DefaultTaskOutputQueueProvider() {
+    }
 
     @Nonnull
     @Override
@@ -68,7 +73,7 @@ final class DefaultTaskOutputQueueProvider implements TaskOutputQueueProvider {
         private final BlockingQueue<?> finalBlockingQueue;
         private final TaskOutputProcessor taskOutputProcessor;
 
-        public QueueWatcherRunnable(BlockingQueue<?> finalBlockingQueue, TaskOutputProcessor taskOutputProcessor) {
+        QueueWatcherRunnable(BlockingQueue<?> finalBlockingQueue, TaskOutputProcessor taskOutputProcessor) {
             this.finalBlockingQueue = finalBlockingQueue;
             this.taskOutputProcessor = taskOutputProcessor;
         }

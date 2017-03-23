@@ -7,13 +7,12 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.Stage;
-import com.google.inject.servlet.ServletModule;
 import com.palominolabs.benchpress.controller.ControllerCoreModule;
 import com.palominolabs.benchpress.controller.ControllerJerseyApp;
 import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
-import com.palominolabs.benchpress.curator.InstanceSerializerModule;
+import com.palominolabs.benchpress.curator.CuratorModule;
 import com.palominolabs.benchpress.example.multidb.cassandra.CassandraModule;
 import com.palominolabs.benchpress.example.multidb.hbase.HbaseModule;
 import com.palominolabs.benchpress.example.multidb.hbaseasync.HbaseAsyncModule;
@@ -24,12 +23,10 @@ import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.jersey.GuiceServiceLocatorGenerator;
 import com.palominolabs.benchpress.jersey.JerseySupportModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
-import com.palominolabs.benchpress.zookeeper.CuratorModule;
 import com.palominolabs.config.ConfigModuleBuilder;
 import com.palominolabs.http.server.HttpServerConnectorConfig;
 import com.palominolabs.http.server.HttpServerWrapperConfig;
 import com.palominolabs.http.server.HttpServerWrapperFactory;
-import com.palominolabs.http.server.HttpServerWrapperModule;
 import com.squarespace.jersey2.guice.JerseyGuiceUtils;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -132,6 +129,8 @@ final class ControllerMain {
 
             bind(ControllerMain.class);
 
+            install(new ConfigModuleBuilder().build());
+
             install(new CassandraModule());
             install(new HbaseModule());
             install(new HbaseAsyncModule());
@@ -140,14 +139,12 @@ final class ControllerMain {
             install(new ValueGeneratorFactoryFactoryRegistryModule());
 
             install(new ControllerCoreModule());
-            install(new ZKServerModule());
-            install(new TaskPluginRegistryModule());
             install(new IpcJsonModule());
-            install(new InstanceSerializerModule());
-            install(new CuratorModule());
-            install(new ConfigModuleBuilder().build());
-
+            install(new TaskPluginRegistryModule());
             install(new JerseySupportModule());
+
+            install(new ZKServerModule());
+            install(new CuratorModule());
         }
 
         @Singleton

@@ -6,17 +6,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.servlet.GuiceFilter;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
-import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.NoOpTaskProgressClient;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
-import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
-import com.palominolabs.benchpress.zookeeper.CuratorModule;
+import com.palominolabs.benchpress.curator.CuratorModule;
+import java.util.Collection;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.test.TestingServer;
 import org.apache.curator.x.discovery.ServiceDiscovery;
@@ -25,8 +23,6 @@ import org.apache.curator.x.discovery.ServiceInstance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
@@ -39,8 +35,6 @@ public final class WorkerAdvertiserTest {
     private CuratorFramework curatorFramework;
     @Inject
     private CuratorModule.CuratorLifecycleHook curatorLifecycleHook;
-    @Inject
-    private GuiceFilter guiceFilter;
 
     private TestingServer testingServer;
     private ServiceDiscovery<WorkerMetadata> serviceDiscovery;
@@ -55,11 +49,9 @@ public final class WorkerAdvertiserTest {
                 binder().requireExplicitBindings();
                 install(new TestConfigModule(testingServer.getPort()));
 
-                install(new WorkerResourceModule());
+                bind(WorkerAdvertiser.class);
                 install(new CuratorModule());
                 install(new QueueProviderModule());
-
-                install(new InstanceSerializerModule());
 
                 bind(PartitionRunner.class);
                 install(new JobRegistryModule());
@@ -74,6 +66,7 @@ public final class WorkerAdvertiserTest {
 
         curatorLifecycleHook.start();
 
+        // TODO make ZookeeperConfig not use config-magic so we don't duplicate ServiceDiscovery setup
         serviceDiscovery = ServiceDiscoveryBuilder.builder(WorkerMetadata.class)
             .basePath(zookeeperConfig.getBasePath())
             .client(curatorFramework)
@@ -86,11 +79,9 @@ public final class WorkerAdvertiserTest {
     @After
     public void tearDown() throws Exception {
         workerAdvertiser = null;
-        Closeables.close(curatorFramework, true);
         Closeables.close(serviceDiscovery, true);
+        Closeables.close(curatorFramework, true);
         Closeables.close(testingServer, true);
-
-        guiceFilter.destroy();
     }
 
     @Test

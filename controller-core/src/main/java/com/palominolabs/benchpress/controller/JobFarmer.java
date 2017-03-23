@@ -14,17 +14,9 @@ import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
 import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
-import com.palominolabs.benchpress.worker.WorkerFinder;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
-import java.time.Duration;
-import org.apache.curator.x.discovery.ServiceInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+import javax.ws.rs.core.Response;
+import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.curator.x.discovery.ServiceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tends to Jobs
@@ -42,8 +41,8 @@ import java.util.UUID;
 public final class JobFarmer {
     private static final Logger logger = LoggerFactory.getLogger(JobFarmer.class);
 
-    private final WorkerFinder workerFinder;
     private final WorkerControlFactory workerControlFactory;
+    private final ServiceProvider<WorkerMetadata> serviceProvider;
 
     private final UUID controllerId = UUID.randomUUID();
 
@@ -65,11 +64,12 @@ public final class JobFarmer {
     private static final String FINISHED_PATH = REPORT_PATH + "/finished";
 
     @Inject
-    JobFarmer(WorkerFinder workerFinder, WorkerControlFactory workerControlFactory,
-        TaskPluginRegistry taskPluginRegistry, @Ipc ObjectReader objectReader,
-        @Ipc ObjectWriter objectWriter) {
-        this.workerFinder = workerFinder;
+    JobFarmer(WorkerControlFactory workerControlFactory,
+            ServiceProvider<WorkerMetadata> serviceProvider,
+            TaskPluginRegistry taskPluginRegistry, @Ipc ObjectReader objectReader,
+            @Ipc ObjectWriter objectWriter) {
         this.workerControlFactory = workerControlFactory;
+        this.serviceProvider = serviceProvider;
         this.taskPluginRegistry = taskPluginRegistry;
         this.objectReader = objectReader;
         this.objectWriter = objectWriter;
@@ -85,7 +85,12 @@ public final class JobFarmer {
 
         // Create a set of workers we can lock
         Set<WorkerMetadata> lockedWorkers = new HashSet<>();
-        Collection<ServiceInstance<WorkerMetadata>> registeredWorkers = workerFinder.getWorkers();
+        Collection<ServiceInstance<WorkerMetadata>> registeredWorkers;
+        try {
+            registeredWorkers = serviceProvider.getAllInstances();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         for (ServiceInstance<WorkerMetadata> instance : registeredWorkers) {
             WorkerMetadata workerMetadata = instance.getPayload();
             WorkerControl workerControl = workerControlFactory.getWorkerControl(workerMetadata);
@@ -229,7 +234,7 @@ public final class JobFarmer {
         private final Iterator<Partition> piterator;
         private final Iterator<WorkerMetadata> witerator;
 
-        public TandemIterator(Iterator<Partition> piterator, Iterator<WorkerMetadata> witerator) {
+        TandemIterator(Iterator<Partition> piterator, Iterator<WorkerMetadata> witerator) {
             this.piterator = piterator;
             this.witerator = witerator;
         }
@@ -249,11 +254,11 @@ public final class JobFarmer {
             throw new UnsupportedOperationException();
         }
 
-        public class Pair {
+        class Pair {
             final Partition partition;
             final WorkerMetadata workerMetadata;
 
-            public Pair(Partition partition, WorkerMetadata workerMetadata) {
+            Pair(Partition partition, WorkerMetadata workerMetadata) {
                 this.partition = partition;
                 this.workerMetadata = workerMetadata;
             }

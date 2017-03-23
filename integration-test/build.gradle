@@ -3,11 +3,12 @@ dependencies {
   testCompile project(':job')
   testCompile project(':zookeeper')
   testCompile project(':task-reporting')
-  testCompile project(':http-server')
   testCompile project(':reflection-module')
   testCompile project(':worker-core')
   testCompile project(':controller-core')
   testCompile project(':controller-zk-server')
+
+  testCompile "com.palominolabs.http:jetty-http-server-wrapper:${depVersions.jettyWrapper}"
 
   testCompile "org.slf4j:jul-to-slf4j:${depVersions.slf4j}"
   testRuntime "org.slf4j:jcl-over-slf4j:${depVersions.slf4j}"

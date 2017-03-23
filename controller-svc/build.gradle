@@ -7,7 +7,6 @@ dependencies {
   compile project(':zookeeper')
   compile project(':task-reporting')
   compile project(':job')
-  compile project(':http-server')
   compile project(':reflection-module')
   compile project(':controller-core')
   compile project(':controller-zk-server')

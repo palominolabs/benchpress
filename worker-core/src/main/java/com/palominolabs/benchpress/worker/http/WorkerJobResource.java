@@ -20,14 +20,14 @@ import java.util.UUID;
  */
 @Path("worker/job")
 @Singleton
-public final class JobResource {
+public final class WorkerJobResource {
 
-    private static final Logger logger = LoggerFactory.getLogger(JobResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(WorkerJobResource.class);
 
     private final PartitionRunner partitionRunner;
 
     @Inject
-    JobResource(PartitionRunner partitionRunner) {
+    WorkerJobResource(PartitionRunner partitionRunner) {
         this.partitionRunner = partitionRunner;
     }
 

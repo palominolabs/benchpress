@@ -9,7 +9,6 @@ dependencies {
   compile project(':job-registry')
   compile project(':id-registry')
   compile project(':reflection-module')
-  compile project(':http-server')
   compile project(':worker-core')
 
   compile "com.palominolabs.config:config-inject:${depVersions.configInject}"

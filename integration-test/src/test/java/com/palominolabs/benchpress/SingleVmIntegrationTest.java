@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.Stage;
 import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
@@ -15,13 +18,16 @@ import com.ning.http.client.Response;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.controller.ControllerCoreModule;
 import com.palominolabs.benchpress.controller.JobFarmer;
+import com.palominolabs.benchpress.controller.http.ControllerJobResource;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
-import com.palominolabs.benchpress.curator.InstanceSerializerModule;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
+import com.palominolabs.benchpress.jersey.GuiceServiceLocatorGenerator;
+import com.palominolabs.benchpress.jersey.JerseyResourceConfigBase;
 import com.palominolabs.benchpress.jersey.JerseySupportModule;
+import com.palominolabs.benchpress.jersey.ObjectMapperContextResolver;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
@@ -30,17 +36,24 @@ import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskOutputProcessor;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskPlugin;
+import com.palominolabs.benchpress.worker.PartitionRunner;
 import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
+import com.palominolabs.benchpress.worker.http.WorkerControlResource;
+import com.palominolabs.benchpress.worker.http.WorkerJobResource;
 import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
-import com.palominolabs.benchpress.zookeeper.CuratorModule;
+import com.palominolabs.benchpress.curator.CuratorModule;
 import com.palominolabs.config.ConfigModuleBuilder;
-import com.palominolabs.http.server.HttpServer;
-import com.palominolabs.http.server.HttpServerConfig;
-import com.palominolabs.http.server.HttpServerFactory;
+import com.palominolabs.http.server.HttpServerConnectorConfig;
+import com.palominolabs.http.server.HttpServerWrapper;
+import com.palominolabs.http.server.HttpServerWrapperConfig;
+import com.palominolabs.http.server.HttpServerWrapperFactory;
+import com.squarespace.jersey2.guice.JerseyGuiceUtils;
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +65,8 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
+import org.eclipse.jetty.server.NetworkConnector;
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -71,7 +86,7 @@ public class SingleVmIntegrationTest {
     @Inject
     WorkerAdvertiser workerAdvertiser;
     @Inject
-    HttpServerFactory httpServerFactory;
+    HttpServerWrapperFactory httpServerFactory;
     @Inject
     ZKServer zkServer;
     @Inject
@@ -100,8 +115,10 @@ public class SingleVmIntegrationTest {
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     ExecutorService executorService;
-    HttpServer httpServer;
-    private HttpServerConfig httpServerConfig;
+    HttpServerWrapper httpServer;
+    private HttpServerWrapperConfig httpServerConfig;
+    private String host;
+    private int port;
 
     @BeforeClass
     public static void setUpClass() {
@@ -117,11 +134,15 @@ public class SingleVmIntegrationTest {
         final Map<String, Object> configMap = new HashMap<>();
         configMap.put("benchpress.controller.zookeeper.embedded-server.tmp-dir", zkTmpDir.getAbsolutePath());
 
-        createInjector(Stage.PRODUCTION, new AbstractModule() {
+        Injector injector = createInjector(Stage.PRODUCTION, new AbstractModule() {
             @Override
             protected void configure() {
+                binder().requireExplicitBindings();
+                binder().requireAtInjectOnConstructors();
+                binder().requireExactBindingAnnotations();
+
                 install(new ConfigModuleBuilder().addConfiguration(new MapConfiguration(configMap))
-                    .build());
+                        .build());
                 install(new JerseySupportModule());
 
                 // basic zookeeper
@@ -129,7 +150,6 @@ public class SingleVmIntegrationTest {
                 install(new CuratorModule());
 
                 // controller
-                install(new InstanceSerializerModule());
                 install(new IpcJsonModule());
                 install(new ControllerCoreModule());
 
@@ -140,37 +160,53 @@ public class SingleVmIntegrationTest {
                 install(new TaskPluginRegistryModule());
                 install(new WorkerResourceModule());
                 install(new QueueProviderModule());
+                bind(PartitionRunner.class);
 
                 // custom task
                 install(new SimpleHttpTaskModule());
                 bind(SimpleHttpResource.class);
-
-                // TODO bind ServletContainer
             }
-        }).injectMembers(this);
+
+            @Singleton
+            @Provides
+            ServletContainer getServletContainer(@Ipc ObjectMapperContextResolver objectMapperContextResolver) {
+                return new ServletContainer(new IntegrationTestJerseyApp(objectMapperContextResolver));
+            }
+        });
+        JerseyGuiceUtils.install(new GuiceServiceLocatorGenerator(injector));
+
+        injector.injectMembers(this);
+
+        // Disable Zookeeper's annoying attempt to start its own out-of-date Jetty
+        System.setProperty("zookeeper.admin.enableServer", "false");
 
         executorService = Executors.newCachedThreadPool();
         executorService.submit(zkServer);
-        httpServerConfig = new HttpServerConfig();
-        httpServer = httpServerFactory.getHttpServer(this.httpServerConfig);
+        host = "localhost";
+        httpServerConfig = new HttpServerWrapperConfig()
+                .withHttpServerConnectorConfig(HttpServerConnectorConfig.forHttp(host, 0));
+        httpServer = httpServerFactory.getHttpServerWrapper(this.httpServerConfig);
         httpServer.start();
 
         curatorLifecycleHook.start();
 
-        jobFarmer.setListenAddress(httpServer.getHttpListenHost());
-        jobFarmer.setListenPort(httpServer.getHttpListenPort());
+        NetworkConnector connector = (NetworkConnector) httpServer.getServer().getConnectors()[0];
+        port = connector.getLocalPort();
+
+        jobFarmer.setListenAddress("localhost");
+        jobFarmer.setListenPort(port);
     }
 
     @After
     public void tearDown() throws Exception {
-        httpServer.stop();
-
+        curatorLifecycleHook.close();
         executorService.shutdownNow();
         if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
             throw new RuntimeException("Executor did not shut down");
         }
 
-        serviceDiscovery.close();
+        httpServer.stop();
+        asyncHttpClient.close();
     }
 
     @Test
@@ -202,7 +238,7 @@ public class SingleVmIntegrationTest {
         lock(workerMetadata);
 
         assertEquals(jobFarmer.getControllerId(),
-            workerControlFactory.getWorkerControl(workerMetadata).locker());
+                workerControlFactory.getWorkerControl(workerMetadata).locker());
     }
 
     @Test
@@ -220,36 +256,35 @@ public class SingleVmIntegrationTest {
         advertiseWorker();
 
         // set up job
-
         ObjectNode configNode = new ObjectNode(JsonNodeFactory.instance);
 
-        configNode.put("url", "http://" + httpServer.getHttpListenHost() + ":" + httpServer.getHttpListenPort() +
-            "/simple-http-test-endpoint");
+        configNode.put("url", getUrlPrefix() + "/simple-http-test-endpoint");
 
         Job j = new Job(new Task(SimpleHttpTaskPlugin.TASK_TYPE, configNode), null);
 
         // submit job
 
         Response response = asyncHttpClient.preparePost(
-            getUrlPrefix() + "/controller/job")
-            .setBody(objectWriter.writeValueAsString(j))
-            .addHeader("Content-Type", MediaType.APPLICATION_JSON)
-            .execute(new AsyncCompletionHandler<Response>() {
-                @Override
-                public Response onCompleted(Response response) throws Exception {
-                    return response;
-                }
-            }).get();
+                getUrlPrefix() + "/controller/job")
+                .setBody(objectWriter.writeValueAsString(j))
+                .addHeader("Content-Type", MediaType.APPLICATION_JSON)
+                .execute(new AsyncCompletionHandler<Response>() {
+                    @Override
+                    public Response onCompleted(Response response) throws Exception {
+                        return response;
+                    }
+                }).get();
 
         assertEquals(ACCEPTED.getStatusCode(), response.getStatusCode());
 
         // wait for job to be done
 
         boolean timeout = true;
-        for (int i = 0; i < 10; i++) {
-            JsonNode node = objectReader.withType(JsonNode.class).readValue(
-                asyncHttpClient.prepareGet(getUrlPrefix() + "/controller/job/" + j.getJobId()).execute().get()
-                    .getResponseBody());
+        Instant start = Instant.now();
+        while (Duration.between(start, Instant.now()).getSeconds() < 5) {
+            JsonNode node = objectReader.forType(JsonNode.class).readValue(
+                    asyncHttpClient.prepareGet(getUrlPrefix() + "/controller/job/" + j.getJobId()).execute().get()
+                            .getResponseBody());
 
             // we always use partition id 1, hard coded into simple http task
             ObjectNode partitionStatus = (ObjectNode) node.path("partitionStatuses").path("1");
@@ -275,12 +310,12 @@ public class SingleVmIntegrationTest {
     }
 
     private String getUrlPrefix() {
-        return "http://" + httpServer.getHttpListenHost() + ":" + httpServer.getHttpListenPort();
+        return "http://" + host + ":" + port;
     }
 
     private void assertWorkerAdvertised(WorkerMetadata workerMetadata) throws Exception {
         Collection<ServiceInstance<WorkerMetadata>> instances =
-            serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
+                serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
         assertEquals(1, instances.size());
 
         assertEquals(workerMetadata.getWorkerId(), instances.iterator().next().getPayload().getWorkerId());
@@ -304,20 +339,19 @@ public class SingleVmIntegrationTest {
 
     private void assertNoWorkersAdvertised() throws Exception {
         Collection<ServiceInstance<WorkerMetadata>> instances =
-            serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
+                serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
         assertEquals(0, instances.size());
     }
 
     /**
      * @return the metadata loaded from ZK
-     * @throws Exception
      */
     private WorkerMetadata advertiseWorker() throws Exception {
-        workerAdvertiser.initListenInfo(httpServerConfig.getHttpListenHost(), httpServerConfig.getHttpListenPort());
+        workerAdvertiser.initListenInfo(host, port);
         workerAdvertiser.advertiseAvailability();
 
         Collection<ServiceInstance<WorkerMetadata>> instances =
-            serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
+                serviceDiscovery.queryForInstances(zookeeperConfig.getWorkerServiceName());
         assertEquals(1, instances.size());
 
         WorkerMetadata workerMetadata = instances.iterator().next().getPayload();
@@ -325,5 +359,17 @@ public class SingleVmIntegrationTest {
         assertEquals(workerAdvertiser.getWorkerId(), workerMetadata.getWorkerId());
 
         return workerMetadata;
+    }
+
+    private static class IntegrationTestJerseyApp extends JerseyResourceConfigBase {
+        IntegrationTestJerseyApp(ObjectMapperContextResolver objectMapperContextResolver) {
+            super(objectMapperContextResolver);
+
+            register(ControllerJobResource.class);
+            register(WorkerJobResource.class);
+            register(WorkerControlResource.class);
+
+            register(SimpleHttpResource.class);
+        }
     }
 }

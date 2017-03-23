@@ -1,6 +1,7 @@
 package com.palominolabs.benchpress.job.registry;
 
 import com.google.common.collect.Maps;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -12,6 +13,10 @@ import java.util.UUID;
 final class MemoryJobRegistry implements JobRegistry {
 
     private final Map<UUID, JobData> data = Maps.newHashMap();
+
+    @Inject
+    MemoryJobRegistry() {
+    }
 
     @Override
     public synchronized void storeJob(UUID jobId, String progressUrl, String finishedUrl) {

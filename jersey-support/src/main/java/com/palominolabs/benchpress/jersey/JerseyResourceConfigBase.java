@@ -9,6 +9,11 @@ import org.glassfish.jersey.server.ResourceConfig;
  */
 public class JerseyResourceConfigBase extends ResourceConfig {
 
+    /**
+     * @param objectMapperContextResolver The {@link ObjectMapperContextResolver} to use for Jackson/Jersey integration,
+     *                                    typically available with an {@link com.palominolabs.benchpress.ipc.Ipc}
+     *                                    binding annotation.
+     */
     public JerseyResourceConfigBase(ObjectMapperContextResolver objectMapperContextResolver) {
         register(JacksonFeature.class);
         register(objectMapperContextResolver);

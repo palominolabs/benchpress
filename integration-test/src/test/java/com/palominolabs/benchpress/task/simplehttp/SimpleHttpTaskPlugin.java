@@ -3,6 +3,7 @@ package com.palominolabs.benchpress.task.simplehttp;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import com.palominolabs.benchpress.job.id.Id;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ControllerComponentFactory;
@@ -16,6 +17,10 @@ import java.io.IOException;
 public final class SimpleHttpTaskPlugin implements TaskPlugin {
 
     public static final String TASK_TYPE = "simple-http";
+
+    @Inject
+    SimpleHttpTaskPlugin() {
+    }
 
     @Nonnull
     @Override

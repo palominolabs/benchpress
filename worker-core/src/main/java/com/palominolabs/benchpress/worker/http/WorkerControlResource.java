@@ -21,8 +21,8 @@ import java.util.UUID;
 @Path("worker/control")
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
-public final class ControlResource {
-    private static final Logger logger = LoggerFactory.getLogger(ControlResource.class);
+public final class WorkerControlResource {
+    private static final Logger logger = LoggerFactory.getLogger(WorkerControlResource.class);
 
     @GuardedBy("this")
     private boolean locked = false;
@@ -33,7 +33,7 @@ public final class ControlResource {
     private final WorkerAdvertiser workerAdvertiser;
 
     @Inject
-    ControlResource(WorkerAdvertiser workerAdvertiser) {
+    WorkerControlResource(WorkerAdvertiser workerAdvertiser) {
         this.workerAdvertiser = workerAdvertiser;
     }
 
