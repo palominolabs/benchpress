@@ -32,7 +32,7 @@ final class MongoDbTaskPlugin implements TaskPlugin {
     @Override
     public ComponentFactory getComponentFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
         return new MongoDbComponentFactory(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry,
-            objectReader.withType(MongoDbConfig.class).<MongoDbConfig>readValue(configNode));
+            objectReader.forType(MongoDbConfig.class).readValue(configNode));
     }
 
     @Nonnull
@@ -51,6 +51,6 @@ final class MongoDbTaskPlugin implements TaskPlugin {
     }
 
     private MongoDbConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(MongoDbConfig.class).readValue(configNode);
+        return objectReader.forType(MongoDbConfig.class).readValue(configNode);
     }
 }

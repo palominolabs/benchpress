@@ -53,10 +53,10 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
             client.ensureTableExists(table).joinUninterruptibly();
         } catch (TableNotFoundException e) {
             logger.warn("Table " + table + " doesn't exist", e);
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         } catch (Exception e) {
             logger.warn("Couldn't check if table exists", e);
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
 
         int quantaPerThread = numQuanta / numThreads;

@@ -32,7 +32,7 @@ final class HbaseAsyncTaskPlugin implements TaskPlugin {
     @Override
     public ComponentFactory getComponentFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
         return new HbaseAsyncComponentFactory(keyGeneratorFactoryFactoryRegistry, valueGeneratorFactoryFactoryRegistry,
-            objectReader.withType(HbaseAsyncConfig.class).<HbaseAsyncConfig>readValue(configNode));
+            objectReader.forType(HbaseAsyncConfig.class).readValue(configNode));
     }
 
     @Nonnull
@@ -50,6 +50,6 @@ final class HbaseAsyncTaskPlugin implements TaskPlugin {
     }
 
     private HbaseAsyncConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(HbaseAsyncConfig.class).readValue(configNode);
+        return objectReader.forType(HbaseAsyncConfig.class).readValue(configNode);
     }
 }

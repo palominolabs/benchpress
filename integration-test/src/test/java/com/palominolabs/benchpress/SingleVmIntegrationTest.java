@@ -21,6 +21,7 @@ import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.controller.http.ControllerJobResource;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServer;
 import com.palominolabs.benchpress.controller.zookeeper.ZKServerModule;
+import com.palominolabs.benchpress.curator.CuratorModule;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
@@ -44,7 +45,6 @@ import com.palominolabs.benchpress.worker.WorkerMetadata;
 import com.palominolabs.benchpress.worker.http.WorkerControlResource;
 import com.palominolabs.benchpress.worker.http.WorkerJobResource;
 import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
-import com.palominolabs.benchpress.curator.CuratorModule;
 import com.palominolabs.config.ConfigModuleBuilder;
 import com.palominolabs.http.server.HttpServerConnectorConfig;
 import com.palominolabs.http.server.HttpServerWrapper;
@@ -200,6 +200,7 @@ public class SingleVmIntegrationTest {
     @After
     public void tearDown() throws Exception {
         curatorLifecycleHook.close();
+        zkServer.close();
         executorService.shutdownNow();
         if (!executorService.awaitTermination(1, TimeUnit.SECONDS)) {
             throw new RuntimeException("Executor did not shut down");
@@ -279,25 +280,27 @@ public class SingleVmIntegrationTest {
 
         // wait for job to be done
 
-        boolean timeout = true;
+        boolean timedOut = true;
         Instant start = Instant.now();
         while (Duration.between(start, Instant.now()).getSeconds() < 5) {
-            JsonNode node = objectReader.forType(JsonNode.class).readValue(
-                    asyncHttpClient.prepareGet(getUrlPrefix() + "/controller/job/" + j.getJobId()).execute().get()
-                            .getResponseBody());
+            String url = getUrlPrefix() + "/controller/job/" + j.getJobId();
+            JsonNode node = objectReader.forType(JsonNode.class)
+                    .readValue(asyncHttpClient.prepareGet(url).execute().get().getResponseBody());
 
             // we always use partition id 1, hard coded into simple http task
             ObjectNode partitionStatus = (ObjectNode) node.path("partitionStatuses").path("1");
+            System.out.println(partitionStatus.toString());
 
             if (partitionStatus.get("finished").asBoolean()) {
-                timeout = false;
+                timedOut = false;
                 break;
             }
+
+            Thread.sleep(500);
         }
 
         // job should have finished
-
-        assertFalse(timeout);
+        assertFalse("Job did not finish in time", timedOut);
 
         // and should have hit the resource
         assertEquals(1, simpleHttpResource.counter.get());

@@ -51,6 +51,6 @@ final class HbaseTaskPlugin implements TaskPlugin {
     }
 
     private HBaseConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(HBaseConfig.class).readValue(configNode);
+        return objectReader.forType(HBaseConfig.class).readValue(configNode);
     }
 }

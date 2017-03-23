@@ -13,11 +13,12 @@ import java.io.IOException;
 import java.util.Properties;
 
 @Singleton
-public final class ZKServer implements Runnable {
+public final class ZKServer implements Runnable, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(ZKServer.class);
 
     private final ZKServerConfig zkServerConfig;
+    private final ZKServerWithShutdown server = new ZKServerWithShutdown();
 
     @Inject
     ZKServer(ZKServerConfig zkServerConfig) {
@@ -34,8 +35,6 @@ public final class ZKServer implements Runnable {
             logger.warn("Got run even though disabled");
             return;
         }
-
-        ZooKeeperServerMain zooKeeperServerMain = new ZooKeeperServerMain();
 
         Properties zkProp = new Properties();
         zkProp.put("dataDir", zkServerConfig.getTmpDir());
@@ -61,9 +60,24 @@ public final class ZKServer implements Runnable {
 
         try {
             logger.info("Running on " + zkServerConfig.getListenHost() + ":" + zkServerConfig.getListenPort());
-            zooKeeperServerMain.runFromConfig(serverConfig);
+            server.runFromConfig(serverConfig);
         } catch (IOException e) {
             logger.warn("ZooKeeper server failed", e);
+        }
+    }
+
+    @Override
+    public void close() {
+        server.shutdown();
+    }
+
+    /**
+     * Exposes shutdown method.
+     */
+    private static class ZKServerWithShutdown extends ZooKeeperServerMain {
+        @Override
+        protected void shutdown() {
+            super.shutdown();
         }
     }
 }

@@ -28,6 +28,7 @@ public final class WorkerAdvertiser {
 
     @GuardedBy("this")
     private int listenPort;
+
     @Inject
     WorkerAdvertiser(ZookeeperConfig zookeeperConfig, ServiceDiscovery<WorkerMetadata> serviceDiscovery) {
         this.zookeeperConfig = zookeeperConfig;
@@ -77,12 +78,12 @@ public final class WorkerAdvertiser {
     private ServiceInstance<WorkerMetadata> getServiceInstance() throws Exception {
         WorkerMetadata workerMetadata = new WorkerMetadata(workerId, listenAddress, listenPort);
         return ServiceInstance.<WorkerMetadata>builder()
-            .name(zookeeperConfig.getWorkerServiceName())
-            .address(listenAddress)
-            .port(listenPort)
-            .id(workerId.toString())
-            .payload(workerMetadata)
-            .build();
+                .name(zookeeperConfig.getWorkerServiceName())
+                .address(listenAddress)
+                .port(listenPort)
+                .id(workerId.toString())
+                .payload(workerMetadata)
+                .build();
     }
 
     private void checkInitialized() {

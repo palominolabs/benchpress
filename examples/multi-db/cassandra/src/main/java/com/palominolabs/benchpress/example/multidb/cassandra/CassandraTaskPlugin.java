@@ -51,6 +51,6 @@ final class CassandraTaskPlugin implements TaskPlugin {
     }
 
     private CassandraConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        return objectReader.withType(CassandraConfig.class).readValue(configNode);
+        return objectReader.forType(CassandraConfig.class).readValue(configNode);
     }
 }
