@@ -59,6 +59,11 @@ public class SumOfSquaresPlugin implements JobTypePlugin {
                             SumOfSquaresWorkerConfig workerConfig =
                                     new SumOfSquaresWorkerConfig(i * numbersPerWorker, i * (numbersPerWorker + 1) - 1);
 
+                            // TODO don't make every plugin implementation do all this json work or boring parameter
+                            // hand-off into the Partition. The only interesting thing here is the config that gets
+                            // put in the Task; everything else is just mechanical stuff that could be handled
+                            // outside the plugin.
+
                             TokenBuffer tokBuf = new TokenBuffer(objectReader, false);
                             objectWriter.writeValue(tokBuf, workerConfig);
                             JsonParser jp = tokBuf.asParser();
