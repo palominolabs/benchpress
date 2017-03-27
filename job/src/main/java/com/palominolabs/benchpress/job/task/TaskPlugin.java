@@ -2,17 +2,14 @@ package com.palominolabs.benchpress.job.task;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.palominolabs.benchpress.job.id.Id;
-
-import javax.annotation.Nonnull;
+import com.palominolabs.benchpress.job.id.Identifiable;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * The top level integration point for a new task implementation.
- *
- * Implementations MUST be annotated with {@link Id} to be usable from a json job spec.
  */
-public interface TaskPlugin {
+public interface TaskPlugin extends Identifiable {
     /**
      * Get the components that are used by workers.
      *
@@ -35,5 +32,5 @@ public interface TaskPlugin {
      */
     @Nonnull
     ControllerComponentFactory getControllerComponentFactory(ObjectReader objectReader, JsonNode configNode) throws
-        IOException;
+            IOException;
 }

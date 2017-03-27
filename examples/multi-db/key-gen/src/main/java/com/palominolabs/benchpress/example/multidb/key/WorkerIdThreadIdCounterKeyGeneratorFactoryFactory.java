@@ -1,7 +1,6 @@
 package com.palominolabs.benchpress.example.multidb.key;
 
-import com.palominolabs.benchpress.job.id.Id;
-
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.configuration.Configuration;
@@ -10,7 +9,6 @@ import java.nio.CharBuffer;
 import java.util.UUID;
 
 @ThreadSafe
-@Id("WORKER_ID_THREAD_ID_COUNTER")
 final class WorkerIdThreadIdCounterKeyGeneratorFactoryFactory implements KeyGeneratorFactoryFactory {
 
     private static final Factory FACTORY = new Factory();
@@ -18,6 +16,12 @@ final class WorkerIdThreadIdCounterKeyGeneratorFactoryFactory implements KeyGene
     @Override
     public KeyGeneratorFactory getKeyGeneratorFactory(Configuration c) {
         return FACTORY;
+    }
+
+    @Nonnull
+    @Override
+    public String getRegistryId() {
+        return "WORKER_ID_THREAD_ID_COUNTER";
     }
 
     @ThreadSafe

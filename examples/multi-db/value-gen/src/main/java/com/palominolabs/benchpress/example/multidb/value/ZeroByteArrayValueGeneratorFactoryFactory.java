@@ -1,23 +1,23 @@
 package com.palominolabs.benchpress.example.multidb.value;
 
-import com.palominolabs.benchpress.job.id.Id;
-import com.palominolabs.benchpress.example.multidb.value.ValueGenerator;
-import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactory;
-import org.apache.commons.configuration.Configuration;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
+import org.apache.commons.configuration.Configuration;
 
 @ThreadSafe
-@Id("ZERO_BYTE_ARRAY")
 final class ZeroByteArrayValueGeneratorFactoryFactory implements ValueGeneratorFactoryFactory {
 
     @Nonnull
     @Override
     public ValueGeneratorFactory getFactory(Configuration c) {
         return new GeneratorFactory(c.getInt("size"));
+    }
+
+    @Nonnull
+    @Override
+    public String getRegistryId() {
+        return "ZERO_BYTE_ARRAY";
     }
 
     @NotThreadSafe

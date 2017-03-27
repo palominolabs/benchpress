@@ -3,7 +3,6 @@ package com.palominolabs.benchpress.example.multidb.mongodb;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.inject.Inject;
-import com.palominolabs.benchpress.job.id.Id;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ControllerComponentFactory;
@@ -14,7 +13,6 @@ import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFa
 import javax.annotation.Nonnull;
 import java.io.IOException;
 
-@Id(MongoDbTaskPlugin.TASK_TYPE)
 final class MongoDbTaskPlugin implements TaskPlugin {
     static final String TASK_TYPE = "MONGODB";
 
@@ -48,6 +46,12 @@ final class MongoDbTaskPlugin implements TaskPlugin {
                 return new MongoDbTaskPartitioner(config);
             }
         };
+    }
+
+    @Nonnull
+    @Override
+    public String getRegistryId() {
+        return TASK_TYPE;
     }
 
     private MongoDbConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {

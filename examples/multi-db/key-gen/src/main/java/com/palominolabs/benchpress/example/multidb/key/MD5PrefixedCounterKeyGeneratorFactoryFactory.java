@@ -1,17 +1,14 @@
 package com.palominolabs.benchpress.example.multidb.key;
 
-import com.palominolabs.benchpress.job.id.Id;
-
-import javax.annotation.concurrent.NotThreadSafe;
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.apache.commons.configuration.Configuration;
-
 import java.math.BigInteger;
 import java.nio.CharBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
+import org.apache.commons.configuration.Configuration;
 
 /**
  * Generates keys using the partition ID and task counter to produce a string
@@ -26,12 +23,17 @@ import java.util.UUID;
  * initialized to 0.
  */
 @ThreadSafe
-@Id("MD5_PREFIXED_COUNTER")
 final class MD5PrefixedCounterKeyGeneratorFactoryFactory implements KeyGeneratorFactoryFactory {
 
     @Override
     public KeyGeneratorFactory getKeyGeneratorFactory(Configuration c) {
         return new GeneratorFactory(c.getBoolean("usePartition", true));
+    }
+
+    @Nonnull
+    @Override
+    public String getRegistryId() {
+        return "MD5_PREFIXED_COUNTER";
     }
 
     @ThreadSafe
@@ -66,7 +68,7 @@ final class MD5PrefixedCounterKeyGeneratorFactoryFactory implements KeyGenerator
         public void writeKey(CharBuffer buf, UUID workerId, long threadId, int partitionId, int counter) {
             long key = counter;
             if (usePartitionId) {
-               key |= (long)partitionId << Integer.SIZE;
+                key |= (long) partitionId << Integer.SIZE;
             }
             String keyString = Long.toString(key);
             byte[] digest = md.digest(keyString.getBytes());
@@ -76,5 +78,4 @@ final class MD5PrefixedCounterKeyGeneratorFactoryFactory implements KeyGenerator
             buf.append(keyString);
         }
     }
-
 }

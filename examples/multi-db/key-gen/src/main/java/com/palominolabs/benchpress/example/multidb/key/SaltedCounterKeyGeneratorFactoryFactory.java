@@ -1,14 +1,11 @@
 package com.palominolabs.benchpress.example.multidb.key;
 
-import com.palominolabs.benchpress.job.id.Id;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.apache.commons.configuration.Configuration;
-
 import java.nio.CharBuffer;
 import java.util.Random;
 import java.util.UUID;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
+import org.apache.commons.configuration.Configuration;
 
 /**
  * Generates keys using the partition ID and task counter to produce a string
@@ -22,12 +19,17 @@ import java.util.UUID;
  * initialized to 0.
  */
 @ThreadSafe
-@Id("SALTED_COUNTER")
 final class SaltedCounterKeyGeneratorFactoryFactory implements KeyGeneratorFactoryFactory {
 
     @Override
     public KeyGeneratorFactory getKeyGeneratorFactory(Configuration c) {
         return new GeneratorFactory(c.getBoolean("usePartition", true));
+    }
+
+    @Nonnull
+    @Override
+    public String getRegistryId() {
+        return "SALTED_COUNTER";
     }
 
     @ThreadSafe

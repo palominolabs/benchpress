@@ -7,9 +7,9 @@ import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 import com.google.inject.Stage;
 import com.google.inject.multibindings.Multibinder;
-import org.junit.Test;
-
 import java.util.Set;
+import javax.annotation.Nonnull;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -37,28 +37,6 @@ public final class IdRegistryTest {
     }
 
     @Test
-    public void testDetectsNoAnnotation() {
-
-        try {
-            Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
-                @Override
-                protected void configure() {
-                    binder().requireExplicitBindings();
-                    bind(FooRegistry.class);
-
-                    Multibinder.newSetBinder(binder(), Foo.class).addBinding().to(NoAnnotationImpl.class);
-                }
-            }).getInstance(FooRegistry.class);
-
-            fail();
-        } catch (ProvisionException e) {
-            assertEquals("Error injecting constructor, java.lang.IllegalArgumentException: " +
-                NoAnnotationImpl.class.getName() + " is not annotated with " + Id.class.getName(),
-                e.getErrorMessages().iterator().next().getMessage());
-        }
-    }
-
-    @Test
     public void testDetectsConflict() {
         try {
             Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
@@ -75,23 +53,22 @@ public final class IdRegistryTest {
             fail();
         } catch (ProvisionException e) {
             assertEquals("Error injecting constructor, java.lang.IllegalArgumentException: " +
-                Conflict2.class.getName() + " is annotated with @" + Id.class.getName() +
-                "(value=conflict) which conflicts with " + Conflict1.class.getName(),
-                e.getErrorMessages().iterator().next().getMessage());
+                            Conflict2.class.getName() + " has id <conflict> which conflicts with " + Conflict1.class.getName(),
+                    e.getErrorMessages().iterator().next().getMessage());
         }
     }
 
     @Test
     public void testWorks() {
         Foo shouldWork =
-            Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
-                @Override
-                protected void configure() {
-                    binder().requireExplicitBindings();
-                    bind(FooRegistry.class);
-                    Multibinder.newSetBinder(binder(), Foo.class).addBinding().to(ShouldWork.class);
-                }
-            }).getInstance(FooRegistry.class).get("shouldWork");
+                Guice.createInjector(Stage.PRODUCTION, new AbstractModule() {
+                    @Override
+                    protected void configure() {
+                        binder().requireExplicitBindings();
+                        bind(FooRegistry.class);
+                        Multibinder.newSetBinder(binder(), Foo.class).addBinding().to(ShouldWork.class);
+                    }
+                }).getInstance(FooRegistry.class).get("shouldWork");
 
         assertNotNull(shouldWork);
         assertEquals((ShouldWork.class), shouldWork.getClass());
@@ -105,26 +82,34 @@ public final class IdRegistryTest {
         }
     }
 
-    private static interface Foo {
+    private interface Foo extends Identifiable {
 
     }
 
-    private static class NoAnnotationImpl implements Foo {
-
-    }
-
-    @Id("conflict")
     private static class Conflict1 implements Foo {
 
+        @Nonnull
+        @Override
+        public String getRegistryId() {
+            return "conflict";
+        }
     }
 
-    @Id("conflict")
     private static class Conflict2 implements Foo {
 
+        @Nonnull
+        @Override
+        public String getRegistryId() {
+            return "conflict";
+        }
     }
 
-    @Id("shouldWork")
     private static class ShouldWork implements Foo {
 
+        @Nonnull
+        @Override
+        public String getRegistryId() {
+            return "shouldWork";
+        }
     }
 }

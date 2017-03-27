@@ -1,18 +1,11 @@
 package com.palominolabs.benchpress.example.multidb.value;
 
-import com.palominolabs.benchpress.example.multidb.value.ValueGenerator;
-import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactory;
 import java.util.Random;
-
-import com.palominolabs.benchpress.job.id.Id;
-import org.apache.commons.configuration.Configuration;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
+import org.apache.commons.configuration.Configuration;
 
 @ThreadSafe
-@Id("RANDOM_BYTE_ARRAY")
 final class RandomByteArrayValueGeneratorFactoryFactory implements ValueGeneratorFactoryFactory {
 
     @Nonnull
@@ -20,6 +13,12 @@ final class RandomByteArrayValueGeneratorFactoryFactory implements ValueGenerato
     public ValueGeneratorFactory getFactory(Configuration c) {
         return new GeneratorFactory(c.getInt("minSize", 16), c.getInt("maxSize", 1024),
           c.getLong("seed", 42L));
+    }
+
+    @Nonnull
+    @Override
+    public String getRegistryId() {
+        return "RANDOM_BYTE_ARRAY";
     }
 
     // Since at least Java 6 Random is thread safe

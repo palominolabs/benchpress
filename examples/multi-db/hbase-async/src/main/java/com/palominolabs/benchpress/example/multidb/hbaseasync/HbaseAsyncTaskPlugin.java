@@ -3,18 +3,15 @@ package com.palominolabs.benchpress.example.multidb.hbaseasync;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.inject.Inject;
-import com.palominolabs.benchpress.job.id.Id;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactoryRegistry;
+import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ControllerComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
 import com.palominolabs.benchpress.job.task.TaskPlugin;
-import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistry;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
-@Id(HbaseAsyncTaskPlugin.TASK_TYPE)
 final class HbaseAsyncTaskPlugin implements TaskPlugin {
     static final String TASK_TYPE = "HBASE_ASYNC";
 
@@ -47,6 +44,12 @@ final class HbaseAsyncTaskPlugin implements TaskPlugin {
                 return new HbaseAsyncTaskPartitioner(config);
             }
         };
+    }
+
+    @Nonnull
+    @Override
+    public String getRegistryId() {
+        return TASK_TYPE;
     }
 
     private HbaseAsyncConfig getConfig(ObjectReader objectReader, JsonNode configNode) throws IOException {
