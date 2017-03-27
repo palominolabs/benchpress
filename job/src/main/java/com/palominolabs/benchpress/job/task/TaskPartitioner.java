@@ -26,8 +26,9 @@ public interface TaskPartitioner {
      * @param configNode   initial task config
      * @param objectWriter objectWriter to use to serialize partition task config
      * @return List of the partitions
+     * @throws IOException if partitioning fails
      */
     @Nonnull
     List<Partition> partition(UUID jobId, int workers, String progressUrl, String finishedUrl,
-        ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException;
+            ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException;
 }

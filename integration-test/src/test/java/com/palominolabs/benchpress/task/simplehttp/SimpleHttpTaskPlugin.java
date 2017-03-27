@@ -8,9 +8,8 @@ import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ControllerComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
 import com.palominolabs.benchpress.job.task.TaskPlugin;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 public final class SimpleHttpTaskPlugin implements TaskPlugin {
 
@@ -23,7 +22,7 @@ public final class SimpleHttpTaskPlugin implements TaskPlugin {
     @Nonnull
     @Override
     public ComponentFactory getComponentFactory(ObjectReader objectReader, JsonNode configNode) throws IOException {
-        ObjectNode obj = objectReader.withType(ObjectNode.class).readValue(configNode);
+        ObjectNode obj = objectReader.forType(ObjectNode.class).readValue(configNode);
         String url = obj.get("url").textValue();
 
         return new SimpleHttpComponentFactory(url);

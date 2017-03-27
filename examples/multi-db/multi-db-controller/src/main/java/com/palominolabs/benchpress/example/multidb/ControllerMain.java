@@ -38,7 +38,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-final class ControllerMain {
+/**
+ * A demo of building a custom main method that starts up the controller with plugins already registered.
+ */
+public final class ControllerMain {
     private static final Logger logger = LoggerFactory.getLogger(ControllerMain.class);
 
     private final HttpServerWrapperFactory httpServerFactory;

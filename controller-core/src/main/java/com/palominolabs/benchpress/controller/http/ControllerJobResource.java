@@ -32,7 +32,7 @@ public final class ControllerJobResource {
 
     /**
      * @param job The job to start
-     * @return 202 & the Job object as JSON, 412 on failure
+     * @return 202 and the Job object as JSON, 412 on failure
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -84,7 +84,7 @@ public final class ControllerJobResource {
      * Get status of a job
      *
      * @param jobId The job to get status of
-     * @return 200 & a Job object
+     * @return 200 and a Job object
      */
     @GET
     @Path("{jobId}")

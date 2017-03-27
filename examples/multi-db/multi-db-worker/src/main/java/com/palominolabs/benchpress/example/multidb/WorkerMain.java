@@ -23,7 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-final class WorkerMain {
+/**
+ * A demo of building a custom main method that starts up the worker with plugins already registered.
+ */
+public final class WorkerMain {
     private static final Logger logger = LoggerFactory.getLogger(WorkerMain.class);
 
     private final HttpServerWrapperFactory httpServerFactory;

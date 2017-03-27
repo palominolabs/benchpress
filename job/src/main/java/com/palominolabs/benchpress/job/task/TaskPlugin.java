@@ -19,6 +19,7 @@ public interface TaskPlugin extends Identifiable {
      * @param objectReader the ObjectReader to use to deserialize configNode
      * @param configNode   the config node for the task as split up by the TaskPartitioner
      * @return a configured ComponentFactory
+     * @throws IOException if config parsing fails
      */
     @Nonnull
     ComponentFactory getComponentFactory(ObjectReader objectReader, JsonNode configNode) throws IOException;
@@ -29,6 +30,7 @@ public interface TaskPlugin extends Identifiable {
      * @param objectReader the ObjectReader to use to deserialize configNode
      * @param configNode   the config node for the job
      * @return a configured ControllerComponentFactory
+     * @throws IOException if config parsing fails
      */
     @Nonnull
     ControllerComponentFactory getControllerComponentFactory(ObjectReader objectReader, JsonNode configNode) throws

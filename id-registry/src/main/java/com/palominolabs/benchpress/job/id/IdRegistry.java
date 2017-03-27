@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Subclass this class and request Set<T> ctor injection of an {@link Identifiable} class.
+ * Subclass this class and request Set ctor injection of an {@link Identifiable} class.
  *
- * @param <T>
+ * @param <T> the type to look up in the registry
  */
 @ThreadSafe
 public abstract class IdRegistry<T extends Identifiable> {

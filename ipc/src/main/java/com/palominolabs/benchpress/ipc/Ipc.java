@@ -11,7 +11,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Binding annotation for anything pertaining to internal communication (e.g. worker <-> controller http).
+ * Binding annotation for anything pertaining to internal communication (e.g. worker - controller http).
  */
 @BindingAnnotation
 @Target({FIELD, PARAMETER, METHOD})

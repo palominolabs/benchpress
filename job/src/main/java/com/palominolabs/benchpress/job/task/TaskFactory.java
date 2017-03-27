@@ -23,13 +23,13 @@ public interface TaskFactory {
      * @param taskOutputProcessorFactory processor factory to use, or null if the task type's component factory provides
      *                                   null
      * @return runnables
-     * @throws IOException
+     * @throws IOException if task creation fails
      */
     @Nonnull
     Collection<Runnable> getRunnables(@Nonnull UUID jobId, int partitionId, @Nonnull UUID workerId,
-        @Nonnull TaskOutputQueueProvider taskOutputQueueProvider,
-        @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws
-        IOException;
+            @Nonnull TaskOutputQueueProvider taskOutputQueueProvider,
+            @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws
+            IOException;
 
     void shutdown();
 }

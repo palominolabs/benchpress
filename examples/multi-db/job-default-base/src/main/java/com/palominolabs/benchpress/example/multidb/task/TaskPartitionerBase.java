@@ -5,27 +5,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
-import com.palominolabs.benchpress.job.id.Id;
+import com.palominolabs.benchpress.job.id.Identifiable;
 import com.palominolabs.benchpress.job.json.Partition;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.task.TaskPartitioner;
-
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 
 /**
  * Convenience base class for TaskFactoryFactory / TaskPartitioner implementations that use TaskConfigBase subclasses.
  */
 public abstract class TaskPartitionerBase implements TaskPartitioner {
 
-
     @Nonnull
     @Override
     public List<Partition> partition(UUID jobId, int workers, String progressUrl, String finishedUrl,
-        ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException {
+            ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException {
 
         TaskConfigBase c = getConfig();
 
@@ -43,15 +41,15 @@ public abstract class TaskPartitionerBase implements TaskPartitioner {
 
             TaskConfigBase newConfig = c.withNewQuanta(newQuanta);
 
-            TokenBuffer tokBuf = new TokenBuffer(objectReader);
+            TokenBuffer tokBuf = new TokenBuffer(objectReader, false);
             objectWriter.writeValue(tokBuf, newConfig);
             JsonParser jp = tokBuf.asParser();
             JsonNode newJsonNode =
-                objectReader.readValue(jp, JsonNode.class);
+                    objectReader.readValue(jp, JsonNode.class);
             jp.close();
 
             Partition partition =
-                new Partition(jobId, partitionId, new Task(getTaskType(), newJsonNode), progressUrl, finishedUrl);
+                    new Partition(jobId, partitionId, new Task(getTaskType(), newJsonNode), progressUrl, finishedUrl);
             partitions.add(partition);
         }
 
@@ -65,7 +63,8 @@ public abstract class TaskPartitionerBase implements TaskPartitioner {
     protected abstract TaskConfigBase getConfig();
 
     /**
-     * @return the task type string that would be included in {@link Id} annotations and the "type" field of task json.
+     * @return the task type string that would be in the plugin's {@link Identifiable} implementation and the "type"
+     * field of task json.
      */
     @Nonnull
     protected abstract String getTaskType();

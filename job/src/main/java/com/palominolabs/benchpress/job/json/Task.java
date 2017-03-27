@@ -3,7 +3,7 @@ package com.palominolabs.benchpress.job.json;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.palominolabs.benchpress.job.id.Id;
+import com.palominolabs.benchpress.job.id.Identifiable;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 
 public final class Task {
@@ -21,7 +21,7 @@ public final class Task {
      * Don't mess with this JsonNode; just read from it.
      *
      * @return json node representing the config data. {@link ComponentFactory} implementations should deserialize as
-     *         they see fit.
+     * they see fit.
      */
     @JsonProperty("config")
     public JsonNode getConfigNode() {
@@ -29,7 +29,7 @@ public final class Task {
     }
 
     /**
-     * Should match the {@link Id} annotation on a {@link ComponentFactory}
+     * Should match the {@link Identifiable} implementation of a {@link ComponentFactory}
      *
      * @return the task type
      */

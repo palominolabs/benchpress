@@ -84,6 +84,8 @@ public final class CuratorModule extends AbstractModule {
 
         /**
          * Start up the curator instance and service discovery system.
+         *
+         * @throws Exception because Curator throws Exception
          */
         public void start() throws Exception {
             curatorFramework.start();
