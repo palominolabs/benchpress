@@ -27,5 +27,6 @@ public interface TaskFactory {
             @Nonnull ScopedProgressClient progressClient) throws
             IOException;
 
+    // TODO actually call this somewhere
     void shutdown();
 }

@@ -33,7 +33,7 @@ public final class Task {
     }
 
     /**
-     * Should match the {@link Identifiable} implementation of a {@link ComponentFactory}
+     * Should match the {@link Identifiable} implementation on a {@link ComponentFactory}
      *
      * @return the task type
      */
