@@ -2,6 +2,9 @@ dependencies {
   compile project(':task-reporting')
   compile project(':examples:multi-db:job-default-base')
 
-  compile "org.hbase:asynchbase:${depVersions.asyncHbase}"
+  compile("org.hbase:asynchbase:${depVersions.asyncHbase}") {
+    // sloppy wildcard dependency
+    exclude module: 'slf4j-api'
+  }
 }
 
