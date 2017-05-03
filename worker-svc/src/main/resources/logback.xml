@@ -19,8 +19,7 @@
 
     <logger name="org.apache.zookeeper" level="info"/>
 
-    <logger name="org.eclipse.jetty.server" level="info"/>
-    <logger name="org.eclipse.jetty.servlet" level="info"/>
+    <logger name="org.eclipse.jetty" level="info"/>
 
     <logger name="com.ning.http.client" level="warn"/>
 
