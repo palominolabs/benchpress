@@ -3,6 +3,7 @@ package com.palominolabs.benchpress.worker;
 import com.google.inject.AbstractModule;
 import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
+import com.palominolabs.benchpress.jersey.JerseySupportModule;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
@@ -22,6 +23,8 @@ public final class WorkerMainModule extends AbstractModule {
         install(new ConfigModuleBuilder().addConfiguration(new SystemConfiguration()).build());
 
         install(new CuratorModule());
+
+        install(new JerseySupportModule());
 
         install(new IpcHttpClientModule());
         install(new IpcJsonModule());
