@@ -49,13 +49,13 @@ final class WorkerMain {
     }
 
     private void go() throws Exception {
-        curatorLifecycleHook.start();
-
         HttpServerWrapperConfig config = new HttpServerWrapperConfig().withHttpServerConnectorConfig(
                 forHttp(workerConfig.getHttpServerIp(), workerConfig.getHttpServerPort()));
         HttpServerWrapper httpServer = httpServerFactory.getHttpServerWrapper(config);
         httpServer.start();
         logger.info("Worker started listening on port " + workerConfig.getHttpServerPort());
+
+        curatorLifecycleHook.start();
 
         workerAdvertiser.initListenInfo(workerConfig.getHttpServerIp(), workerConfig.getHttpServerPort());
         workerAdvertiser.advertiseAvailability();
