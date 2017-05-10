@@ -19,7 +19,7 @@ public interface ZKServerConfig {
     int getListenPort();
 
     @Config("benchpress.controller.zookeeper.embedded-server.tmp-dir")
-    @Default("tmp/zookeeper-server")
+    @Default("./tmp/zookeeper-server")
     String getTmpDir();
 
     @Config("benchpress.controller.zookeeper.embedded-server.tick-time")
