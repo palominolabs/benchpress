@@ -59,6 +59,9 @@ final class ControllerMain {
     }
 
     public static void main(String[] args) throws Exception {
+        // Disable Zookeeper's annoying attempt to start its own out-of-date Jetty
+        System.setProperty("zookeeper.admin.enableServer", "false");
+
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.install();
         Injector injector = Guice.createInjector(Stage.PRODUCTION, new ControllerMainModule(),
@@ -77,13 +80,13 @@ final class ControllerMain {
             logger.info("Not running embedded ZooKeeper server");
         }
 
-        curatorLifecycleHook.start();
-
         HttpServerWrapperConfig config = new HttpServerWrapperConfig().withHttpServerConnectorConfig(
                 forHttp(controllerConfig.getHttpServerIp(), controllerConfig.getHttpServerPort()));
 
         HttpServerWrapper httpServer = httpServerFactory.getHttpServerWrapper(config);
         httpServer.start();
+
+        curatorLifecycleHook.start();
 
         logger.info("Controller started listening on port " + controllerConfig.getHttpServerPort());
 
