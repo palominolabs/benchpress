@@ -1,3 +1,7 @@
+apply plugin: 'application'
+
+mainClassName = 'com.palominolabs.benchpress.example.multidb.ControllerMain'
+
 dependencies {
   compile project(':controller-core')
   compile project(':controller-zk-server')

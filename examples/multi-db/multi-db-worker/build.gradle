@@ -1,3 +1,7 @@
+apply plugin: 'application'
+
+mainClassName = 'com.palominolabs.benchpress.example.multidb.WorkerMain'
+
 dependencies {
   compile project(':zookeeper')
   compile project(':worker-core')
