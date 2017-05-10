@@ -16,8 +16,7 @@
 
     <logger name="org.apache.http" level="info"/>
 
-    <logger name="org.apache.zookeeper.ClientCnxn" level="info"/>
-    <logger name="org.apache.zookeeper.server.FinalRequestProcessor" level="info"/>
+    <logger name="org.apache.zookeeper" level="info"/>
 
     <logger name="org.eclipse.jetty" level="info"/>
     <logger name="org.mortbay.log" level="info"/>
