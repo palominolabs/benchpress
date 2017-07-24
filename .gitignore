@@ -6,7 +6,7 @@
 *.ipr
 *.iws
 .directory
-./out
+out
 target
 .~lock.*.od*#
 tmp
