@@ -46,7 +46,7 @@ Look in `ControllerConfig` and `WorkerConfig` to see more. (Anything with method
 
 Jobs are submitted to the controller by PUTing to `/job`:
 
-    curl -X PUT -H "Content-Type: application/json" -d @test-jobs/hbase.json http://controller:7000/job
+    curl -X POST -H "Content-Type: application/json" -d @test-jobs/hbase.json http://controller:7000/job
 
 The controller will return a simple HTML page listing the active jobs if you `GET`
 `/controller/job`. You'll need to be running the appropriate server (HBase, in this case) and set up the
