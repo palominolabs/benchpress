@@ -2,9 +2,9 @@ package com.palominolabs.benchpress.example.multidb.hbaseasync;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.palominolabs.benchpress.example.multidb.key.KeyGen;
 import com.palominolabs.benchpress.example.multidb.task.TaskConfigBase;
-import com.palominolabs.benchpress.job.json.KeyGen;
-import com.palominolabs.benchpress.job.json.ValueGen;
+import com.palominolabs.benchpress.example.multidb.value.ValueGen;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 
 import javax.annotation.concurrent.Immutable;

@@ -1,7 +1,6 @@
 dependencies {
   compile project(':id-registry')
   compile project(':job')
-  compile project(':examples:multi-db:job-default-base')
 
   compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"
   compile "com.google.inject:guice:${depVersions.guice}"
