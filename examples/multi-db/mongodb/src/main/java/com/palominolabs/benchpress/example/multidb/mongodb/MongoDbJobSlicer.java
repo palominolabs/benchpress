@@ -1,15 +1,15 @@
 package com.palominolabs.benchpress.example.multidb.mongodb;
 
 import com.palominolabs.benchpress.example.multidb.task.TaskConfigBase;
-import com.palominolabs.benchpress.example.multidb.task.TaskPartitionerBase;
+import com.palominolabs.benchpress.example.multidb.task.JobSlicerBase;
 
 import javax.annotation.Nonnull;
 
-final class MongoDbTaskPartitioner extends TaskPartitionerBase {
+final class MongoDbJobSlicer extends JobSlicerBase {
 
     private final MongoDbConfig config;
 
-    MongoDbTaskPartitioner(MongoDbConfig config) {
+    MongoDbJobSlicer(MongoDbConfig config) {
         this.config = config;
     }
 
@@ -22,6 +22,6 @@ final class MongoDbTaskPartitioner extends TaskPartitionerBase {
     @Nonnull
     @Override
     protected String getTaskType() {
-        return MongoDbTaskPlugin.TASK_TYPE;
+        return MongoDbJobTypePlugin.TASK_TYPE;
     }
 }

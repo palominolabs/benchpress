@@ -61,9 +61,9 @@ which is in the `controller-svc` module.  It starts up an HTTP server, which is
 what a user interacts with, and a `JobFarmer`, which is responsible for starting
 and managing jobs.  When you submit a job to the controller, the `JobFarmer` uses
 the Netflix Curator Service Discovery implementation to find available workers
-in ZooKeeper (see `JobFarmer.submitJob()`), partitions the job, and distributes
+in ZooKeeper (see `JobFarmer.submitJob()`), slices the job, and distributes
 it to the workers. The `JobFarmer` handles status updates from the workers
-(`handleProgressReport()` and `handlePartitionFinishedReport()` in `JobFarmer`) and
+(`handleProgressReport()` and `handleSliceFinishedReport()` in `JobFarmer`) and
 will provide those reports via `getJob()`.
 
 ## Worker
@@ -72,9 +72,9 @@ in the `worker-svc` module.  It starts up an HTTP server for communicating with
 the controller and a `WorkerAdvertiser` to register itself as available in
 ZooKeeper.  A controller wishing to utilize the worker first hits
 the `/acquireLock/{controllerId}` endpoint (see `ControlResource`) to lock the
-worker for its job.  Thereafter, the worker is provided with a `Partition` for
-the job on the `/job/{jobId}/partition endpoint`.  The worker passes the
-`Partition` to its `PartitionRunner`, which runs the job, reporting back to the
+worker for its job.  Thereafter, the worker is provided with a `JobSlice` for
+the job on the `/job/{jobId}/slice endpoint`.  The worker passes the
+`JobSlice` to its `SliceRunner`, which runs the job, reporting back to the
 controller as specified in the job config.
 
 # Further notes

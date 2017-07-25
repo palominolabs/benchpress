@@ -37,7 +37,7 @@ public final class WorkerMainModule extends AbstractModule {
 
         bind(WorkerJerseyApp.class);
 
-        bind(PartitionRunner.class);
+        bind(SliceRunner.class);
 
         ConfigModule.bindConfigBean(binder(), WorkerConfig.class);
 

@@ -8,13 +8,13 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.configuration.Configuration;
 
 /**
- * Generates keys using the partition ID and task counter to produce a string
+ * Generates keys using the slice ID and task counter to produce a string
  * containing a number. The key is then "salted" with a random hexadecimal
  * digit prepended to the number. This simulates a common use case where
  * keys produced from increasing numbers (e.g. timestamps) are salted for good
  * dispersion in ordered partitioned datastores (e.g. HBase).
  * <p>
- * Setting the config setting "usePartition" to false will ignore the partition
+ * Setting the config setting "useSlice" to false will ignore the slice
  * ID thereby producing many collisions as each worker's counter is private and
  * initialized to 0.
  */
@@ -23,7 +23,7 @@ final class SaltedCounterKeyGeneratorFactoryFactory implements KeyGeneratorFacto
 
     @Override
     public KeyGeneratorFactory getKeyGeneratorFactory(Configuration c) {
-        return new GeneratorFactory(c.getBoolean("usePartition", true));
+        return new GeneratorFactory(c.getBoolean("useSlice", true));
     }
 
     @Nonnull
@@ -34,15 +34,15 @@ final class SaltedCounterKeyGeneratorFactoryFactory implements KeyGeneratorFacto
 
     @ThreadSafe
     private static final class GeneratorFactory implements KeyGeneratorFactory {
-        private final boolean usePartitionId;
+        private final boolean useSliceId;
 
-        GeneratorFactory(boolean usePartitionId) {
-            this.usePartitionId = usePartitionId;
+        GeneratorFactory(boolean useSliceId) {
+            this.useSliceId = useSliceId;
         }
 
         @Override
         public KeyGenerator getKeyGenerator() {
-            return new Generator(usePartitionId);
+            return new Generator(useSliceId);
         }
     }
 
@@ -50,17 +50,17 @@ final class SaltedCounterKeyGeneratorFactoryFactory implements KeyGeneratorFacto
     @ThreadSafe
     private static final class Generator implements KeyGenerator {
         private final Random rng = new Random();
-        private final boolean usePartitionId;
+        private final boolean useSliceId;
 
-        Generator(boolean usePartitionId) {
-            this.usePartitionId = usePartitionId;
+        Generator(boolean useSliceId) {
+            this.useSliceId = useSliceId;
         }
 
         @Override
-        public void writeKey(CharBuffer buf, UUID workerId, long threadId, int partitionId, int counter) {
+        public void writeKey(CharBuffer buf, UUID workerId, long threadId, int sliceId, int counter) {
             long key = counter;
-            if (usePartitionId) {
-               key |= (long)partitionId << Integer.SIZE;
+            if (useSliceId) {
+               key |= (long) sliceId << Integer.SIZE;
             }
             String keyString = Long.toString(key);
             // Salt the key with a random hex digit to disperse the key series 16 ways

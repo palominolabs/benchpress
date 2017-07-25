@@ -1,14 +1,14 @@
 package com.palominolabs.benchpress.example.multidb.hbase;
 
 import com.palominolabs.benchpress.example.multidb.task.TaskConfigBase;
-import com.palominolabs.benchpress.example.multidb.task.TaskPartitionerBase;
+import com.palominolabs.benchpress.example.multidb.task.JobSlicerBase;
 
 import javax.annotation.Nonnull;
 
-final class HbasePartitioner extends TaskPartitionerBase {
+final class HbaseSlicer extends JobSlicerBase {
     private final HBaseConfig config;
 
-    HbasePartitioner(HBaseConfig config) {
+    HbaseSlicer(HBaseConfig config) {
         this.config = config;
     }
 
@@ -21,6 +21,6 @@ final class HbasePartitioner extends TaskPartitionerBase {
     @Nonnull
     @Override
     protected String getTaskType() {
-        return HbaseTaskPlugin.TASK_TYPE;
+        return HbaseJobTypePlugin.TASK_TYPE;
     }
 }

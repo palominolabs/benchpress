@@ -6,21 +6,21 @@ import com.google.inject.Inject;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ControllerComponentFactory;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
-import com.palominolabs.benchpress.job.task.TaskPlugin;
+import com.palominolabs.benchpress.job.task.JobSlicer;
+import com.palominolabs.benchpress.job.task.JobTypePlugin;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 
-final class MongoDbTaskPlugin implements TaskPlugin {
+final class MongoDbJobTypePlugin implements JobTypePlugin {
     static final String TASK_TYPE = "MONGODB";
 
     private final KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry;
     private final ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry;
 
     @Inject
-    MongoDbTaskPlugin(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
+    MongoDbJobTypePlugin(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
         ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
         this.keyGeneratorFactoryFactoryRegistry = keyGeneratorFactoryFactoryRegistry;
         this.valueGeneratorFactoryFactoryRegistry = valueGeneratorFactoryFactoryRegistry;
@@ -42,8 +42,8 @@ final class MongoDbTaskPlugin implements TaskPlugin {
         return new ControllerComponentFactory() {
             @Nonnull
             @Override
-            public TaskPartitioner getTaskPartitioner() {
-                return new MongoDbTaskPartitioner(config);
+            public JobSlicer getJobSlicer() {
+                return new MongoDbJobSlicer(config);
             }
         };
     }

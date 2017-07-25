@@ -11,14 +11,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import org.apache.commons.configuration.Configuration;
 
 /**
- * Generates keys using the partition ID and task counter to produce a string
+ * Generates keys using the slice ID and task counter to produce a string
  * containing a number. The string is hashed with MD5 and the digest is
  * prepended to number. This simulates a common use case where string keys are
  * hashed for good dispersion in ordered partitioned datastores (e.g. HBase).
  * We use keys derived from counters so a group of readers can easily generate
  * keys recently or concurrently used by a group of writers.
  * <p>
- * Setting the config setting "usePartition" to false will ignore the partition
+ * Setting the config setting "useSlice" to false will ignore the slice
  * ID thereby producing many collisions as each worker's counter is private and
  * initialized to 0.
  */
@@ -27,7 +27,7 @@ final class MD5PrefixedCounterKeyGeneratorFactoryFactory implements KeyGenerator
 
     @Override
     public KeyGeneratorFactory getKeyGeneratorFactory(Configuration c) {
-        return new GeneratorFactory(c.getBoolean("usePartition", true));
+        return new GeneratorFactory(c.getBoolean("useSlice", true));
     }
 
     @Nonnull
@@ -38,37 +38,37 @@ final class MD5PrefixedCounterKeyGeneratorFactoryFactory implements KeyGenerator
 
     @ThreadSafe
     private static final class GeneratorFactory implements KeyGeneratorFactory {
-        private final boolean usePartitionId;
+        private final boolean useSliceId;
 
-        GeneratorFactory(boolean usePartitionId) {
-            this.usePartitionId = usePartitionId;
+        GeneratorFactory(boolean useSliceId) {
+            this.useSliceId = useSliceId;
         }
 
         @Override
         public KeyGenerator getKeyGenerator() {
-            return new Generator(usePartitionId);
+            return new Generator(useSliceId);
         }
     }
 
     @NotThreadSafe
     private static final class Generator implements KeyGenerator {
         private final MessageDigest md;
-        private final boolean usePartitionId;
+        private final boolean useSliceId;
 
-        Generator(boolean usePartitionId) {
+        Generator(boolean useSliceId) {
             try {
                 md = MessageDigest.getInstance("MD5");
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
-            this.usePartitionId = usePartitionId;
+            this.useSliceId = useSliceId;
         }
 
         @Override
-        public void writeKey(CharBuffer buf, UUID workerId, long threadId, int partitionId, int counter) {
+        public void writeKey(CharBuffer buf, UUID workerId, long threadId, int sliceId, int counter) {
             long key = counter;
-            if (usePartitionId) {
-                key |= (long) partitionId << Integer.SIZE;
+            if (useSliceId) {
+                key |= (long) sliceId << Integer.SIZE;
             }
             String keyString = Long.toString(key);
             byte[] digest = md.digest(keyString.getBytes());

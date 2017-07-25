@@ -2,11 +2,11 @@ package com.palominolabs.benchpress.example.multidb.cassandra;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
-import com.palominolabs.benchpress.job.task.TaskPlugin;
+import com.palominolabs.benchpress.job.task.JobTypePlugin;
 
 public final class CassandraModule extends AbstractModule {
     @Override
     protected void configure() {
-        Multibinder.newSetBinder(binder(), TaskPlugin.class).addBinding().to(CassandraTaskPlugin.class);
+        Multibinder.newSetBinder(binder(), JobTypePlugin.class).addBinding().to(CassandraJobTypePlugin.class);
     }
 }

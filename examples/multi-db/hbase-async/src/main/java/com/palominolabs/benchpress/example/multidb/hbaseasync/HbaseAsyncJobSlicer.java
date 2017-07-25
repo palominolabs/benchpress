@@ -1,14 +1,14 @@
 package com.palominolabs.benchpress.example.multidb.hbaseasync;
 
 import com.palominolabs.benchpress.example.multidb.task.TaskConfigBase;
-import com.palominolabs.benchpress.example.multidb.task.TaskPartitionerBase;
+import com.palominolabs.benchpress.example.multidb.task.JobSlicerBase;
 
 import javax.annotation.Nonnull;
 
-final class HbaseAsyncTaskPartitioner extends TaskPartitionerBase {
+final class HbaseAsyncJobSlicer extends JobSlicerBase {
     private final HbaseAsyncConfig config;
 
-    HbaseAsyncTaskPartitioner(HbaseAsyncConfig config) {
+    HbaseAsyncJobSlicer(HbaseAsyncConfig config) {
         this.config = config;
     }
 
@@ -21,6 +21,6 @@ final class HbaseAsyncTaskPartitioner extends TaskPartitionerBase {
     @Nonnull
     @Override
     protected String getTaskType() {
-        return HbaseAsyncTaskPlugin.TASK_TYPE;
+        return HbaseAsyncJobTypePlugin.TASK_TYPE;
     }
 }

@@ -26,8 +26,8 @@ final class HbaseAsyncRunnable extends AbstractTaskRunnable implements Runnable 
 
     public HbaseAsyncRunnable(TaskOperation taskOperation, HBaseClient client, int numQuanta, String table,
             String columnFamily, String qualifier, KeyGenerator keyGenerator, ValueGenerator valueGenerator,
-            UUID workerId, int partitionId, int batchSize, UUID jobId) {
-        super(taskOperation, keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
+            UUID workerId, int sliceId, int batchSize, UUID jobId) {
+        super(taskOperation, keyGenerator, workerId, sliceId, numQuanta, batchSize, jobId, valueGenerator);
         this.client = client;
         this.table = table.getBytes(UTF_8);
         this.columnFamily = columnFamily.getBytes(UTF_8);

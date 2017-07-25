@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 /**
  * The top level integration point for a new task implementation.
  */
-public interface TaskPlugin extends Identifiable {
+public interface JobTypePlugin extends Identifiable {
     /**
      * Get the components that are used by workers.
      *
@@ -17,7 +17,7 @@ public interface TaskPlugin extends Identifiable {
      * ComponentFactory is fully ready to use and never needs to access its configuration json again.
      *
      * @param objectReader the ObjectReader to use to deserialize configNode
-     * @param configNode   the config node for the task as split up by the TaskPartitioner
+     * @param configNode   the config node for the task as split up by the JobSlicer
      * @return a configured ComponentFactory
      * @throws IOException if config parsing fails
      */

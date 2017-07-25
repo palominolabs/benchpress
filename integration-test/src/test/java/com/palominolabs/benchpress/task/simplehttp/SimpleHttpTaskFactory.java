@@ -26,7 +26,7 @@ final class SimpleHttpTaskFactory implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(@Nonnull final UUID jobId, int partitionId, @Nonnull UUID workerId,
+    public Collection<Runnable> getRunnables(@Nonnull final UUID jobId, int sliceId, @Nonnull UUID workerId,
             @Nonnull final TaskOutputQueueProvider taskOutputQueueProvider,
             @Nullable final TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
         checkNotNull(taskOutputProcessorFactory);

@@ -4,18 +4,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 
 abstract class AbstractTaskReport {
-    private final int partitionId;
+    private final int sliceId;
     private final Duration duration;
 
-    AbstractTaskReport(int partitionId, Duration duration) {
-        this.partitionId = partitionId;
+    AbstractTaskReport(int sliceId, Duration duration) {
+        this.sliceId = sliceId;
         this.duration = duration;
     }
 
-
-    @JsonProperty("partitionId")
-    public int getPartitionId() {
-        return partitionId;
+    @JsonProperty("sliceId")
+    public int getSliceId() {
+        return sliceId;
     }
 
     @JsonProperty("duration")
@@ -24,6 +23,6 @@ abstract class AbstractTaskReport {
     }
 
     public String toString() {
-        return "partitionId:" + partitionId + ", duration:" + duration;
+        return "sliceId:" + sliceId + ", duration:" + duration;
     }
 }

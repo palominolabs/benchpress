@@ -8,5 +8,5 @@ import javax.annotation.Nonnull;
 public interface ControllerComponentFactory {
 
     @Nonnull
-    TaskPartitioner getTaskPartitioner();
+    JobSlicer getJobSlicer();
 }

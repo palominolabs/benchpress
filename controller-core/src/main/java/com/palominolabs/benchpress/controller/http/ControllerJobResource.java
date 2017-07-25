@@ -6,7 +6,7 @@ import com.palominolabs.benchpress.controller.JobFarmer;
 import com.palominolabs.benchpress.job.JobStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.logging.MdcKeys;
-import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
+import com.palominolabs.benchpress.task.reporting.SliceFinishedReport;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.Consumes;
@@ -68,12 +68,12 @@ public final class ControllerJobResource {
     @POST
     @Path("{jobId}/report/finished")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response reportFinished(@PathParam("jobId") UUID jobId, TaskPartitionFinishedReport taskPartitionFinishedReport) {
+    public Response reportFinished(@PathParam("jobId") UUID jobId, SliceFinishedReport sliceFinishedReport) {
         MDC.put(MdcKeys.JOB_ID, jobId.toString());
 
         Response response;
         try {
-            response = jobFarmer.handlePartitionFinishedReport(jobId, taskPartitionFinishedReport);
+            response = jobFarmer.handleSliceFinishedReport(jobId, sliceFinishedReport);
         } finally {
             MDC.remove(MdcKeys.JOB_ID);
         }

@@ -3,7 +3,7 @@ package com.palominolabs.benchpress.worker;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.ning.http.client.AsyncHttpClient;
-import com.palominolabs.benchpress.job.json.Partition;
+import com.palominolabs.benchpress.job.json.JobSlice;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -86,23 +86,23 @@ public final class WorkerControl {
     /**
      * Submit a job to this worker.
      *
-     * @param jobId     The job that this partition is part of
-     * @param partition The partition fot the worker to do
-     * @return true if the partition was successfully submitted
+     * @param jobId     The job that this slice is part of
+     * @param jobSlice The slice fot the worker to do
+     * @return true if the slice was successfully submitted
      */
-    public boolean submitPartition(UUID jobId, Partition partition) {
-        String submitUri = getUrlPrefix() + "/worker/job/" + jobId + "/partition";
+    public boolean submitSlice(UUID jobId, JobSlice jobSlice) {
+        String submitUri = getUrlPrefix() + "/worker/job/" + jobId + "/slice";
 
         AsyncHttpClient.BoundRequestBuilder req;
         try {
-            req = httpClient.preparePut(submitUri).setBody(objectWriter.writeValueAsString(partition))
+            req = httpClient.preparePut(submitUri).setBody(objectWriter.writeValueAsString(jobSlice))
                 .addHeader("Content-Type", MediaType.APPLICATION_JSON);
         } catch (IOException e) {
-            logger.warn("Unable to JSONify partition <" + partition.getPartitionId() + "> for jobId <" + jobId + ">");
+            logger.warn("Unable to JSONify slice <" + jobSlice.getSliceId() + "> for jobId <" + jobId + ">");
             return false;
         }
 
-        logger.info("Sending partition <" + partition.getPartitionId() + "> of jobId <" + jobId + "> to <" + metadata
+        logger.info("Sending slice <" + jobSlice.getSliceId() + "> of jobId <" + jobId + "> to <" + metadata
             .getWorkerId() + ">");
         return tellWorker(req, Response.Status.ACCEPTED);
     }

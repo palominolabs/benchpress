@@ -31,8 +31,8 @@ final class HbaseRunnable extends AbstractTaskRunnable implements Runnable {
 
     HbaseRunnable(TaskOperation taskOperation, HTable hTable, byte[] columnFamily, byte[] qualifier,
             KeyGenerator keyGenerator, ValueGenerator valueGenerator, UUID jobId, UUID workerId,
-            int partitionId, int numQuanta, int batchSize) {
-        super(taskOperation, keyGenerator, workerId, partitionId, numQuanta, batchSize, jobId, valueGenerator);
+            int sliceId, int numQuanta, int batchSize) {
+        super(taskOperation, keyGenerator, workerId, sliceId, numQuanta, batchSize, jobId, valueGenerator);
         this.hTable = hTable;
         this.columnFamily = columnFamily;
         this.qualifier = qualifier;

@@ -4,7 +4,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Used to generate the per-thread KeyGenerator instances. Contains the configuration extracted by {@link
- * KeyGeneratorFactoryFactory}. One KeyGeneratorFactory is used for a partition of a job.
+ * KeyGeneratorFactoryFactory}. One KeyGeneratorFactory is used for a slice of a job.
  */
 @ThreadSafe
 public interface KeyGeneratorFactory {

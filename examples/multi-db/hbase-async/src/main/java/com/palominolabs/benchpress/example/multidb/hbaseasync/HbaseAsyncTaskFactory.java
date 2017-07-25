@@ -43,7 +43,7 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int partitionId, @Nonnull UUID workerId,
+    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
         @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
@@ -64,7 +64,7 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
         for (int i = 0; i < numThreads; i++) {
             runnables.add(new HbaseAsyncRunnable(taskOperation, client, quantaPerThread, table, columnFamily,
                 qualifier, keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
-                workerId, partitionId, batchSize, jobId));
+                workerId, sliceId, batchSize, jobId));
         }
         return runnables;
     }

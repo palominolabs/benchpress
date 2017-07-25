@@ -1,15 +1,15 @@
 package com.palominolabs.benchpress.example.multidb.cassandra;
 
-import com.palominolabs.benchpress.example.multidb.task.TaskPartitionerBase;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
+import com.palominolabs.benchpress.example.multidb.task.JobSlicerBase;
+import com.palominolabs.benchpress.job.task.JobSlicer;
 
 import javax.annotation.Nonnull;
 
-final class CassandraPartitioner extends TaskPartitionerBase implements TaskPartitioner {
+final class CassandraSlicer extends JobSlicerBase implements JobSlicer {
 
     private final CassandraConfig cassandraConfig;
 
-    CassandraPartitioner(CassandraConfig cassandraConfig) {
+    CassandraSlicer(CassandraConfig cassandraConfig) {
         this.cassandraConfig = cassandraConfig;
     }
 
@@ -22,6 +22,6 @@ final class CassandraPartitioner extends TaskPartitionerBase implements TaskPart
     @Nonnull
     @Override
     protected String getTaskType() {
-        return CassandraTaskPlugin.TASK_TYPE;
+        return CassandraJobTypePlugin.TASK_TYPE;
     }
 }

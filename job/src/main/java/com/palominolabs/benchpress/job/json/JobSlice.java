@@ -6,20 +6,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.annotation.concurrent.Immutable;
 import java.util.UUID;
 
+/**
+ * The part of a job that a single worker is responsible for.
+ */
 @Immutable
-public final class Partition {
+public final class JobSlice {
     private final UUID jobId;
-    private final int partitionId;
+    private final int sliceId;
     private final Task task;
     private final String progressUrl;
     private final String finishedUrl;
 
     @JsonCreator
-    public Partition(@JsonProperty("jobId") UUID jobId, @JsonProperty("partitionId") int partitionId,
+    public JobSlice(@JsonProperty("jobId") UUID jobId, @JsonProperty("sliceId") int sliceId,
         @JsonProperty("task") Task task, @JsonProperty("progressUrl") String progressUrl,
         @JsonProperty("finishedUrl") String finishedUrl) {
         this.jobId = jobId;
-        this.partitionId = partitionId;
+        this.sliceId = sliceId;
         this.task = task;
         this.progressUrl = progressUrl;
         this.finishedUrl = finishedUrl;
@@ -30,9 +33,9 @@ public final class Partition {
         return jobId;
     }
 
-    @JsonProperty("partitionId")
-    public int getPartitionId() {
-        return partitionId;
+    @JsonProperty("sliceId")
+    public int getSliceId() {
+        return sliceId;
     }
 
     @JsonProperty("task")

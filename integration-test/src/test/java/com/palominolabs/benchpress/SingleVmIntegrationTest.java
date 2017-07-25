@@ -36,8 +36,8 @@ import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskOutputProcessor;
-import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskPlugin;
-import com.palominolabs.benchpress.worker.PartitionRunner;
+import com.palominolabs.benchpress.task.simplehttp.SimpleHttpJobTypePlugin;
+import com.palominolabs.benchpress.worker.SliceRunner;
 import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
@@ -160,7 +160,7 @@ public class SingleVmIntegrationTest {
                 install(new TaskPluginRegistryModule());
                 install(new WorkerResourceModule());
                 install(new QueueProviderModule());
-                bind(PartitionRunner.class);
+                bind(SliceRunner.class);
 
                 // custom task
                 install(new SimpleHttpTaskModule());
@@ -261,7 +261,7 @@ public class SingleVmIntegrationTest {
 
         configNode.put("url", getUrlPrefix() + "/simple-http-test-endpoint");
 
-        Job j = new Job(new Task(SimpleHttpTaskPlugin.TASK_TYPE, configNode), null);
+        Job j = new Job(new Task(SimpleHttpJobTypePlugin.TASK_TYPE, configNode), null);
 
         // submit job
 
@@ -287,11 +287,11 @@ public class SingleVmIntegrationTest {
             JsonNode node = objectReader.forType(JsonNode.class)
                     .readValue(asyncHttpClient.prepareGet(url).execute().get().getResponseBody());
 
-            // we always use partition id 1, hard coded into simple http task
-            ObjectNode partitionStatus = (ObjectNode) node.path("partitionStatuses").path("1");
-            System.out.println(partitionStatus.toString());
+            // we always use slice id 1, hard coded into simple http task
+            ObjectNode sliceStatus = (ObjectNode) node.path("sliceStatuses").path("1");
+            System.out.println(sliceStatus.toString());
 
-            if (partitionStatus.get("finished").asBoolean()) {
+            if (sliceStatus.get("finished").asBoolean()) {
                 timedOut = false;
                 break;
             }

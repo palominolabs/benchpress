@@ -2,19 +2,19 @@ package com.palominolabs.benchpress.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.palominolabs.benchpress.job.json.Partition;
+import com.palominolabs.benchpress.job.json.JobSlice;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
 
 import java.time.Duration;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-public final class PartitionStatus {
+public final class SliceStatus {
     @JsonIgnore
-    private final Partition partition;
+    private final JobSlice jobSlice;
 
     /**
-     * The worker that was given this partition
+     * The worker that was given this slice
      */
     @JsonIgnore
     private final WorkerMetadata workerMetadata;
@@ -22,13 +22,13 @@ public final class PartitionStatus {
     private boolean finished = false;
     private Duration duration;
 
-    public PartitionStatus(Partition partition, WorkerMetadata workerMetadata) {
-        this.partition = partition;
+    public SliceStatus(JobSlice jobSlice, WorkerMetadata workerMetadata) {
+        this.jobSlice = jobSlice;
         this.workerMetadata = workerMetadata;
     }
 
-    public Partition getPartition() {
-        return partition;
+    public JobSlice getJobSlice() {
+        return jobSlice;
     }
 
     public WorkerMetadata getWorkerMetadata() {

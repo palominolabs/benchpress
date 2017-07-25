@@ -24,7 +24,7 @@ public interface TaskOutputQueueProvider {
     BlockingQueue<Object> getQueue(@Nonnull UUID jobId, @Nonnull TaskOutputProcessorFactory taskOutputProcessorFactory);
 
     /**
-     * Called when the node is done with its partition for a given job. Will call {@link TaskOutputProcessor#close()} on
+     * Called when the node is done with its slice for a given job. Will call {@link TaskOutputProcessor#close()} on
      * all processors for the job.
      *
      * @param jobId job id

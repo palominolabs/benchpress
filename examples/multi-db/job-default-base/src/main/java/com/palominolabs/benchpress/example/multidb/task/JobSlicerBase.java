@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import com.palominolabs.benchpress.job.id.Identifiable;
-import com.palominolabs.benchpress.job.json.Partition;
+import com.palominolabs.benchpress.job.json.JobSlice;
 import com.palominolabs.benchpress.job.json.Task;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
+import com.palominolabs.benchpress.job.task.JobSlicer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,27 +16,27 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 
 /**
- * Convenience base class for TaskFactoryFactory / TaskPartitioner implementations that use TaskConfigBase subclasses.
+ * Convenience base class for TaskFactoryFactory / JobSlicer implementations that use TaskConfigBase subclasses.
  */
-public abstract class TaskPartitionerBase implements TaskPartitioner {
+public abstract class JobSlicerBase implements JobSlicer {
 
     @Nonnull
     @Override
-    public List<Partition> partition(UUID jobId, int workers, String progressUrl, String finishedUrl,
+    public List<JobSlice> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
             ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException {
 
         TaskConfigBase c = getConfig();
 
-        List<Partition> partitions = new ArrayList<>();
+        List<JobSlice> jobSlices = new ArrayList<>();
 
-        int quantaPerPartition = (int) Math.ceil(c.getNumQuanta() / workers);
-        for (int partitionId = 0; partitionId < workers; partitionId++) {
+        int quantaPerSlice = (int) Math.ceil(c.getNumQuanta() / workers);
+        for (int sliceId = 0; sliceId < workers; sliceId++) {
             int newQuanta;
             // TODO
-            if (partitionId == workers) {
-                newQuanta = quantaPerPartition;
+            if (sliceId == workers) {
+                newQuanta = quantaPerSlice;
             } else {
-                newQuanta = c.getNumQuanta() - quantaPerPartition * (workers - 1);
+                newQuanta = c.getNumQuanta() - quantaPerSlice * (workers - 1);
             }
 
             TaskConfigBase newConfig = c.withNewQuanta(newQuanta);
@@ -48,12 +48,12 @@ public abstract class TaskPartitionerBase implements TaskPartitioner {
                     objectReader.readValue(jp, JsonNode.class);
             jp.close();
 
-            Partition partition =
-                    new Partition(jobId, partitionId, new Task(getTaskType(), newJsonNode), progressUrl, finishedUrl);
-            partitions.add(partition);
+            JobSlice jobSlice =
+                    new JobSlice(jobId, sliceId, new Task(getTaskType(), newJsonNode), progressUrl, finishedUrl);
+            jobSlices.add(jobSlice);
         }
 
-        return partitions;
+        return jobSlices;
     }
 
     /**

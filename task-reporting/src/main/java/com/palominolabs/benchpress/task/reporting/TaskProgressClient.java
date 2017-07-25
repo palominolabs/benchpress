@@ -9,10 +9,6 @@ import java.util.UUID;
 public interface TaskProgressClient {
     /**
      * Indicates that all threads for the task have completed
-     *
-     * @param jobId         job
-     * @param partitionId   partition
-     * @param duration      duration
      */
-    void reportFinished(UUID jobId, int partitionId, Duration duration);
+    void reportFinished(UUID jobId, int sliceId, Duration duration);
 }

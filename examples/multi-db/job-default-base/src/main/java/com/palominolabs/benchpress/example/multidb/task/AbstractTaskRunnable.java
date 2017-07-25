@@ -33,20 +33,20 @@ public abstract class AbstractTaskRunnable implements Runnable {
     private CharBuffer keyCharBuf = CharBuffer.allocate(DEFAULT_KEY_BUF_LENGTH);
     private ByteBuffer byteBuf = getByteBuffer(keyCharBuf);
 
-    private final int partitionId;
+    private final int sliceId;
     private final int numQuanta;
     private final int batchSize;
     private final UUID jobId;
     private final ValueGenerator valueGenerator;
 
     protected AbstractTaskRunnable(
-        TaskOperation taskOperation, KeyGenerator keyGenerator, UUID workerId, int partitionId,
+        TaskOperation taskOperation, KeyGenerator keyGenerator, UUID workerId, int sliceId,
         int numQuanta, int batchSize, UUID jobId, ValueGenerator valueGenerator) {
         this.taskOperation = taskOperation;
         this.keyGenerator = keyGenerator;
         threadId = Thread.currentThread().getId();
         this.workerId = workerId;
-        this.partitionId = partitionId;
+        this.sliceId = sliceId;
         this.numQuanta = numQuanta;
         this.batchSize = batchSize;
         this.jobId = jobId;
@@ -124,7 +124,7 @@ public abstract class AbstractTaskRunnable implements Runnable {
         boolean retry = true;
         while (retry) {
             try {
-                keyGenerator.writeKey(keyCharBuf, workerId, threadId, partitionId, counter);
+                keyGenerator.writeKey(keyCharBuf, workerId, threadId, sliceId, counter);
                 retry = false;
             } catch (BufferOverflowException e) {
                 keyCharBuf = CharBuffer.allocate(keyCharBuf.capacity() * 2);

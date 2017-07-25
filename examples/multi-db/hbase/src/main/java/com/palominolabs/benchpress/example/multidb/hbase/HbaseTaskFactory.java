@@ -52,7 +52,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int partitionId, @Nonnull UUID workerId,
+    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
         @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
@@ -74,7 +74,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
                 .add(
                     new HbaseRunnable(taskOperation, hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
                         keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
-                        jobId, workerId, partitionId, quantaPerThread, batchSize
+                        jobId, workerId, sliceId, quantaPerThread, batchSize
                     ));
         }
 

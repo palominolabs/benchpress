@@ -7,9 +7,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.Set;
 
 @ThreadSafe
-public final class TaskPluginRegistry extends IdRegistry<TaskPlugin> {
+public final class JobTypePluginRegistry extends IdRegistry<JobTypePlugin> {
     @Inject
-    TaskPluginRegistry(Set<TaskPlugin> componentFactories) {
+    JobTypePluginRegistry(Set<JobTypePlugin> componentFactories) {
         super(componentFactories);
     }
 }

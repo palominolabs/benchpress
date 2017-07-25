@@ -11,11 +11,11 @@ public final class JobStatus {
     @JsonProperty("job")
     private final Job job;
 
-    @JsonProperty("partitionStatuses")
-    private final SortedMap<Integer, PartitionStatus> partitions = new ConcurrentSkipListMap<>();
+    @JsonProperty("sliceStatuses")
+    private final SortedMap<Integer, SliceStatus> slices = new ConcurrentSkipListMap<>();
 
-    @JsonProperty("fullyPartitioned")
-    private boolean fullyPartitioned;
+    @JsonProperty("fullySliced")
+    private boolean fullySliced;
 
     @JsonProperty("finalDuration")
     private Duration finalDuration;
@@ -28,20 +28,20 @@ public final class JobStatus {
         return this.job;
     }
 
-    public void addPartitionStatus(PartitionStatus partitionStatus) {
-        this.partitions.put(partitionStatus.getPartition().getPartitionId(), partitionStatus);
+    public void addSliceStatus(SliceStatus sliceStatus) {
+        this.slices.put(sliceStatus.getJobSlice().getSliceId(), sliceStatus);
     }
 
-    public PartitionStatus getPartitionStatus(int partitionId) {
-        return this.partitions.get(partitionId);
+    public SliceStatus getSliceStatus(int sliceId) {
+        return this.slices.get(sliceId);
     }
 
-    public SortedMap<Integer, PartitionStatus> getPartitionStatuses() {
-        return partitions;
+    public SortedMap<Integer, SliceStatus> getSliceStatuses() {
+        return slices;
     }
 
-    public void setFullyPartitioned() {
-        fullyPartitioned = true;
+    public void setFullySliced() {
+        fullySliced = true;
     }
 
     public void setFinalDuration(Duration finalDuration) {
@@ -50,13 +50,13 @@ public final class JobStatus {
 
     @JsonIgnore
     public boolean isFinished() {
-        if (!fullyPartitioned) {
+        if (!fullySliced) {
             return false;
         }
 
         boolean finished = true;
-        for (PartitionStatus partitionStatus : partitions.values()) {
-            if (!partitionStatus.isFinished()) {
+        for (SliceStatus sliceStatus : slices.values()) {
+            if (!sliceStatus.isFinished()) {
                 finished = false;
                 break;
             }

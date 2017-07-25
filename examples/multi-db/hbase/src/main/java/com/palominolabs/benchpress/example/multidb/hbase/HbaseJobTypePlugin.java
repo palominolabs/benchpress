@@ -7,19 +7,19 @@ import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactor
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ControllerComponentFactory;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
-import com.palominolabs.benchpress.job.task.TaskPlugin;
+import com.palominolabs.benchpress.job.task.JobSlicer;
+import com.palominolabs.benchpress.job.task.JobTypePlugin;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-final class HbaseTaskPlugin implements TaskPlugin {
+final class HbaseJobTypePlugin implements JobTypePlugin {
 
     static final String TASK_TYPE = "HBASE";
     private final KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry;
     private final ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry;
 
     @Inject
-    HbaseTaskPlugin(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
+    HbaseJobTypePlugin(KeyGeneratorFactoryFactoryRegistry keyGeneratorFactoryFactoryRegistry,
             ValueGeneratorFactoryFactoryRegistry valueGeneratorFactoryFactoryRegistry) {
         this.keyGeneratorFactoryFactoryRegistry = keyGeneratorFactoryFactoryRegistry;
         this.valueGeneratorFactoryFactoryRegistry = valueGeneratorFactoryFactoryRegistry;
@@ -41,8 +41,8 @@ final class HbaseTaskPlugin implements TaskPlugin {
         return new ControllerComponentFactory() {
             @Nonnull
             @Override
-            public TaskPartitioner getTaskPartitioner() {
-                return new HbasePartitioner(config);
+            public JobSlicer getJobSlicer() {
+                return new HbaseSlicer(config);
             }
         };
     }

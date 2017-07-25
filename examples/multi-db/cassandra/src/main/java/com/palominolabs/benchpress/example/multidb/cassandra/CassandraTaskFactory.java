@@ -50,7 +50,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int partitionId, @Nonnull UUID workerId,
+    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
         @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
 
         context = new AstyanaxContext.Builder().forCluster(clusterName)
@@ -75,7 +75,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
         byte[] colNameBytes = colName.getBytes(Charsets.UTF_8);
 
         for (int i = 0; i < numThreads; i++) {
-            runnables.add(new CassandraRunnable(taskOperation, keyGeneratorFactory.getKeyGenerator(), workerId, partitionId, numQuanta,
+            runnables.add(new CassandraRunnable(taskOperation, keyGeneratorFactory.getKeyGenerator(), workerId, sliceId, numQuanta,
                 batchSize, jobId, valueGeneratorFactory.getValueGenerator(), keyspace, cfDef, colNameBytes));
         }
 

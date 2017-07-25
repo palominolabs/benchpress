@@ -53,7 +53,7 @@ public final class WorkerAdvertiserTest {
                 install(new CuratorModule());
                 install(new QueueProviderModule());
 
-                bind(PartitionRunner.class);
+                bind(SliceRunner.class);
                 install(new JobRegistryModule());
                 bind(TaskProgressClient.class).to(NoOpTaskProgressClient.class);
 

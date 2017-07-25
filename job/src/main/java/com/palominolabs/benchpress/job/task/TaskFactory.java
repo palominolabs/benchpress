@@ -9,14 +9,14 @@ import java.util.UUID;
 
 /**
  * A TaskFactory creates the runnables that actually do the work. Used to create the runnables for one individual
- * partition.
+ * slice.
  */
 @NotThreadSafe
 public interface TaskFactory {
 
     /**
      * @param jobId                      job id
-     * @param partitionId                the partition of the overall job that these tasks are part of
+     * @param sliceId                    the slice of the overall job that these tasks are part of
      * @param workerId                   the worker that these tasks are running in
      * @param taskOutputQueueProvider    used to get a queue to feed task output into for later processing by the
      *                                   provided TaskOutputProcessor; use is optional
@@ -26,7 +26,7 @@ public interface TaskFactory {
      * @throws IOException if task creation fails
      */
     @Nonnull
-    Collection<Runnable> getRunnables(@Nonnull UUID jobId, int partitionId, @Nonnull UUID workerId,
+    Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
             @Nonnull TaskOutputQueueProvider taskOutputQueueProvider,
             @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws
             IOException;

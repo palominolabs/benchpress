@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.ipc.Ipc;
-import com.palominolabs.benchpress.job.json.Partition;
+import com.palominolabs.benchpress.job.json.JobSlice;
 import com.palominolabs.benchpress.job.registry.JobRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
-import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
+import com.palominolabs.benchpress.job.task.JobTypePluginRegistry;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.util.Collection;
@@ -38,8 +37,8 @@ import static com.palominolabs.benchpress.logging.MdcKeys.JOB_ID;
 
 @Singleton
 @ThreadSafe
-public final class PartitionRunner {
-    private static final Logger logger = LoggerFactory.getLogger(PartitionRunner.class);
+public final class SliceRunner {
+    private static final Logger logger = LoggerFactory.getLogger(SliceRunner.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final CompletionService<Void> completionService = new ExecutorCompletionService<>(executorService);
@@ -55,17 +54,17 @@ public final class PartitionRunner {
 
     private final ObjectReader objectReader;
     private final TaskOutputQueueProvider taskOutputQueueProvider;
-    private final TaskPluginRegistry taskPluginRegistry;
+    private final JobTypePluginRegistry jobTypePluginRegistry;
 
     @Inject
-    PartitionRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry, @Ipc ObjectReader objectReader,
+    SliceRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry, @Ipc ObjectReader objectReader,
         TaskOutputQueueProvider taskOutputQueueProvider,
-        TaskPluginRegistry taskPluginRegistry) {
+        JobTypePluginRegistry jobTypePluginRegistry) {
         this.taskProgressClient = taskProgressClient;
         this.jobRegistry = jobRegistry;
         this.objectReader = objectReader;
         this.taskOutputQueueProvider = taskOutputQueueProvider;
-        this.taskPluginRegistry = taskPluginRegistry;
+        this.jobTypePluginRegistry = jobTypePluginRegistry;
 
         // TODO lifecycle would be nice for this
         completionService.submit(new ThreadExceptionWatcherRunnable(completionService), null);
@@ -73,25 +72,25 @@ public final class PartitionRunner {
         logger.info("Worker ID is " + workerId);
     }
 
-    public boolean runPartition(Partition partition) {
+    public boolean runSlice(JobSlice jobSlice) {
         TaskFactory tf;
         ComponentFactory componentFactory;
         try {
-            componentFactory = taskPluginRegistry.get(partition.getTask().getTaskType()).getComponentFactory(
-                objectReader, partition.getTask().getConfigNode());
+            componentFactory = jobTypePluginRegistry.get(jobSlice.getTask().getTaskType()).getComponentFactory(
+                objectReader, jobSlice.getTask().getConfigNode());
         } catch (IOException e) {
             logger.warn("Couldn't create task factory", e);
             return false;
         }
         tf = componentFactory.getTaskFactory();
 
-        jobRegistry.storeJob(partition.getJobId(), partition.getProgressUrl(), partition.getFinishedUrl());
+        jobRegistry.storeJob(jobSlice.getJobId(), jobSlice.getProgressUrl(), jobSlice.getFinishedUrl());
 
         HashSet<Future<Void>> futures = new HashSet<>();
 
         Collection<Runnable> runnables;
         try {
-            runnables = tf.getRunnables(partition.getJobId(), partition.getPartitionId(), workerId,
+            runnables = tf.getRunnables(jobSlice.getJobId(), jobSlice.getSliceId(), workerId,
                 taskOutputQueueProvider, componentFactory.getTaskOutputProcessorFactory());
         } catch (IOException e) {
             logger.warn("Couldn't make runnables", e);
@@ -103,7 +102,7 @@ public final class PartitionRunner {
         }
 
         completionService.submit(
-            new TaskThreadWatcher(futures, partition.getPartitionId(), partition.getJobId(), taskProgressClient,
+            new TaskThreadWatcher(futures, jobSlice.getSliceId(), jobSlice.getJobId(), taskProgressClient,
                 jobRegistry, taskOutputQueueProvider), null);
 
         return true;
@@ -148,17 +147,17 @@ public final class PartitionRunner {
 
         private static final Logger watcherLogger = LoggerFactory.getLogger(TaskThreadWatcher.class);
         private final Set<Future<Void>> futures;
-        private final int partitionId;
+        private final int sliceId;
         private final UUID jobId;
         private final TaskProgressClient taskProgressClient;
         private final JobRegistry jobRegistry;
         private final TaskOutputQueueProvider taskOutputQueueProvider;
 
-        private TaskThreadWatcher(Set<Future<Void>> futures, int partitionId, UUID jobId,
+        private TaskThreadWatcher(Set<Future<Void>> futures, int sliceId, UUID jobId,
             TaskProgressClient taskProgressClient, JobRegistry jobRegistry,
             TaskOutputQueueProvider taskOutputQueueProvider) {
             this.futures = futures;
-            this.partitionId = partitionId;
+            this.sliceId = sliceId;
             this.jobId = jobId;
             this.taskProgressClient = taskProgressClient;
             this.jobRegistry = jobRegistry;
@@ -194,7 +193,7 @@ public final class PartitionRunner {
                     }
                 }
 
-                taskProgressClient.reportFinished(jobId, partitionId, Duration.between(start, Instant.now()));
+                taskProgressClient.reportFinished(jobId, sliceId, Duration.between(start, Instant.now()));
                 jobRegistry.removeJob(jobId);
                 taskOutputQueueProvider.removeJob(jobId);
 

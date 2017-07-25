@@ -2,8 +2,8 @@ package com.palominolabs.benchpress.worker.http;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.palominolabs.benchpress.job.json.Partition;
-import com.palominolabs.benchpress.worker.PartitionRunner;
+import com.palominolabs.benchpress.job.json.JobSlice;
+import com.palominolabs.benchpress.worker.SliceRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import java.util.UUID;
 
 /**
- * Receives partitions (the per-worker slice of a job) sent by the controller.
+ * Receives slices sent by the controller.
  */
 @Path("worker/job")
 @Singleton
@@ -24,20 +24,20 @@ public final class WorkerJobResource {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerJobResource.class);
 
-    private final PartitionRunner partitionRunner;
+    private final SliceRunner sliceRunner;
 
     @Inject
-    WorkerJobResource(PartitionRunner partitionRunner) {
-        this.partitionRunner = partitionRunner;
+    WorkerJobResource(SliceRunner sliceRunner) {
+        this.sliceRunner = sliceRunner;
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("{jobId}/partition")
-    public Response submit(@PathParam("jobId") UUID jobId, Partition partition) {
-        logger.info("Processing job submission <" + jobId + "> partition <" + partition.getPartitionId() + ">");
+    @Path("{jobId}/slice")
+    public Response submit(@PathParam("jobId") UUID jobId, JobSlice jobSlice) {
+        logger.info("Processing job submission <" + jobId + "> slice <" + jobSlice.getSliceId() + ">");
 
-        if (!partitionRunner.runPartition(partition)) {
+        if (!sliceRunner.runSlice(jobSlice)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 

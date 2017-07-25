@@ -6,12 +6,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.ipc.Ipc;
 import com.palominolabs.benchpress.job.JobStatus;
-import com.palominolabs.benchpress.job.PartitionStatus;
+import com.palominolabs.benchpress.job.SliceStatus;
 import com.palominolabs.benchpress.job.json.Job;
-import com.palominolabs.benchpress.job.json.Partition;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
-import com.palominolabs.benchpress.job.task.TaskPluginRegistry;
-import com.palominolabs.benchpress.task.reporting.TaskPartitionFinishedReport;
+import com.palominolabs.benchpress.job.json.JobSlice;
+import com.palominolabs.benchpress.job.task.JobSlicer;
+import com.palominolabs.benchpress.job.task.JobTypePluginRegistry;
+import com.palominolabs.benchpress.task.reporting.SliceFinishedReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
@@ -49,7 +49,7 @@ public final class JobFarmer {
     @GuardedBy("this")
     private final Map<UUID, JobStatus> jobs = new HashMap<>();
 
-    private final TaskPluginRegistry taskPluginRegistry;
+    private final JobTypePluginRegistry jobTypePluginRegistry;
     private final ObjectReader objectReader;
 
     private final ObjectWriter objectWriter;
@@ -66,11 +66,11 @@ public final class JobFarmer {
     @Inject
     JobFarmer(WorkerControlFactory workerControlFactory,
             ServiceProvider<WorkerMetadata> serviceProvider,
-            TaskPluginRegistry taskPluginRegistry, @Ipc ObjectReader objectReader,
+            JobTypePluginRegistry jobTypePluginRegistry, @Ipc ObjectReader objectReader,
             @Ipc ObjectWriter objectWriter) {
         this.workerControlFactory = workerControlFactory;
         this.serviceProvider = serviceProvider;
-        this.taskPluginRegistry = taskPluginRegistry;
+        this.jobTypePluginRegistry = jobTypePluginRegistry;
         this.objectReader = objectReader;
         this.objectWriter = objectWriter;
     }
@@ -107,39 +107,39 @@ public final class JobFarmer {
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No unlocked workers found").build();
         }
 
-        // TODO unlock locked workers if job partitioning, etc. fails to avoid losing workers permanently
+        // TODO unlock locked workers if job slicing, etc. fails to avoid losing workers permanently
 
-        List<Partition> partitions;
+        List<JobSlice> jobSlices;
         try {
-            TaskPartitioner taskPartitioner =
-                taskPluginRegistry.get(job.getTask().getTaskType()).getControllerComponentFactory(
-                    objectReader, job.getTask().getConfigNode()).getTaskPartitioner();
+            JobSlicer jobSlicer =
+                jobTypePluginRegistry.get(job.getTask().getTaskType()).getControllerComponentFactory(
+                    objectReader, job.getTask().getConfigNode()).getJobSlicer();
 
-            partitions = taskPartitioner
-                .partition(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
+            jobSlices = jobSlicer
+                .slice(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
                     getFinishedUrl(job.getJobId()), objectReader, job.getTask().getConfigNode(), objectWriter);
         } catch (IOException e) {
-            logger.warn("Failed to partition job", e);
+            logger.warn("Failed to slice job", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
-        if (partitions.isEmpty()) {
-            logger.warn("No partitions created");
-            return Response.status(Response.Status.PRECONDITION_FAILED).entity("No partitions created").build();
+        if (jobSlices.isEmpty()) {
+            logger.warn("No slices created");
+            return Response.status(Response.Status.PRECONDITION_FAILED).entity("No slices created").build();
         }
 
-        TandemIterator titerator = new TandemIterator(partitions.iterator(), lockedWorkers.iterator());
+        TandemIterator titerator = new TandemIterator(jobSlices.iterator(), lockedWorkers.iterator());
         JobStatus jobStatus = new JobStatus(job);
 
-        // Submit the partition to the worker
+        // Submit the slice to the worker
         while (titerator.hasNext()) {
             TandemIterator.Pair pair = titerator.next();
-            workerControlFactory.getWorkerControl(pair.workerMetadata).submitPartition(job.getJobId(), pair.partition);
-            jobStatus.addPartitionStatus(new PartitionStatus(pair.partition, pair.workerMetadata));
+            workerControlFactory.getWorkerControl(pair.workerMetadata).submitSlice(job.getJobId(), pair.jobSlice);
+            jobStatus.addSliceStatus(new SliceStatus(pair.jobSlice, pair.workerMetadata));
         }
 
         // Save the JobStatus for our accounting
-        jobStatus.setFullyPartitioned();
+        jobStatus.setFullySliced();
         synchronized (this) {
             jobs.put(job.getJobId(), jobStatus);
         }
@@ -168,14 +168,13 @@ public final class JobFarmer {
     }
 
     /**
-     * Handle a completed partition
+     * Handle a completed slice
      *
      * @param jobId                       The jobId that this taskProgressReport is for
-     * @param taskPartitionFinishedReport The results data
+     * @param sliceFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
-    public Response handlePartitionFinishedReport(UUID jobId,
-        TaskPartitionFinishedReport taskPartitionFinishedReport) {
+    public Response handleSliceFinishedReport(UUID jobId, SliceFinishedReport sliceFinishedReport) {
 
         WorkerControl workerControl;
         JobStatus jobStatus;
@@ -186,12 +185,12 @@ public final class JobFarmer {
             }
 
             jobStatus = jobs.get(jobId);
-            PartitionStatus partitionStatus =
-                jobStatus.getPartitionStatus(taskPartitionFinishedReport.getPartitionId());
-            logger.info("Partition <" + partitionStatus.getPartition().getPartitionId() + "> finished");
-            partitionStatus.setFinished(taskPartitionFinishedReport.getDuration());
+            SliceStatus sliceStatus =
+                jobStatus.getSliceStatus(sliceFinishedReport.getSliceId());
+            logger.info("Slice <" + sliceStatus.getJobSlice().getSliceId() + "> finished");
+            sliceStatus.setFinished(sliceFinishedReport.getDuration());
 
-            workerControl = workerControlFactory.getWorkerControl(partitionStatus.getWorkerMetadata());
+            workerControl = workerControlFactory.getWorkerControl(sliceStatus.getWorkerMetadata());
         }
 
         workerControl.releaseLock(controllerId);
@@ -200,7 +199,7 @@ public final class JobFarmer {
             // Only set the totalDuration of the job when all workers have been started and have finished
             if (jobStatus.isFinished()) {
                 Duration totalDuration = Duration.ZERO;
-                for (PartitionStatus ps : jobStatus.getPartitionStatuses().values()) {
+                for (SliceStatus ps : jobStatus.getSliceStatuses().values()) {
                     totalDuration = totalDuration.plus(ps.getDuration());
                 }
                 jobStatus.setFinalDuration(totalDuration);
@@ -231,10 +230,10 @@ public final class JobFarmer {
     }
 
     final class TandemIterator implements Iterator<TandemIterator.Pair> {
-        private final Iterator<Partition> piterator;
+        private final Iterator<JobSlice> piterator;
         private final Iterator<WorkerMetadata> witerator;
 
-        TandemIterator(Iterator<Partition> piterator, Iterator<WorkerMetadata> witerator) {
+        TandemIterator(Iterator<JobSlice> piterator, Iterator<WorkerMetadata> witerator) {
             this.piterator = piterator;
             this.witerator = witerator;
         }
@@ -255,11 +254,11 @@ public final class JobFarmer {
         }
 
         class Pair {
-            final Partition partition;
+            final JobSlice jobSlice;
             final WorkerMetadata workerMetadata;
 
-            Pair(Partition partition, WorkerMetadata workerMetadata) {
-                this.partition = partition;
+            Pair(JobSlice jobSlice, WorkerMetadata workerMetadata) {
+                this.jobSlice = jobSlice;
                 this.workerMetadata = workerMetadata;
             }
         }

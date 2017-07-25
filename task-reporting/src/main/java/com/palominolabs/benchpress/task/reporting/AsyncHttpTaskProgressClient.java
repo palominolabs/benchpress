@@ -33,38 +33,38 @@ final class AsyncHttpTaskProgressClient implements TaskProgressClient {
     }
 
     @Override
-    public void reportFinished(UUID jobId, int partitionId, Duration duration) {
+    public void reportFinished(UUID jobId, int sliceId, Duration duration) {
         String finishedUrl = jobRegistry.getFinishedUrl(jobId);
         if (finishedUrl == null) {
             logger.warn("Couldn't get finished url for job id " + jobId);
             return;
         }
 
-        TaskPartitionFinishedReport report = new TaskPartitionFinishedReport(partitionId, duration);
+        SliceFinishedReport report = new SliceFinishedReport(sliceId, duration);
         logger.info(
-            "Posting finished report for job <" + jobId + "> partition <" + partitionId + "> to <" + finishedUrl + ">");
+            "Posting finished report for job <" + jobId + "> slice <" + sliceId + "> to <" + finishedUrl + ">");
 
         try {
-            sendPost(finishedUrl, report, jobId, partitionId);
+            sendPost(finishedUrl, report, jobId, sliceId);
         } catch (IOException e) {
-            logger.warn("Couldn't report finished for jobId " + jobId + ", partition " + partitionId, e);
+            logger.warn("Couldn't report finished for jobId " + jobId + ", slice " + sliceId, e);
         }
     }
 
-    private void sendPost(String url, AbstractTaskReport report, UUID jobId, int partitionId) throws IOException {
+    private void sendPost(String url, AbstractTaskReport report, UUID jobId, int sliceId) throws IOException {
         httpClient.preparePost(url).setHeader("Content-Type", "application/json")
             .setBody(objectWriter.writeValueAsBytes(report))
-            .execute(new LoggingHandler(jobId, partitionId));
+            .execute(new LoggingHandler(jobId, sliceId));
     }
 
     private static class LoggingHandler extends AsyncCompletionHandler<Response> {
 
         private final UUID jobId;
-        private final int partitionId;
+        private final int sliceId;
 
-        LoggingHandler(UUID jobId, int partitionId) {
+        LoggingHandler(UUID jobId, int sliceId) {
             this.jobId = jobId;
-            this.partitionId = partitionId;
+            this.sliceId = sliceId;
         }
 
         @Override
@@ -77,7 +77,7 @@ final class AsyncHttpTaskProgressClient implements TaskProgressClient {
 
         @Override
         public void onThrowable(Throwable t) {
-            logger.warn("Couldn't report for jobId " + jobId + ", partition " + partitionId, t);
+            logger.warn("Couldn't report for jobId " + jobId + ", slice " + sliceId, t);
         }
     }
 }

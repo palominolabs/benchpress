@@ -37,7 +37,7 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
 
     @Nonnull
     @Override
-    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int partitionId, @Nonnull UUID workerId,
+    public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
         @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
         mongo = new Mongo(this.hostname, this.port);
         int quantaPerThread = numQuanta / numThreads;
@@ -48,7 +48,7 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
 
             runnables.add(new MongoDbRunnable(taskOperation, db, collectionName,
                 keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
-                jobId, workerId, partitionId, quantaPerThread, batchSize
+                jobId, workerId, sliceId, quantaPerThread, batchSize
             ));
         }
 

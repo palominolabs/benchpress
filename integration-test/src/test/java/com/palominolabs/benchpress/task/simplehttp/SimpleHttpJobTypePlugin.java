@@ -6,17 +6,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.ControllerComponentFactory;
-import com.palominolabs.benchpress.job.task.TaskPartitioner;
-import com.palominolabs.benchpress.job.task.TaskPlugin;
+import com.palominolabs.benchpress.job.task.JobSlicer;
+import com.palominolabs.benchpress.job.task.JobTypePlugin;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
-public final class SimpleHttpTaskPlugin implements TaskPlugin {
+public final class SimpleHttpJobTypePlugin implements JobTypePlugin {
 
     public static final String TASK_TYPE = "simple-http";
 
     @Inject
-    SimpleHttpTaskPlugin() {
+    SimpleHttpJobTypePlugin() {
     }
 
     @Nonnull
@@ -35,8 +35,8 @@ public final class SimpleHttpTaskPlugin implements TaskPlugin {
         return new ControllerComponentFactory() {
             @Nonnull
             @Override
-            public TaskPartitioner getTaskPartitioner() {
-                return new SimpleHttpTaskPartitioner();
+            public JobSlicer getJobSlicer() {
+                return new SimpleHttpJobSlicer();
             }
         };
     }
