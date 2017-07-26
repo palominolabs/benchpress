@@ -4,11 +4,9 @@ import com.palominolabs.benchpress.example.multidb.task.ComponentFactoryBase;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 final class MongoDbComponentFactory extends ComponentFactoryBase implements ComponentFactory {
 
@@ -27,11 +25,5 @@ final class MongoDbComponentFactory extends ComponentFactoryBase implements Comp
         return new MongoDbTaskFactory(config.getTaskOperation(), getValueGeneratorFactory(config),
             config.getBatchSize(), getKeyGeneratorFactory(config), config.getNumQuanta(), config.getNumThreads(),
             config.getHostname(), config.getPort(), config.getDbName(), config.getCollectionName());
-    }
-
-    @Nullable
-    @Override
-    public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
-        return null;
     }
 }

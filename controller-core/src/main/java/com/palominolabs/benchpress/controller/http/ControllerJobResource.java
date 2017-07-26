@@ -3,10 +3,12 @@ package com.palominolabs.benchpress.controller.http;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.controller.JobFarmer;
-import com.palominolabs.benchpress.job.JobStatus;
+import com.palominolabs.benchpress.controller.JobStatusResponse;
 import com.palominolabs.benchpress.job.json.Job;
+import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.logging.MdcKeys;
 import com.palominolabs.benchpress.task.reporting.SliceFinishedReport;
+import com.palominolabs.benchpress.task.reporting.SliceProgressReport;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.Consumes;
@@ -31,21 +33,20 @@ public final class ControllerJobResource {
     }
 
     /**
-     * @param job The job to start
+     * @param task The workload to start
      * @return 202 and the Job object as JSON, 412 on failure
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response submit(Job job) {
-        MDC.put(MdcKeys.JOB_ID, job.getJobId().toString());
+    public Response submit(Task task) {
+        UUID jobId = UUID.randomUUID();
+        MDC.put(MdcKeys.JOB_ID, jobId.toString());
 
-        Response response;
         try {
-            response = jobFarmer.submitJob(job);
+            return jobFarmer.submitJob(new Job(task, jobId));
         } finally {
             MDC.remove(MdcKeys.JOB_ID);
         }
-        return response;
     }
 
     @GET
@@ -71,13 +72,24 @@ public final class ControllerJobResource {
     public Response reportFinished(@PathParam("jobId") UUID jobId, SliceFinishedReport sliceFinishedReport) {
         MDC.put(MdcKeys.JOB_ID, jobId.toString());
 
-        Response response;
         try {
-            response = jobFarmer.handleSliceFinishedReport(jobId, sliceFinishedReport);
+            return jobFarmer.handleSliceFinishedReport(jobId, sliceFinishedReport);
         } finally {
             MDC.remove(MdcKeys.JOB_ID);
         }
-        return response;
+    }
+
+    @POST
+    @Path("{jobId}/report/progress")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response reportProgress(@PathParam("jobId") UUID jobId, SliceProgressReport sliceProgressReport) {
+        MDC.put(MdcKeys.JOB_ID, jobId.toString());
+
+        try {
+            return jobFarmer.handleSliceProgressReport(jobId, sliceProgressReport);
+        } finally {
+            MDC.remove(MdcKeys.JOB_ID);
+        }
     }
 
     /**
@@ -88,15 +100,13 @@ public final class ControllerJobResource {
      */
     @GET
     @Path("{jobId}")
-    public JobStatus get(@PathParam("jobId") UUID jobId) {
+    public JobStatusResponse get(@PathParam("jobId") UUID jobId) {
         MDC.put(MdcKeys.JOB_ID, jobId.toString());
 
-        JobStatus job;
         try {
-            job = jobFarmer.getJob(jobId);
+            return jobFarmer.getJobStatus(jobId);
         } finally {
             MDC.remove(MdcKeys.JOB_ID);
         }
-        return job;
     }
 }

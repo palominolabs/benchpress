@@ -51,7 +51,6 @@ public final class WorkerAdvertiserTest {
 
                 bind(WorkerAdvertiser.class);
                 install(new CuratorModule());
-                install(new QueueProviderModule());
 
                 bind(SliceRunner.class);
                 install(new JobRegistryModule());

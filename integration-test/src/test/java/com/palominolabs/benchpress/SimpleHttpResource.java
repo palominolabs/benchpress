@@ -19,7 +19,6 @@ public final class SimpleHttpResource {
 
     @GET
     public String get() {
-        counter.incrementAndGet();
-        return "ok";
+        return "counter: " + counter.incrementAndGet();
     }
 }

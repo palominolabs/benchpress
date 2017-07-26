@@ -7,12 +7,10 @@ import com.palominolabs.benchpress.example.multidb.task.TaskFactoryBase;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
-import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
-import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
 
+import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -26,8 +24,8 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
     private Mongo mongo;
 
     MongoDbTaskFactory(TaskOperation taskOperation, ValueGeneratorFactory valueGeneratorFactory, int batchSize,
-        KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, String hostname,
-        int port, String dbName, String collectionName) {
+            KeyGeneratorFactory keyGeneratorFactory, int numQuanta, int numThreads, String hostname,
+            int port, String dbName, String collectionName) {
         super(taskOperation, valueGeneratorFactory, batchSize, keyGeneratorFactory, numQuanta, numThreads);
         this.hostname = hostname;
         this.port = port;
@@ -38,7 +36,7 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
     @Nonnull
     @Override
     public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
-        @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
+            @Nonnull TaskProgressClient taskProgressClient) throws IOException {
         mongo = new Mongo(this.hostname, this.port);
         int quantaPerThread = numQuanta / numThreads;
 
@@ -47,8 +45,8 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
             DB db = mongo.getDB(this.dbName);
 
             runnables.add(new MongoDbRunnable(taskOperation, db, collectionName,
-                keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
-                jobId, workerId, sliceId, quantaPerThread, batchSize
+                    keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
+                    jobId, workerId, sliceId, quantaPerThread, batchSize
             ));
         }
 

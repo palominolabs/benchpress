@@ -9,7 +9,6 @@ import com.palominolabs.benchpress.job.registry.JobRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.JobTypePluginRegistry;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import java.time.Duration;
 import java.time.Instant;
@@ -53,17 +52,14 @@ public final class SliceRunner {
     private final JobRegistry jobRegistry;
 
     private final ObjectReader objectReader;
-    private final TaskOutputQueueProvider taskOutputQueueProvider;
     private final JobTypePluginRegistry jobTypePluginRegistry;
 
     @Inject
     SliceRunner(TaskProgressClient taskProgressClient, JobRegistry jobRegistry, @Ipc ObjectReader objectReader,
-        TaskOutputQueueProvider taskOutputQueueProvider,
         JobTypePluginRegistry jobTypePluginRegistry) {
         this.taskProgressClient = taskProgressClient;
         this.jobRegistry = jobRegistry;
         this.objectReader = objectReader;
-        this.taskOutputQueueProvider = taskOutputQueueProvider;
         this.jobTypePluginRegistry = jobTypePluginRegistry;
 
         // TODO lifecycle would be nice for this
@@ -90,8 +86,8 @@ public final class SliceRunner {
 
         Collection<Runnable> runnables;
         try {
-            runnables = tf.getRunnables(jobSlice.getJobId(), jobSlice.getSliceId(), workerId,
-                taskOutputQueueProvider, componentFactory.getTaskOutputProcessorFactory());
+            runnables = tf.getRunnables(jobSlice.getJobId(), jobSlice.getSliceId(), workerId, taskProgressClient
+            );
         } catch (IOException e) {
             logger.warn("Couldn't make runnables", e);
             return false;
@@ -103,7 +99,7 @@ public final class SliceRunner {
 
         completionService.submit(
             new TaskThreadWatcher(futures, jobSlice.getSliceId(), jobSlice.getJobId(), taskProgressClient,
-                jobRegistry, taskOutputQueueProvider), null);
+                jobRegistry), null);
 
         return true;
     }
@@ -151,17 +147,14 @@ public final class SliceRunner {
         private final UUID jobId;
         private final TaskProgressClient taskProgressClient;
         private final JobRegistry jobRegistry;
-        private final TaskOutputQueueProvider taskOutputQueueProvider;
 
         private TaskThreadWatcher(Set<Future<Void>> futures, int sliceId, UUID jobId,
-            TaskProgressClient taskProgressClient, JobRegistry jobRegistry,
-            TaskOutputQueueProvider taskOutputQueueProvider) {
+            TaskProgressClient taskProgressClient, JobRegistry jobRegistry) {
             this.futures = futures;
             this.sliceId = sliceId;
             this.jobId = jobId;
             this.taskProgressClient = taskProgressClient;
             this.jobRegistry = jobRegistry;
-            this.taskOutputQueueProvider = taskOutputQueueProvider;
         }
 
         @Override
@@ -195,7 +188,6 @@ public final class SliceRunner {
 
                 taskProgressClient.reportFinished(jobId, sliceId, Duration.between(start, Instant.now()));
                 jobRegistry.removeJob(jobId);
-                taskOutputQueueProvider.removeJob(jobId);
 
                 watcherLogger.info("All task threads finished");
             } finally {

@@ -11,6 +11,10 @@ public final class Task {
 
     private final JsonNode configNode;
 
+    /**
+     * @param taskType   task type
+     * @param configNode config json. This claims ownership of the node object.
+     */
     @JsonCreator
     public Task(@JsonProperty("type") String taskType, @JsonProperty("config") JsonNode configNode) {
         this.taskType = taskType;

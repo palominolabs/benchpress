@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.Map;
 import java.util.UUID;
@@ -23,23 +24,25 @@ final class MemoryJobRegistry implements JobRegistry {
         data.put(jobId, new JobData(progressUrl, finishedUrl));
     }
 
+    @Nonnull
     @Override
     public synchronized String getProgressUrl(UUID jobId) {
         JobData j = data.get(jobId);
 
         if (j == null) {
-            return null;
+            throw new IllegalArgumentException("Could not find progress url for job " + jobId);
         }
 
         return j.progressUrl;
     }
 
+    @Nonnull
     @Override
     public synchronized String getFinishedUrl(UUID jobId) {
         JobData j = data.get(jobId);
 
         if (j == null) {
-            return null;
+            throw new IllegalArgumentException("Could not find finished url for job " + jobId);
         }
 
         return j.finishedUrl;

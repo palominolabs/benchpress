@@ -4,11 +4,9 @@ import com.palominolabs.benchpress.example.multidb.task.ComponentFactoryBase;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactoryFactoryRegistry;
 import com.palominolabs.benchpress.job.task.ComponentFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactoryFactoryRegistry;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 final class HbaseComponentFactory extends ComponentFactoryBase implements ComponentFactory {
 
@@ -29,11 +27,5 @@ final class HbaseComponentFactory extends ComponentFactoryBase implements Compon
             config.getQualifier(), config.isAutoFlush(), config.getWriteBufferSize(), getValueGeneratorFactory(config),
             getKeyGeneratorFactory(config), config.getTaskOperation(), config.getNumThreads(), config.getNumQuanta(),
             config.getBatchSize());
-    }
-
-    @Nullable
-    @Override
-    public TaskOutputProcessorFactory getTaskOutputProcessorFactory() {
-        return null;
     }
 }

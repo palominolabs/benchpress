@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.palominolabs.benchpress.job.json.JobSlice;
 
+import com.palominolabs.benchpress.job.json.Task;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +30,6 @@ public interface JobSlicer {
      * @throws IOException if slicing fails
      */
     @Nonnull
-    List<JobSlice> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
+    List<Task> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
             ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException;
 }

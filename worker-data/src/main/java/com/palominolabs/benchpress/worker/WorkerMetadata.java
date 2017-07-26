@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.UUID;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public final class WorkerMetadata {
 
     @JsonProperty("workerId")

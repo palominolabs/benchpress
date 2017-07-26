@@ -1,5 +1,6 @@
 package com.palominolabs.benchpress.task.reporting;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Duration;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.UUID;
@@ -11,4 +12,6 @@ public interface TaskProgressClient {
      * Indicates that all threads for the task have completed
      */
     void reportFinished(UUID jobId, int sliceId, Duration duration);
+
+    void reportProgress(UUID jobId, int sliceId, JsonNode data);
 }

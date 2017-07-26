@@ -5,18 +5,18 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.palominolabs.benchpress.ipc.Ipc;
-import com.palominolabs.benchpress.job.JobStatus;
-import com.palominolabs.benchpress.job.SliceStatus;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.JobSlice;
+import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.task.JobSlicer;
 import com.palominolabs.benchpress.job.task.JobTypePluginRegistry;
 import com.palominolabs.benchpress.task.reporting.SliceFinishedReport;
+import com.palominolabs.benchpress.task.reporting.SliceProgressReport;
 import com.palominolabs.benchpress.worker.WorkerControl;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
 import java.io.IOException;
-import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -109,37 +109,42 @@ public final class JobFarmer {
 
         // TODO unlock locked workers if job slicing, etc. fails to avoid losing workers permanently
 
-        List<JobSlice> jobSlices;
+        List<Task> tasks;
         try {
             JobSlicer jobSlicer =
-                jobTypePluginRegistry.get(job.getTask().getTaskType()).getControllerComponentFactory(
-                    objectReader, job.getTask().getConfigNode()).getJobSlicer();
+                    jobTypePluginRegistry.get(job.getTask().getTaskType()).getControllerComponentFactory(
+                            objectReader, job.getTask().getConfigNode()).getJobSlicer();
 
-            jobSlices = jobSlicer
-                .slice(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
-                    getFinishedUrl(job.getJobId()), objectReader, job.getTask().getConfigNode(), objectWriter);
+            tasks = jobSlicer
+                    .slice(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
+                            getFinishedUrl(job.getJobId()), objectReader, job.getTask().getConfigNode(), objectWriter);
         } catch (IOException e) {
             logger.warn("Failed to slice job", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
-        if (jobSlices.isEmpty()) {
+        if (tasks.isEmpty()) {
             logger.warn("No slices created");
             return Response.status(Response.Status.PRECONDITION_FAILED).entity("No slices created").build();
         }
 
-        TandemIterator titerator = new TandemIterator(jobSlices.iterator(), lockedWorkers.iterator());
-        JobStatus jobStatus = new JobStatus(job);
+        TandemIterator<Task, WorkerMetadata> titerator = new TandemIterator<>(tasks.iterator(), lockedWorkers.iterator());
 
         // Submit the slice to the worker
+        List<SliceMetadata> jobSlices = new ArrayList<>();
+        int sliceId = 0;
         while (titerator.hasNext()) {
-            TandemIterator.Pair pair = titerator.next();
-            workerControlFactory.getWorkerControl(pair.workerMetadata).submitSlice(job.getJobId(), pair.jobSlice);
-            jobStatus.addSliceStatus(new SliceStatus(pair.jobSlice, pair.workerMetadata));
+            TandemIterator<Task, WorkerMetadata>.Pair pair = titerator.next();
+            JobSlice slice = new JobSlice(job.getJobId(), sliceId, pair.first, getProgressUrl(job.getJobId()),
+                    getFinishedUrl(job.getJobId()));
+
+            workerControlFactory.getWorkerControl(pair.second).submitSlice(job.getJobId(), slice);
+            jobSlices.add(new SliceMetadata(pair.first, pair.second));
         }
 
+        JobStatus jobStatus = new JobStatus(job, jobSlices);
+
         // Save the JobStatus for our accounting
-        jobStatus.setFullySliced();
         synchronized (this) {
             jobs.put(job.getJobId(), jobStatus);
         }
@@ -154,8 +159,8 @@ public final class JobFarmer {
      * @param jobId The job to retrieve
      * @return A Job object corresponding to the given jobId
      */
-    public synchronized JobStatus getJob(UUID jobId) {
-        return jobs.get(jobId);
+    public synchronized JobStatusResponse getJobStatus(UUID jobId) {
+        return jobs.get(jobId).buildStatusResponse();
     }
 
     /**
@@ -170,43 +175,46 @@ public final class JobFarmer {
     /**
      * Handle a completed slice
      *
-     * @param jobId                       The jobId that this taskProgressReport is for
+     * @param jobId               The jobId that this taskProgressReport is for
      * @param sliceFinishedReport The results data
      * @return ACCEPTED if we handled the taskProgressReport, NOT_FOUND if this farmer doesn't know the given jobId
      */
     public Response handleSliceFinishedReport(UUID jobId, SliceFinishedReport sliceFinishedReport) {
 
         WorkerControl workerControl;
-        JobStatus jobStatus;
         synchronized (this) {
             if (!jobs.containsKey(jobId)) {
                 logger.warn("Couldn't find job <" + jobId + ">");
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            jobStatus = jobs.get(jobId);
-            SliceStatus sliceStatus =
-                jobStatus.getSliceStatus(sliceFinishedReport.getSliceId());
-            logger.info("Slice <" + sliceStatus.getJobSlice().getSliceId() + "> finished");
-            sliceStatus.setFinished(sliceFinishedReport.getDuration());
+            JobStatus jobStatus = jobs.get(jobId);
+            int sliceId = sliceFinishedReport.getSliceId();
+            jobStatus.sliceFinished(sliceId, sliceFinishedReport.getDuration());
+            logger.info("Slice <" + sliceId + "> finished");
 
-            workerControl = workerControlFactory.getWorkerControl(sliceStatus.getWorkerMetadata());
+            workerControl = workerControlFactory.getWorkerControl(jobStatus.getWorkerMetadata(sliceId));
         }
 
         workerControl.releaseLock(controllerId);
 
+        return Response.status(Response.Status.ACCEPTED).build();
+    }
+
+    public Response handleSliceProgressReport(UUID jobId, SliceProgressReport sliceProgressReport) {
         synchronized (this) {
-            // Only set the totalDuration of the job when all workers have been started and have finished
-            if (jobStatus.isFinished()) {
-                Duration totalDuration = Duration.ZERO;
-                for (SliceStatus ps : jobStatus.getSliceStatuses().values()) {
-                    totalDuration = totalDuration.plus(ps.getDuration());
-                }
-                jobStatus.setFinalDuration(totalDuration);
+            if (!jobs.containsKey(jobId)) {
+                logger.warn("Couldn't find job <" + jobId + ">");
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
+
+            JobStatus jobStatus = jobs.get(jobId);
+            int sliceId = sliceProgressReport.getSliceId();
+            jobStatus.sliceProgress(sliceId, sliceProgressReport.getData());
+            logger.info("Slice <" + sliceId + "> reported progress");
         }
 
-        return Response.status(Response.Status.ACCEPTED).build();
+        return Response.ok().build();
     }
 
     public synchronized void setListenAddress(String httpListenHost) {
@@ -229,23 +237,23 @@ public final class JobFarmer {
         return "http://" + httpListenHost + ":" + httpListenPort + "/controller/job/" + jobId + FINISHED_PATH;
     }
 
-    final class TandemIterator implements Iterator<TandemIterator.Pair> {
-        private final Iterator<JobSlice> piterator;
-        private final Iterator<WorkerMetadata> witerator;
+    final class TandemIterator<S, T> implements Iterator<TandemIterator<S, T>.Pair> {
+        private final Iterator<S> iter1;
+        private final Iterator<T> iter2;
 
-        TandemIterator(Iterator<JobSlice> piterator, Iterator<WorkerMetadata> witerator) {
-            this.piterator = piterator;
-            this.witerator = witerator;
+        TandemIterator(Iterator<S> iter1, Iterator<T> iter2) {
+            this.iter1 = iter1;
+            this.iter2 = iter2;
         }
 
         @Override
         public boolean hasNext() {
-            return piterator.hasNext() && witerator.hasNext();
+            return iter1.hasNext() && iter2.hasNext();
         }
 
         @Override
         public Pair next() {
-            return new Pair(piterator.next(), witerator.next());
+            return new Pair(iter1.next(), iter2.next());
         }
 
         @Override
@@ -254,12 +262,12 @@ public final class JobFarmer {
         }
 
         class Pair {
-            final JobSlice jobSlice;
-            final WorkerMetadata workerMetadata;
+            final S first;
+            final T second;
 
-            Pair(JobSlice jobSlice, WorkerMetadata workerMetadata) {
-                this.jobSlice = jobSlice;
-                this.workerMetadata = workerMetadata;
+            Pair(S first, T second) {
+                this.first = first;
+                this.second = second;
             }
         }
     }

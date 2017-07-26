@@ -22,12 +22,12 @@ public abstract class JobSlicerBase implements JobSlicer {
 
     @Nonnull
     @Override
-    public List<JobSlice> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
+    public List<Task> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
             ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException {
 
         TaskConfigBase c = getConfig();
 
-        List<JobSlice> jobSlices = new ArrayList<>();
+        List<Task> tasks = new ArrayList<>();
 
         int quantaPerSlice = (int) Math.ceil(c.getNumQuanta() / workers);
         for (int sliceId = 0; sliceId < workers; sliceId++) {
@@ -48,12 +48,11 @@ public abstract class JobSlicerBase implements JobSlicer {
                     objectReader.readValue(jp, JsonNode.class);
             jp.close();
 
-            JobSlice jobSlice =
-                    new JobSlice(jobId, sliceId, new Task(getTaskType(), newJsonNode), progressUrl, finishedUrl);
-            jobSlices.add(jobSlice);
+            Task task = new Task(getTaskType(), newJsonNode);
+            tasks.add(task);
         }
 
-        return jobSlices;
+        return tasks;
     }
 
     /**

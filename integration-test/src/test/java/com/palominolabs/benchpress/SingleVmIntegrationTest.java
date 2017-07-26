@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -34,11 +33,9 @@ import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
-import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
-import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskOutputProcessor;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpJobTypePlugin;
+import com.palominolabs.benchpress.task.simplehttp.SimpleHttpTaskModule;
 import com.palominolabs.benchpress.worker.SliceRunner;
-import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.worker.WorkerControlFactory;
 import com.palominolabs.benchpress.worker.WorkerMetadata;
@@ -159,7 +156,6 @@ public class SingleVmIntegrationTest {
                 install(new IpcHttpClientModule());
                 install(new TaskPluginRegistryModule());
                 install(new WorkerResourceModule());
-                install(new QueueProviderModule());
                 bind(SliceRunner.class);
 
                 // custom task
@@ -261,13 +257,13 @@ public class SingleVmIntegrationTest {
 
         configNode.put("url", getUrlPrefix() + "/simple-http-test-endpoint");
 
-        Job j = new Job(new Task(SimpleHttpJobTypePlugin.TASK_TYPE, configNode), null);
+        Task task = new Task(SimpleHttpJobTypePlugin.TASK_TYPE, configNode);
 
         // submit job
 
         Response response = asyncHttpClient.preparePost(
                 getUrlPrefix() + "/controller/job")
-                .setBody(objectWriter.writeValueAsString(j))
+                .setBody(objectWriter.writeValueAsString(task))
                 .addHeader("Content-Type", MediaType.APPLICATION_JSON)
                 .execute(new AsyncCompletionHandler<Response>() {
                     @Override
@@ -277,19 +273,20 @@ public class SingleVmIntegrationTest {
                 }).get();
 
         assertEquals(ACCEPTED.getStatusCode(), response.getStatusCode());
+        Job job = objectReader.forType(Job.class).readValue(response.getResponseBodyAsStream());
 
         // wait for job to be done
 
         boolean timedOut = true;
         Instant start = Instant.now();
+        JsonNode jobStatus = null;
         while (Duration.between(start, Instant.now()).getSeconds() < 5) {
-            String url = getUrlPrefix() + "/controller/job/" + j.getJobId();
-            JsonNode node = objectReader.forType(JsonNode.class)
+            String url = getUrlPrefix() + "/controller/job/" + job.getJobId();
+            jobStatus = objectReader.forType(JsonNode.class)
                     .readValue(asyncHttpClient.prepareGet(url).execute().get().getResponseBody());
 
             // we always use slice id 1, hard coded into simple http task
-            ObjectNode sliceStatus = (ObjectNode) node.path("sliceStatuses").path("1");
-            System.out.println(sliceStatus.toString());
+            ObjectNode sliceStatus = (ObjectNode) jobStatus.path("slices").path(0);
 
             if (sliceStatus.get("finished").asBoolean()) {
                 timedOut = false;
@@ -305,11 +302,9 @@ public class SingleVmIntegrationTest {
         // and should have hit the resource
         assertEquals(1, simpleHttpResource.counter.get());
 
-        // and the output processor should have gotten a single "foo"
-        // noinspection rawtypes
-        assertEquals(Lists.newArrayList((Object) "foo"), SimpleHttpTaskOutputProcessor.INSTANCE.getObjects());
-
-        assertEquals(1, SimpleHttpTaskOutputProcessor.INSTANCE.getCloseCount());
+        // should have reported progress with the value of the counter
+        String progressData = jobStatus.at("/slices/0/progress/0/data").asText();
+        assertEquals("counter: 1", progressData);
     }
 
     private String getUrlPrefix() {

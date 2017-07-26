@@ -1,5 +1,6 @@
 package com.palominolabs.benchpress.task.reporting;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -35,10 +36,6 @@ final class AsyncHttpTaskProgressClient implements TaskProgressClient {
     @Override
     public void reportFinished(UUID jobId, int sliceId, Duration duration) {
         String finishedUrl = jobRegistry.getFinishedUrl(jobId);
-        if (finishedUrl == null) {
-            logger.warn("Couldn't get finished url for job id " + jobId);
-            return;
-        }
 
         SliceFinishedReport report = new SliceFinishedReport(sliceId, duration);
         logger.info(
@@ -48,6 +45,21 @@ final class AsyncHttpTaskProgressClient implements TaskProgressClient {
             sendPost(finishedUrl, report, jobId, sliceId);
         } catch (IOException e) {
             logger.warn("Couldn't report finished for jobId " + jobId + ", slice " + sliceId, e);
+        }
+    }
+
+    @Override
+    public void reportProgress(UUID jobId, int sliceId, JsonNode data) {
+        String url = jobRegistry.getProgressUrl(jobId);
+
+        SliceProgressReport report = new SliceProgressReport(sliceId, data);
+        logger.info(
+                "Posting progress report for job <" + jobId + "> slice <" + sliceId + "> to <" + url + ">");
+
+        try {
+            sendPost(url, report, jobId, sliceId);
+        } catch (IOException e) {
+            logger.warn("Couldn't report progress for jobId " + jobId + ", slice " + sliceId, e);
         }
     }
 

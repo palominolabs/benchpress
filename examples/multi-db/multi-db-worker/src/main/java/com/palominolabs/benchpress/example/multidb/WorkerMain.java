@@ -15,7 +15,6 @@ import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.worker.SliceRunner;
-import com.palominolabs.benchpress.worker.QueueProviderModule;
 import com.palominolabs.benchpress.worker.WorkerAdvertiser;
 import com.palominolabs.benchpress.curator.CuratorModule;
 import com.palominolabs.benchpress.worker.WorkerJerseyApp;
@@ -105,7 +104,6 @@ public final class WorkerMain {
             install(new CuratorModule());
             install(new ConfigModuleBuilder().build());
             install(new JobRegistryModule());
-            install(new QueueProviderModule());
 
             install(new WorkerResourceModule());
             bind(SliceRunner.class);

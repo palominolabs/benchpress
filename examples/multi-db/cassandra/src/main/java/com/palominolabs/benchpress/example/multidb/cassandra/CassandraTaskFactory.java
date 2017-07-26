@@ -15,12 +15,10 @@ import com.palominolabs.benchpress.example.multidb.task.TaskFactoryBase;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
-import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
-import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
 
+import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,24 +49,24 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
     @Nonnull
     @Override
     public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
-        @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
+            @Nonnull TaskProgressClient taskProgressClient) throws IOException {
 
         context = new AstyanaxContext.Builder().forCluster(clusterName)
-            .forKeyspace(keyspaceName)
-            .withAstyanaxConfiguration(new AstyanaxConfigurationImpl().setDiscoveryType(NodeDiscoveryType.NONE))
-            .withConnectionPoolConfiguration(new ConnectionPoolConfigurationImpl("defaultConnPool")
-                .setPort(port)
-                .setMaxConnsPerHost(100)
-                .setSeeds(seeds))
-            .withConnectionPoolMonitor(new Slf4jConnectionPoolMonitorImpl())
-            .buildKeyspace(ThriftFamilyFactory.getInstance());
+                .forKeyspace(keyspaceName)
+                .withAstyanaxConfiguration(new AstyanaxConfigurationImpl().setDiscoveryType(NodeDiscoveryType.NONE))
+                .withConnectionPoolConfiguration(new ConnectionPoolConfigurationImpl("defaultConnPool")
+                        .setPort(port)
+                        .setMaxConnsPerHost(100)
+                        .setSeeds(seeds))
+                .withConnectionPoolMonitor(new Slf4jConnectionPoolMonitorImpl())
+                .buildKeyspace(ThriftFamilyFactory.getInstance());
 
         context.start();
 
         Keyspace keyspace = context.getEntity();
 
         ColumnFamily<byte[], byte[]> cfDef =
-            new ColumnFamily<>(columnFamilyName, BytesArraySerializer.get(), BytesArraySerializer.get());
+                new ColumnFamily<>(columnFamilyName, BytesArraySerializer.get(), BytesArraySerializer.get());
 
         ArrayList<Runnable> runnables = Lists.newArrayList();
 
@@ -76,7 +74,7 @@ final class CassandraTaskFactory extends TaskFactoryBase implements TaskFactory 
 
         for (int i = 0; i < numThreads; i++) {
             runnables.add(new CassandraRunnable(taskOperation, keyGeneratorFactory.getKeyGenerator(), workerId, sliceId, numQuanta,
-                batchSize, jobId, valueGeneratorFactory.getValueGenerator(), keyspace, cfDef, colNameBytes));
+                    batchSize, jobId, valueGeneratorFactory.getValueGenerator(), keyspace, cfDef, colNameBytes));
         }
 
         return runnables;

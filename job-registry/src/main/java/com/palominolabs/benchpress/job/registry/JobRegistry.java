@@ -1,5 +1,6 @@
 package com.palominolabs.benchpress.job.registry;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.UUID;
@@ -16,14 +17,14 @@ public interface JobRegistry {
      * @param jobId job id
      * @return if the job exists in the registry, the url to send progress reports to
      */
-    @Nullable
+    @Nonnull
     String getProgressUrl(UUID jobId);
 
     /**
      * @param jobId job id
      * @return if the job exists in the registry, the url to send finished reports to
      */
-    @Nullable
+    @Nonnull
     String getFinishedUrl(UUID jobId);
 
     /**

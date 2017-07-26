@@ -6,15 +6,13 @@ import com.palominolabs.benchpress.example.multidb.task.TaskFactoryBase;
 import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
-import com.palominolabs.benchpress.job.task.TaskOutputProcessorFactory;
-import com.palominolabs.benchpress.job.task.TaskOutputQueueProvider;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
+import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -53,7 +51,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
     @Nonnull
     @Override
     public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
-        @Nonnull TaskOutputQueueProvider taskOutputQueueProvider, @Nullable TaskOutputProcessorFactory taskOutputProcessorFactory) throws IOException {
+            @Nonnull TaskProgressClient taskProgressClient) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         Configuration hBaseConfiguration = HBaseConfiguration.create();
@@ -71,11 +69,11 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
             }
 
             runnables
-                .add(
-                    new HbaseRunnable(taskOperation, hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
-                        keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
-                        jobId, workerId, sliceId, quantaPerThread, batchSize
-                    ));
+                    .add(
+                            new HbaseRunnable(taskOperation, hTable, columnFamily.getBytes(Charsets.UTF_8), qualifier.getBytes(Charsets.UTF_8),
+                                    keyGeneratorFactory.getKeyGenerator(), valueGeneratorFactory.getValueGenerator(),
+                                    jobId, workerId, sliceId, quantaPerThread, batchSize
+                            ));
         }
 
         return runnables;

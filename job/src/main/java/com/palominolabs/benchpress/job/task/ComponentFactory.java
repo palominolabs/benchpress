@@ -14,12 +14,4 @@ public interface ComponentFactory {
      */
     @Nonnull
     TaskFactory getTaskFactory();
-
-    /**
-     * Optional method. Return null if not using output processing.
-     *
-     * @return TaskOutputProcessorFactory to use, or null if not using output processors
-     */
-    @Nullable
-    TaskOutputProcessorFactory getTaskOutputProcessorFactory();
 }
