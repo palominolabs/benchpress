@@ -6,7 +6,7 @@ import com.palominolabs.benchpress.example.multidb.task.TaskFactoryBase;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
+import com.palominolabs.benchpress.task.reporting.ScopedProgressClient;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +40,7 @@ final class HbaseAsyncTaskFactory extends TaskFactoryBase implements TaskFactory
     @Nonnull
     @Override
     public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
-            @Nonnull TaskProgressClient taskProgressClient) throws IOException {
+            @Nonnull ScopedProgressClient progressClient) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         client = new HBaseClient(zkQuorum);

@@ -5,7 +5,7 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import com.palominolabs.benchpress.job.task.TaskFactory;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
+import com.palominolabs.benchpress.task.reporting.ScopedProgressClient;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +25,7 @@ final class SimpleHttpTaskFactory implements TaskFactory {
     @Nonnull
     @Override
     public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
-            @Nonnull TaskProgressClient taskProgressClient) throws IOException {
+            @Nonnull ScopedProgressClient progressClient) throws IOException {
         List<Runnable> runnables = newArrayList();
 
         runnables.add(() -> {
@@ -34,8 +34,7 @@ final class SimpleHttpTaskFactory implements TaskFactory {
                 client.prepareGet(url).execute(new AsyncCompletionHandler<Object>() {
                     @Override
                     public Object onCompleted(Response response) throws Exception {
-                        taskProgressClient.reportProgress(jobId, sliceId,
-                                new TextNode(response.getResponseBody()));
+                        progressClient.reportProgress(new TextNode(response.getResponseBody()));
                         return null;
                     }
                 }).get();

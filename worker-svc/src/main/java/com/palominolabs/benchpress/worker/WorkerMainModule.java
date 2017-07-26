@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.jersey.JerseySupportModule;
-import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.worker.http.WorkerResourceModule;
@@ -32,7 +31,6 @@ public final class WorkerMainModule extends AbstractModule {
         install(new IpcHttpClientModule());
         install(new IpcJsonModule());
         install(new TaskProgressClientModule());
-        install(new JobRegistryModule());
 
         bind(WorkerJerseyApp.class);
 

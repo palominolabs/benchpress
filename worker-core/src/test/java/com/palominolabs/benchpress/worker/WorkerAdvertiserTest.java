@@ -9,7 +9,6 @@ import com.google.inject.Injector;
 import com.palominolabs.benchpress.config.ZookeeperConfig;
 import com.palominolabs.benchpress.curator.InstanceSerializerFactory;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
-import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.NoOpTaskProgressClient;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
@@ -53,7 +52,6 @@ public final class WorkerAdvertiserTest {
                 install(new CuratorModule());
 
                 bind(SliceRunner.class);
-                install(new JobRegistryModule());
                 bind(TaskProgressClient.class).to(NoOpTaskProgressClient.class);
 
                 install(new TaskPluginRegistryModule());

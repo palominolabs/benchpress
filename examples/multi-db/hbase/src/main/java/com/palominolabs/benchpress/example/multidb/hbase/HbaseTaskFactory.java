@@ -7,7 +7,7 @@ import com.palominolabs.benchpress.example.multidb.key.KeyGeneratorFactory;
 import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
+import com.palominolabs.benchpress.task.reporting.ScopedProgressClient;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -51,7 +51,7 @@ final class HbaseTaskFactory extends TaskFactoryBase implements TaskFactory {
     @Nonnull
     @Override
     public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
-            @Nonnull TaskProgressClient taskProgressClient) throws IOException {
+            @Nonnull ScopedProgressClient progressClient) throws IOException {
         List<Runnable> runnables = Lists.newArrayList();
 
         Configuration hBaseConfiguration = HBaseConfiguration.create();

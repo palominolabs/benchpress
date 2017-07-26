@@ -11,7 +11,7 @@ public interface TaskProgressClient {
     /**
      * Indicates that all threads for the task have completed
      */
-    void reportFinished(UUID jobId, int sliceId, Duration duration);
+    void reportFinished(UUID jobId, int sliceId, Duration duration, String url);
 
-    void reportProgress(UUID jobId, int sliceId, JsonNode data);
+    void reportProgress(UUID jobId, int sliceId, JsonNode data, String url);
 }

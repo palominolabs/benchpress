@@ -30,7 +30,6 @@ import com.palominolabs.benchpress.jersey.JerseySupportModule;
 import com.palominolabs.benchpress.jersey.ObjectMapperContextResolver;
 import com.palominolabs.benchpress.job.json.Job;
 import com.palominolabs.benchpress.job.json.Task;
-import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.task.simplehttp.SimpleHttpJobTypePlugin;
@@ -151,7 +150,6 @@ public class SingleVmIntegrationTest {
                 install(new ControllerCoreModule());
 
                 // worker
-                install(new JobRegistryModule());
                 install(new TaskProgressClientModule());
                 install(new IpcHttpClientModule());
                 install(new TaskPluginRegistryModule());

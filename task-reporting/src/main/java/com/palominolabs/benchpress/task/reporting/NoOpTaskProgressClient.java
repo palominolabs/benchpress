@@ -10,12 +10,12 @@ import java.util.UUID;
  */
 public final class NoOpTaskProgressClient implements TaskProgressClient {
     @Override
-    public void reportFinished(UUID jobId, int sliceId, Duration duration) {
+    public void reportFinished(UUID jobId, int sliceId, Duration duration, String url) {
         // no op
     }
 
     @Override
-    public void reportProgress(UUID jobId, int sliceId, JsonNode data) {
+    public void reportProgress(UUID jobId, int sliceId, JsonNode data, String url) {
         // no op
     }
 }

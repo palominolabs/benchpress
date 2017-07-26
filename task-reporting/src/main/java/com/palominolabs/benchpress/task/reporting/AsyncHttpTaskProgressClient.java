@@ -8,14 +8,12 @@ import com.ning.http.client.AsyncCompletionHandler;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import com.palominolabs.benchpress.ipc.Ipc;
-import com.palominolabs.benchpress.job.registry.JobRegistry;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.UUID;
+import javax.annotation.concurrent.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.concurrent.ThreadSafe;
-import java.io.IOException;
-import java.util.UUID;
 
 @ThreadSafe
 @Singleton
@@ -23,35 +21,29 @@ final class AsyncHttpTaskProgressClient implements TaskProgressClient {
     private static final Logger logger = LoggerFactory.getLogger(AsyncHttpTaskProgressClient.class);
     private final AsyncHttpClient httpClient;
     private final ObjectWriter objectWriter;
-    private final JobRegistry jobRegistry;
 
     @Inject
-    AsyncHttpTaskProgressClient(@Ipc AsyncHttpClient httpClient, @Ipc ObjectWriter objectWriter,
-        JobRegistry jobRegistry) {
+    AsyncHttpTaskProgressClient(@Ipc AsyncHttpClient httpClient, @Ipc ObjectWriter objectWriter) {
         this.httpClient = httpClient;
         this.objectWriter = objectWriter;
-        this.jobRegistry = jobRegistry;
     }
 
     @Override
-    public void reportFinished(UUID jobId, int sliceId, Duration duration) {
-        String finishedUrl = jobRegistry.getFinishedUrl(jobId);
+    public void reportFinished(UUID jobId, int sliceId, Duration duration, String url) {
 
         SliceFinishedReport report = new SliceFinishedReport(sliceId, duration);
         logger.info(
-            "Posting finished report for job <" + jobId + "> slice <" + sliceId + "> to <" + finishedUrl + ">");
+            "Posting finished report for job <" + jobId + "> slice <" + sliceId + "> to <" + url + ">");
 
         try {
-            sendPost(finishedUrl, report, jobId, sliceId);
+            sendPost(url, report, jobId, sliceId);
         } catch (IOException e) {
             logger.warn("Couldn't report finished for jobId " + jobId + ", slice " + sliceId, e);
         }
     }
 
     @Override
-    public void reportProgress(UUID jobId, int sliceId, JsonNode data) {
-        String url = jobRegistry.getProgressUrl(jobId);
-
+    public void reportProgress(UUID jobId, int sliceId, JsonNode data, String url) {
         SliceProgressReport report = new SliceProgressReport(sliceId, data);
         logger.info(
                 "Posting progress report for job <" + jobId + "> slice <" + sliceId + "> to <" + url + ">");

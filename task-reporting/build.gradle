@@ -1,5 +1,4 @@
 dependencies {
-  compile project(':job-registry')
   compile project(':ipc')
 
   compile "com.google.code.findbugs:jsr305:${depVersions.jsr305}"

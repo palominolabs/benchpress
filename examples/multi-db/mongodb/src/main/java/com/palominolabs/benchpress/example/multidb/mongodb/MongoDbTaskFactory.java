@@ -9,7 +9,7 @@ import com.palominolabs.benchpress.job.task.TaskFactory;
 import com.palominolabs.benchpress.job.task.TaskOperation;
 import com.palominolabs.benchpress.example.multidb.value.ValueGeneratorFactory;
 
-import com.palominolabs.benchpress.task.reporting.TaskProgressClient;
+import com.palominolabs.benchpress.task.reporting.ScopedProgressClient;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
@@ -36,7 +36,7 @@ final class MongoDbTaskFactory extends TaskFactoryBase implements TaskFactory {
     @Nonnull
     @Override
     public Collection<Runnable> getRunnables(@Nonnull UUID jobId, int sliceId, @Nonnull UUID workerId,
-            @Nonnull TaskProgressClient taskProgressClient) throws IOException {
+            @Nonnull ScopedProgressClient progressClient) throws IOException {
         mongo = new Mongo(this.hostname, this.port);
         int quantaPerThread = numQuanta / numThreads;
 

@@ -11,7 +11,6 @@ import com.palominolabs.benchpress.ipc.IpcHttpClientModule;
 import com.palominolabs.benchpress.ipc.IpcJsonModule;
 import com.palominolabs.benchpress.jersey.GuiceServiceLocatorGenerator;
 import com.palominolabs.benchpress.jersey.JerseySupportModule;
-import com.palominolabs.benchpress.job.registry.JobRegistryModule;
 import com.palominolabs.benchpress.job.task.TaskPluginRegistryModule;
 import com.palominolabs.benchpress.task.reporting.TaskProgressClientModule;
 import com.palominolabs.benchpress.worker.SliceRunner;
@@ -103,7 +102,6 @@ public final class WorkerMain {
             install(new IpcHttpClientModule());
             install(new CuratorModule());
             install(new ConfigModuleBuilder().build());
-            install(new JobRegistryModule());
 
             install(new WorkerResourceModule());
             bind(SliceRunner.class);

@@ -6,7 +6,6 @@ dependencies {
   compile project(':logging')
   compile project(':job')
   compile project(':zookeeper')
-  compile project(':job-registry')
   compile project(':id-registry')
   compile project(':reflection-module')
   compile project(':worker-core')
