@@ -12,7 +12,7 @@ the respective directories and running:
 
     ./gradlew distZip
 
-The resulting `.zip` files in the respective `build/distributions` directories are all you need to deploy BenchPress nodes.
+The resulting `.zip` files in the respective `build/distributions` directories are all you need to deploy the core BenchPress code.
 
 ## Runing BenchPress
 
@@ -44,9 +44,9 @@ Look in `ControllerConfig` and `WorkerConfig` to see more. (Anything with method
 
 ## Submitting a job
 
-Jobs are submitted to the controller by PUTing to `/job`:
+Create a new job by submitting task JSON to the controller via PUTing to `/job`:
 
-    curl -X PUT -H "Content-Type: application/json" -d @test-jobs/hbase.json http://controller:7000/job
+    curl -X PUT -H "Content-Type: application/json" -d @path/to/your/file.json http://controller:7000/job
 
 The controller will return a simple HTML page listing the active jobs if you `GET`
 `/controller/job`. You'll need to be running the appropriate server (HBase, in this case) and set up the
@@ -62,8 +62,7 @@ what a user interacts with, and a `JobFarmer`, which is responsible for starting
 and managing jobs.  When you submit a job to the controller, the `JobFarmer` uses
 the Netflix Curator Service Discovery implementation to find available workers
 in ZooKeeper (see `JobFarmer.submitJob()`), slices the job, and distributes
-it to the workers. The `JobFarmer` handles status updates from the workers
-(`handleProgressReport()` and `handleSliceFinishedReport()` in `JobFarmer`) and
+it to the workers. The `JobFarmer` handles status updates from the workers and
 will provide those reports via `getJob()`.
 
 ## Worker
@@ -77,27 +76,21 @@ the job on the `/job/{jobId}/slice endpoint`.  The worker passes the
 `JobSlice` to its `SliceRunner`, which runs the job, reporting back to the
 controller as specified in the job config.
 
-# Further notes
+# Custom job types
+BenchPress is just a simple way to distribute and execute a workload. You need 
+to define what the workload is. To do this, implement `JobTypePlugin`. 
+ 
+There are some example implementations to crib off of. The "sum of squares" example
+shows the basic concepts: it performs some fairly trivial work (calculate the sum
+of the squares of every number in a range, as in 1^2 + 2^2 + ... + 10^2) by taking
+the initial range and slicing it across all available workers. The "multi db" example
+is a more complex use case; it applies equivalent workloads to database engines for
+rough benchmarking. You can also see `SingleVmIntegrationTest` for a minimal use
+of a plugin.
 
-## Custom job types
-If you want to use a storage system that's not supported out of the box, or you want more flexibility than the current simple JSON structure allows, you can register your own job types. More documentation is coming soon (pending the completion of an in-progress
-refactoring of job handling), but if you're impatient you can use `HbaseModule` as a starting point. After setting up a binding to
-the appropriate Guice multibinding and using the `@Id` annotation appropriately, you can then add your custom module name(s)
-in a comma-separated list as the value of the `benchpress.plugin.module-names` system property. Stay tuned!
-
-## Whirr
-Some spartan notes on getting started with [Whirr](http://whirr.apache.org/).
-```
-export AWS_ACCOUNT_ID=
-export AWS_ACCESS_KEY_ID=
-export AWS_SECRET_ACCESS_KEY=
-export EC2_PRIVATE_KEY=
-export EC2_CERT=
-
-benchpress $ ssh-keygen -t rsa -P '' -f whirr-benchpress-rsa-key
-benchpress $ whirr launch-cluster --config whirr-benchpress-hbase-0.90.properties
-benchpress $ grep -m1 -A1 "hbase\.zookeeper\.quorum" whirr.log|grep value|sed -e 's#.*<value>\(.*\)</value>#\1#'
-```
+Once you have your custom plugin, you'll need to make it available to the rest of 
+BenchPress. To do this, add the jar for your plugin to the 
+`benchpress.plugin.module-names` system property. Stay tuned!
 
 # Administrivia
 BenchPress is a project of [Palomino Labs](http://palominolabs.com).  Find the repository on GitHub

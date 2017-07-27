@@ -117,7 +117,7 @@ public final class JobFarmer {
 
             tasks = jobSlicer
                     .slice(job.getJobId(), lockedWorkers.size(), getProgressUrl(job.getJobId()),
-                            getFinishedUrl(job.getJobId()), objectReader, job.getTask().getConfigNode(), objectWriter);
+                            getFinishedUrl(job.getJobId()), objectReader, objectWriter);
         } catch (IOException e) {
             logger.warn("Failed to slice job", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

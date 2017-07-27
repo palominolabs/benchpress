@@ -1,12 +1,31 @@
+buildscript {
+  ext.kotlin_version = '1.1.3-2'
+
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  }
+}
+
 subprojects {
   repositories {
     jcenter()
   }
 
   apply plugin: 'java'
+  apply plugin: "kotlin"
 
   compileJava {
     options.deprecation = true
+  }
+
+  dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    // need kotlin-reflect for jackson kotlin integration until jackson-kotlin 2.9 is stable
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
   }
 
   configurations {
@@ -41,6 +60,5 @@ ext {
       'hadoop'       : '1.0.4',
       'asyncHbase'   : '1.4.1',
       'mongodb'      : '2.7.3',
-
   ]
 }

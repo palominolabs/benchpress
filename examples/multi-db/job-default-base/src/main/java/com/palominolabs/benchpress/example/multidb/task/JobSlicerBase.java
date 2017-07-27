@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import com.palominolabs.benchpress.job.id.Identifiable;
-import com.palominolabs.benchpress.job.json.JobSlice;
 import com.palominolabs.benchpress.job.json.Task;
 import com.palominolabs.benchpress.job.task.JobSlicer;
 import java.io.IOException;
@@ -23,7 +22,7 @@ public abstract class JobSlicerBase implements JobSlicer {
     @Nonnull
     @Override
     public List<Task> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
-            ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException {
+                            ObjectReader objectReader, ObjectWriter objectWriter) throws IOException {
 
         TaskConfigBase c = getConfig();
 

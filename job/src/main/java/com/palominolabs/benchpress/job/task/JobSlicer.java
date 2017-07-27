@@ -1,11 +1,10 @@
 package com.palominolabs.benchpress.job.task;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.palominolabs.benchpress.job.json.JobSlice;
 
 import com.palominolabs.benchpress.job.json.Task;
+
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
@@ -23,13 +22,12 @@ public interface JobSlicer {
      * @param workers      The number of slices to create
      * @param progressUrl  The URL to send progress reports to
      * @param finishedUrl  The URL to send finished report to
-     * @param objectReader objectReader to use to deserialize config
-     * @param configNode   initial task config
+     * @param objectReader objectReader configured like objectWriter
      * @param objectWriter objectWriter to use to serialize slice task config
      * @return List of the slices
      * @throws IOException if slicing fails
      */
     @Nonnull
     List<Task> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
-            ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException;
+                     ObjectReader objectReader, ObjectWriter objectWriter) throws IOException;
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import com.google.inject.AbstractModule;
 
 public final class IpcJsonModule extends AbstractModule {
@@ -13,6 +14,7 @@ public final class IpcJsonModule extends AbstractModule {
     protected void configure() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new KotlinModule());
 
         SerializationConfig config = objectMapper.getSerializationConfig()
                 .withoutFeatures(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

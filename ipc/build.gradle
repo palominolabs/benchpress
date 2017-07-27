@@ -7,6 +7,7 @@ dependencies {
   compile "com.fasterxml.jackson.core:jackson-databind:${depVersions.jackson}"
   compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${depVersions.jackson}"
   compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${depVersions.jackson}"
+  compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.9"
 
   compile "com.google.inject:guice:${depVersions.guice}"
 }

@@ -52,7 +52,7 @@ public final class SimpleHttpJobTypePlugin implements JobTypePlugin {
                     @Nonnull
                     @Override
                     public List<Task> slice(UUID jobId, int workers, String progressUrl, String finishedUrl,
-                        ObjectReader objectReader, JsonNode configNode, ObjectWriter objectWriter) throws IOException {
+                                            ObjectReader objectReader, ObjectWriter objectWriter) throws IOException {
                         return Lists.newArrayList(new Task(TASK_TYPE, configNode));
                     }
                 };
